@@ -81,6 +81,7 @@
     const P = vw < 700 ? 3 : 4;
     Object.assign(L, { vw, vh, P });
     L.gy = snap(vh * 0.8);
+    L.cs = Math.min(1.1, Math.max(0.55, (vh * 0.2) / 170)); // character scale (sheet px -> css px)
 
     // 1. street
     const street = { x: 0, y: 0, w: snap(vw + Math.max(vw * 0.8, 700)), h: vh };
@@ -109,7 +110,7 @@
     const seatX = snap(lobbyW + vw * 0.45);
     const scrH = Math.round(Math.min(vh * 0.38, vw * 0.6 * 9 / 16));
     const scr = { w: Math.round(scrH * 16 / 9), h: scrH };
-    scr.x = snap(lobbyW + vw * 0.55 - scr.w / 2); scr.y = snap(Math.max(vh * 0.15, 100));
+    scr.x = snap(lobbyW + vw * 0.64 - scr.w / 2); scr.y = snap(Math.max(vh * 0.15, 100));
     // 5. exhibition
     const ph = Math.round(Math.min(Math.max(vh * 0.3, 130), 280));
     const pgap = Math.round(Math.max(150, vw * 0.14));
@@ -134,7 +135,9 @@
     }
     // place content inside scenes
     setBox($(".hero"), 0, 0, vw, vh);
-    setBox($(".manhole-cover"), mh - 9 * P, L.gy + P, 18 * P, 3 * P);
+    const H = Sprite.HOLE, hw = Math.round(H.w * L.cs), hh = Math.round(H.h * L.cs);
+    setBox($(".manhole"), mh - hw / 2, L.gy - hh + 4, hw, hh);
+    setBox($(".manhole-cover"), mh - hw / 2, L.gy - hh + 4, hw, hh);
     setBox($(".sign-chai"), snap(vw * 0.1 * 1), L.gy - 44 * P);
     setBox($(".sign-open"), snap(vw * 0.62), L.gy - 42 * P);
     setBox($(".sign-taxi"), snap(vw * 1.1), L.gy - 40 * P);
@@ -163,12 +166,17 @@
     paint("street", { mx: mh / P, vwA: vw / P });
     paint("drain", { cx: (vw * 0.4) / P });
     paint("subway", { pillars, benches, vending: (vw * 0.14) / P, stairsW: 70 });
-    paint("cinema", { lobbyW: lobbyW / P, seatX: seatX / P, screen: { x: scr.x / P, y: scr.y / P, w: scr.w / P, h: scr.h / P } });
+    paint("cinema", { lobbyW: lobbyW / P, seatX: seatX / P, seatGap: (70 * L.cs) / P, screen: { x: scr.x / P, y: scr.y / P, w: scr.w / P, h: scr.h / P } });
     paint("exhibition", {
       lights, windows, bench: (frames[1] ? frames[1].x - pgap / 2 - 18 * P : vw) / P,
       plant: (vw * 0.12) / P, rope: (exhibition.w - vw * 0.3) / P,
     });
     paint("rooftop", {});
+
+    sprite.width = Sprite.W; sprite.height = Sprite.H;
+    charEl.style.setProperty("--w", Math.round(Sprite.W * L.cs) + "px");
+    charEl.style.setProperty("--h", Math.round(Sprite.H * L.cs) + "px");
+    lastKey = "";
 
     buildPath();
   }
@@ -182,10 +190,10 @@
     const add = (s) => { s.start = total; total += Math.max(1, Math.round(s.len)); s.len = Math.max(1, Math.round(s.len)); segs.push(s); };
     total = 0;
 
-    const x0 = vw * 0.3;
-    add({ loc: "street", pose: "walk", a: [x0, gy], b: [mh, gy], len: mh - x0,
+    const x0 = vw * 0.3, stand = mh - Sprite.HOLE.dx * L.cs;
+    add({ loc: "street", pose: "walk", a: [x0, gy], b: [stand, gy], len: stand - x0,
       cam: (t) => ({ x: (mh - vw * 0.4) * t, y: 0 }) });
-    add({ id: "crouch", loc: "street", pose: "crouch", a: [mh, gy], b: [mh, gy], len: 180,
+    add({ id: "crouch", loc: "street", pose: "crouch", a: [stand, gy], b: [stand, gy], len: 220,
       cam: () => follow(mh, gy) });
     add({ loc: "drain", pose: "fall", a: [mh, gy], b: [mh, sy], len: drain.h * 0.9 + vh * 0.2, ease: "in",
       bubble: ["Shortcut!", 0.12, 0.55],
@@ -247,7 +255,6 @@
     cur = Math.abs(diff) < 0.5 ? target : cur + diff * 0.2;
 
     const { s, t, p, cam } = evalPath(cur);
-    const P = L.P;
 
     // movement bookkeeping
     if (lastX !== null) {
@@ -256,17 +263,29 @@
     }
     lastX = p.x;
 
-    // pose
-    let pose = s.pose, f = 0, prop = s.prop;
+    // pose -> animation + frame number
     const moving = now - lastMove < 160;
-    if (pose === "walk") {
-      if (hoverLook && s.loc === "subway" && !moving) pose = "look";
-      else if (!moving) { pose = "idle"; f = Math.floor(now / 500) % 2; }
-      else f = Math.floor(walkDist / (P * 5)) % 4;
-    } else if (pose === "fall") f = Math.floor(now / 120) % 2;
-    else if (pose === "sit") f = Math.floor(now / 700) % 4;
-    if (s.pose === "crouch" && t < 0.15) pose = "idle";
-    if (s.pose === "land" && t > 0.4) pose = "idle";
+    const tick = (ms) => Math.floor(now / ms);
+    const saying = s.bubble && t >= s.bubble[1] && t <= s.bubble[2];
+    let anim = "idle", n = tick(260);
+    switch (s.pose) {
+      case "walk":
+        if (moving) {
+          const run = Math.abs(diff) > 60; // fast scrolling breaks into a run
+          anim = run ? "run" : "walk";
+          n = Math.floor(walkDist / (L.cs * (run ? 26 : 16)));
+        } else if (hoverLook && s.loc === "subway") anim = "point";
+        else if (s.loc === "exhibition") { anim = tick(2400) % 2 ? "gaze" : "look"; n = tick(900); }
+        else if (cur < 40) { const w = tick(170) % 12; anim = w < 4 ? "wave" : "idle"; n = w < 4 ? w : tick(260); }
+        else if (saying) { anim = "talk"; n = tick(220); }
+        break;
+      case "crouch": anim = t < 0.1 ? "idle" : "crouch"; n = t < 0.4 ? 0 : t < 0.7 ? 1 : 2; break;
+      case "fall": anim = "fall"; n = tick(110); break;
+      case "land": anim = t < 0.6 ? "land" : "talk"; n = t < 0.25 ? 0 : t < 0.45 ? 1 : t < 0.6 ? 2 : tick(220); break;
+      case "jump": anim = "jump"; n = Math.min(4, Math.floor(t * 5)); break;
+      case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
+    }
+    const flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);
 
     // location
     const loc = s.loc2 && t > 0.55 ? s.loc2 : s.loc;
@@ -276,36 +295,39 @@
       $$(".route a[data-stop]").forEach((a) => a.classList.toggle("here", a.dataset.stop === loc));
     }
 
-    // draw sprite
-    const key = pose + f + loc + prop;
+    // draw sprite (frames are cached per location tint)
+    const key = anim + (n % Sprite.count(anim)) + loc;
     if (key !== lastKey) {
-      lastKey = key;
-      const src = Sprite.frame(pose, f, RIM[loc], prop);
-      sprite.width = Sprite.W; sprite.height = Sprite.H;
-      const c = sprite.getContext("2d");
-      c.clearRect(0, 0, Sprite.W, Sprite.H);
-      c.drawImage(src, 0, 0);
+      const src = Sprite.frame(anim, n, RIM[loc]);
+      if (src) {
+        lastKey = key;
+        const c = sprite.getContext("2d");
+        c.clearRect(0, 0, Sprite.W, Sprite.H);
+        c.drawImage(src, 0, 0);
+      }
     }
-    const w = Sprite.W * P, h = Sprite.H * P;
-    const air = s.pose === "fall" || s.pose === "jump";
+    const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
     charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h)}px, 0)`;
-    charEl.style.setProperty("--w", w + "px"); charEl.style.setProperty("--h", h + "px");
-    charEl.style.setProperty("--face", facing);
-    charEl.classList.toggle("in-air", air);
+    charEl.style.setProperty("--face", flips ? facing : 1);
+
+    // dropping into the manhole: hide the part of him that's below the street surface
+    const top = p.y - h, A = L.gy + 2 - top, B = L.vh - top;
+    sprite.style.webkitMaskImage = sprite.style.maskImage =
+      s.pose === "fall" && A < h && B > 0 ? `linear-gradient(#000 0 ${A}px, transparent ${A}px ${B}px, #000 ${B}px)` : "";
+    charEl.classList.toggle("no-shadow", !["walk", "run", "idle", "talk", "point", "look", "gaze", "wave"].includes(anim));
 
     world.style.transform = `translate3d(${-Math.round(cam.x)}px, ${-Math.round(cam.y)}px, 0)`;
 
     // speech bubble
     let say = "";
     if (s.bubble && t >= s.bubble[1] && t <= s.bubble[2]) say = s.bubble[0];
-    if (pose === "look") say = "Let's check this out!";
+    if (anim === "point") say = "Let's check this out!";
     if (bubble.textContent !== say) bubble.textContent = say;
     bubble.classList.toggle("show", !!say);
 
-    // manhole cover slides open during the crouch
+    // the crouch frames draw their own cover, so hide ours once he grabs it
     const cr = segs.find((x) => x.id === "crouch");
-    const open = Math.min(1, Math.max(0, (cur - cr.start - cr.len * 0.3) / (cr.len * 0.5)));
-    $(".manhole-cover").style.transform = `translateX(${Math.round(open * 20) * P}px)`;
+    $(".manhole-cover").hidden = cur > cr.start + cr.len * 0.1;
 
     // cinema curtains open as the character reaches the seat
     const sit = segs.find((x) => x.id === "sit");

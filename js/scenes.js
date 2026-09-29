@@ -140,8 +140,6 @@
     const txx = o.vwA * 1.05;
     R(txx, ay + 2, 32, 7, "#1A1238"); R(txx + 6, ay - 3, 18, 5, T.marigold); R(txx + 8, ay - 2, 14, 3, "#5E7C8A");
     R(txx, ay + 2, 32, 2, T.marigold); disc(txx + 6, ay + 10, 2, T.outline); disc(txx + 26, ay + 10, 2, T.outline);
-    // manhole opening (cover is a DOM element on top)
-    R(o.mx - 8, g + 1, 16, 3, "#07040F"); R(o.mx - 9, g + 1, 1, 3, "#5A4A8A"); R(o.mx + 8, g + 1, 1, 3, "#5A4A8A");
   }
 
   /* ---------------- 2. THE DRAIN ---------------- */
@@ -272,10 +270,9 @@
     // floor + seats
     R(L, g, W - L, H - g, "#2A0612");
     for (let x = L + 8; x < W - 8; x += 14) {
-      if (Math.abs(x - o.seatX) < 10) continue;
+      if (Math.abs(x + 6 - o.seatX) < o.seatGap) continue; // the sprite brings its own seat
       R(x, g - 12, 12, 10, T.velvet); R(x, g - 12, 12, 1, "#A83050"); R(x + 1, g - 2, 10, 3, "#5A0E24");
     }
-    R(o.seatX - 6, g - 12, 12, 10, T.velvet); R(o.seatX - 6, g - 12, 12, 1, "#A83050");
     for (let x = L + 2; x < W; x += 14) { R(x, g + 8, 12, 12, "#5A0E24"); R(x, g + 8, 12, 1, "#8A1E3C"); }
   }
 
