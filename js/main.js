@@ -65,6 +65,39 @@
       <li><a class="social" href="${s.url}" aria-label="${s.label}"><span class="s-icon">${s.short}</span><span>${s.label}</span></a></li>`).join("");
   }
 
+  /* ================= STREET ART ================= */
+  // Measured on assets/scenes/street.webp (1254 x 1254 art px)
+  const STREET = {
+    size: 1254,
+    road: 1150,          // feet line on the wet road, in front of the taxi and auto
+    start: 190,          // where he waits during the intro
+    manhole: 520,        // in the gap of the road divider
+    quads: {             // blank billboards: TL, TR, BR, BL
+      left: [[131, 190], [524, 252], [525, 408], [130, 337]],
+      led: [[1023, 237], [1188, 203], [1190, 558], [1021, 589]],
+      mid: [[697, 671], [930, 668], [930, 749], [698, 758]],
+    },
+    medical: [112, 590, 96, 150],  // MEDICAL STORE neon: x, y, w, h
+    steam: [846, 860, 70, 70],     // above the chai pot
+  };
+
+  // Map an element (sized to its quad's bounding box) onto a quad with a projective transform
+  function mapToQuad(el, q, s) {
+    const P = q.map(([x, y]) => [x * s, y * s]);
+    // lay content out at the board's true face size (average edge lengths, not the slanted bounding box)
+    const len = (i, j) => Math.hypot(q[i][0] - q[j][0], q[i][1] - q[j][1]);
+    const bw = (len(0, 1) + len(3, 2)) / 2, bh = (len(0, 3) + len(1, 2)) / 2;
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = P;
+    const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3;
+    const dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+    const den = dx1 * dy2 - dx2 * dy1;
+    const g = (dx3 * dy2 - dx2 * dy3) / den, k = (dx1 * dy3 - dx3 * dy1) / den;
+    const a = x1 - x0 + g * x1, b = x3 - x0 + k * x3, d = y1 - y0 + g * y1, e = y3 - y0 + k * y3;
+    el.style.width = bw + "px"; el.style.height = bh + "px";
+    el.style.setProperty("--quad",
+      `matrix3d(${a / bw},${d / bw},0,${g / bw},${b / bh},${e / bh},0,${k / bh},0,0,1,0,${x0},${y0},0,1)`);
+  }
+
   /* ================= LAYOUT ================= */
   const L = {}; // layout numbers
   let segs = [], total = 0, stops = {};
@@ -86,11 +119,14 @@
     L.ck = Math.max(1, Math.round(((vh * 0.2) / 170) * dpr)); // device px per sheet px
     L.cs = L.ck / dpr;                                         // css px per sheet px
 
-    // 1. street
-    const street = { x: 0, y: 0, w: snap(vw + Math.max(vw * 0.8, 700)), h: vh };
-    const mh = snap(street.w - vw * 0.6);
-    // 2. drain
-    const drain = { x: snap(mh - vw * 0.4), y: vh, w: vw, h: snap(vh * 1.3) };
+    // 1. street: the art covers the screen (wide screens tilt down it, tall ones pan across)
+    const ss = Math.max(vw, vh) / STREET.size;              // art px -> css px
+    const street = { x: 0, y: 0, w: Math.round(STREET.size * ss), h: Math.round(STREET.size * ss), s: ss };
+    const mh = Math.round(STREET.manhole * ss);             // manhole centre
+    L.sgy = Math.round(STREET.road * ss);                   // where his feet meet the road
+    const camEnd = { x: Math.min(Math.max(0, mh - vw * 0.4), street.w - vw), y: street.h - vh };
+    // 2. drain: straight below the street, framed where the street camera ends
+    const drain = { x: Math.round(camEnd.x), y: street.h, w: vw, h: snap(vh * 1.3) };
     // 3. subway: billboards along the wall
     const subway = { x: drain.x, y: drain.y + drain.h, h: vh };
     const bh = Math.round(Math.min(Math.max(vh * 0.3, 140), 290));
@@ -130,23 +166,23 @@
     // 6. rooftop
     const rooftop = { x: exhibition.x + exhibition.w, y: subway.y, w: vw, h: vh };
 
-    Object.assign(L, { street, mh, drain, subway, cinema, exhibition, rooftop, boards, frames, lobbyW, seatX, scr });
+    Object.assign(L, { street, mh, camEnd, drain, subway, cinema, exhibition, rooftop, boards, frames, lobbyW, seatX, scr });
 
     // place scenes
     for (const [id, s] of Object.entries({ street, drain, subway, cinema, exhibition, rooftop })) {
       setBox($("#" + id), s.x, s.y, s.w, s.h);
     }
     // place content inside scenes
-    setBox($(".hero"), 0, 0, vw, vh);
     const H = Sprite.HOLE, hw = Math.round(H.w * L.cs), hh = Math.round(H.h * L.cs);
-    setBox($(".manhole"), mh - hw / 2, L.gy - hh + 4, hw, hh);
-    setBox($(".manhole-cover"), mh - hw / 2, L.gy - hh + 4, hw, hh);
-    setBox($(".sign-chai"), snap(vw * 0.1 * 1), L.gy - 44 * P);
-    setBox($(".sign-open"), snap(vw * 0.62), L.gy - 42 * P);
-    setBox($(".sign-taxi"), snap(vw * 1.1), L.gy - 40 * P);
-    setBox($(".street-board"), snap(vw * 1.12), snap(vh * 0.18));
-    setBox($(".graffiti"), snap(vw * 0.4 + 30 * P), snap(drain.h * 0.3));
-    $$(".drip").forEach((d, i) => setBox(d, snap(vw * 0.4 + [-16, 8, 18][i] * P), snap(drain.h * (0.2 + i * 0.22))));
+    setBox($(".manhole"), mh - hw / 2, L.sgy - hh + 4, hw, hh);
+    setBox($(".manhole-cover"), mh - hw / 2, L.sgy - hh + 4, hw, hh);
+    const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
+    art($(".neon-flicker"), STREET.medical);
+    art($(".steam"), STREET.steam);
+    $$(".bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
+    const shaft = mh - drain.x;
+    setBox($(".graffiti"), snap(shaft + 30 * P), snap(drain.h * 0.3));
+    $$(".drip").forEach((d, i) => setBox(d, snap(shaft + [-16, 8, 18][i] * P), snap(drain.h * (0.2 + i * 0.22))));
     setBox($(".station-board"), snap(vw * 0.5), snap(vh * 0.2));
     setBox($(".platform-display"), snap(vw * 0.12), snap(vh * 0.13));
     setBox($(".exit-sign"), subway.w - snap(vw * 0.35), snap(vh * 0.2));
@@ -166,8 +202,7 @@
       const s = L[id];
       Scenes.paint($("#" + id + " .bg"), id, s.w, s.h, P, opts);
     };
-    paint("street", { mx: mh / P, vwA: vw / P });
-    paint("drain", { cx: (vw * 0.4) / P });
+    paint("drain", { cx: shaft / P });
     paint("subway", { pillars, benches, vending: (vw * 0.14) / P, stairsW: 70 });
     paint("cinema", { lobbyW: lobbyW / P, seatX: seatX / P, seatGap: (70 * L.cs) / P, screen: { x: scr.x / P, y: scr.y / P, w: scr.w / P, h: scr.h / P } });
     paint("exhibition", {
@@ -186,24 +221,34 @@
 
   /* ================= PATH ================= */
   function buildPath() {
-    const { vw, vh, gy, street, mh, drain, subway, cinema, exhibition, rooftop, lobbyW, seatX } = L;
+    const { vw, vh, gy, sgy, street, mh, camEnd, drain, subway, cinema, exhibition, rooftop, lobbyW, seatX } = L;
     const sy = subway.y + gy;
     const follow = (x, y) => ({ x: x - vw * 0.4, y: y - gy });
     segs = [];
     const add = (s) => { s.start = total; total += Math.max(1, Math.round(s.len)); s.len = Math.max(1, Math.round(s.len)); segs.push(s); };
     total = 0;
 
-    const x0 = vw * 0.3, stand = mh - Sprite.HOLE.dx * L.cs;
-    add({ loc: "street", pose: "walk", a: [x0, gy], b: [stand, gy], len: stand - x0,
-      cam: (t) => ({ x: (mh - vw * 0.4) * t, y: 0 }) });
-    add({ id: "crouch", loc: "street", pose: "crouch", a: [stand, gy], b: [stand, gy], len: 220,
-      cam: () => follow(mh, gy) });
-    add({ loc: "drain", pose: "fall", a: [mh, gy], b: [mh, sy], len: drain.h * 0.9 + vh * 0.2, ease: "in",
+    const x0 = Math.round(STREET.start * street.s), stand = mh - Sprite.HOLE.dx * L.cs;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    // intro: he waits on the road while the camera tilts from the billboards down to the street
+    add({ id: "intro", loc: "street", pose: "walk", a: [x0, sgy], b: [x0, sgy], len: Math.max(160, camEnd.y),
+      bubble: ["Hi! I'm " + S.name[0] + S.name.slice(1).toLowerCase() + ".", 0.7, 1],
+      cam: (t) => ({ x: 0, y: camEnd.y * (t * t * (3 - 2 * t)) }) });
+    add({ loc: "street", pose: "walk", a: [x0, sgy], b: [stand, sgy], len: Math.max(120, stand - x0),
+      bubble: ["Chalo, let's go!", 0, 0.3],
+      cam: (t) => ({ x: lerp(0, camEnd.x, t), y: camEnd.y }) });
+    add({ id: "crouch", loc: "street", pose: "crouch", a: [stand, sgy], b: [stand, sgy], len: 220,
+      cam: () => camEnd });
+    // fall: the camera eases with him, so he stays on screen the whole way down
+    add({ loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], len: drain.h * 0.9 + vh * 0.2, ease: "in",
       bubble: ["Shortcut!", 0.12, 0.55],
-      cam: (t, p) => ({ x: mh - vw * 0.4, y: Math.min(subway.y, Math.max(0, p.y - vh * (0.8 - 0.32 * Math.sin(Math.PI * t)))) }) });
+      cam: (t) => ({ x: camEnd.x, y: lerp(camEnd.y, subway.y, t * t) }) });
     add({ loc: "subway", pose: "land", a: [mh, sy], b: [mh, sy], len: 160, bubble: ["Next stop: Projects!", 0, 1],
-      cam: () => follow(mh, sy) });
-    add({ loc: "subway", pose: "walk", a: [mh, sy], b: [subway.x + subway.w, sy], len: subway.x + subway.w - mh });
+      cam: () => ({ x: camEnd.x, y: subway.y }) });
+    // hand the camera from the drain framing back to "follow" over his first steps
+    const off = camEnd.x - (mh - vw * 0.4);
+    add({ id: "subwalk", loc: "subway", pose: "walk", a: [mh, sy], b: [subway.x + subway.w, sy], len: subway.x + subway.w - mh,
+      cam: (t, p) => ({ x: p.x - vw * 0.4 + off * Math.max(0, 1 - (p.x - mh) / (vw * 0.4)), y: subway.y }) });
     const tkt = (lobbyW * 0.4 + 18 * L.P) / seatX;
     add({ loc: "cinema", pose: "walk", a: [cinema.x, sy], b: [cinema.x + seatX, sy], len: seatX,
       bubble: ["Ek ticket, please!", tkt - 0.08, tkt + 0.06] });
@@ -221,8 +266,8 @@
     const find = (id) => segs.find((s) => s.id === id);
     stops = {
       street: 0,
-      drain: find("crouch").start,
-      subway: segs[4].start + 2,
+      drain: find("crouch").start - 60,
+      subway: find("subwalk").start + 2,
       cinema: find("sit").start + 40,
       exhibition: find("gallery").start + (vw * 0.45) / 0.7,
       rooftop: total,
@@ -283,7 +328,7 @@
           n = Math.floor(stepPhase);
         } else if (hoverLook && s.loc === "subway") anim = "point";
         else if (s.loc === "exhibition") { anim = tick(2400) % 2 ? "gaze" : "look"; n = tick(900); }
-        else if (cur < 40) { const w = tick(170) % 12; anim = w < 4 ? "wave" : "idle"; n = w < 4 ? w : tick(260); }
+        else if (s.id === "intro" && !saying) { const w = tick(170) % 12; anim = w < 4 ? "wave" : "idle"; n = w < 4 ? w : tick(260); }
         else if (saying) { anim = "talk"; n = tick(220); }
         break;
       case "crouch": anim = t < 0.1 ? "idle" : "crouch"; n = t < 0.4 ? 0 : t < 0.7 ? 1 : 2; break;
@@ -320,7 +365,7 @@
     charEl.style.setProperty("--face", flips ? facing : 1);
 
     // dropping into the manhole: hide the part of him that's below the street surface
-    const top = p.y - h, A = L.gy + 2 - top, B = L.vh - top;
+    const top = p.y - h, A = L.sgy + 2 - top, B = L.street.h - top;
     sprite.style.webkitMaskImage = sprite.style.maskImage =
       s.pose === "fall" && A < h && B > 0 ? `linear-gradient(#000 0 ${A}px, transparent ${A}px ${B}px, #000 ${B}px)` : "";
     charEl.classList.toggle("no-shadow", !["walk", "run", "idle", "talk", "point", "look", "gaze", "wave"].includes(anim));
@@ -369,7 +414,7 @@
   function projectStop(id) {
     const i = S.projects.findIndex((p) => p.id === id);
     if (i < 0) return null;
-    const b = L.boards[i], walk = segs[4];
+    const b = L.boards[i], walk = segs.find((x) => x.id === "subwalk");
     const cx = L.subway.x + b.x + b.iw / 2 - L.vw * 0.1;
     return walk.start + Math.min(walk.len, Math.max(0, cx - walk.a[0]));
   }
@@ -498,8 +543,22 @@
   // older browsers: focusing a link inside a clipped scene can scroll it
   $$(".scene, .viewport").forEach((el) => el.addEventListener("scroll", () => { el.scrollLeft = 0; el.scrollTop = 0; }));
 
+  // pixel rain: one small tile of slanted streaks, scrolled by CSS
+  function makeRain() {
+    const c = document.createElement("canvas");
+    c.width = c.height = 256;
+    const x = c.getContext("2d");
+    for (let i = 0; i < 70; i++) {
+      const px = Math.random() * 256, py = Math.random() * 256, len = 6 + Math.random() * 10;
+      x.fillStyle = `rgba(207, 232, 255, ${0.25 + Math.random() * 0.35})`;
+      for (let k = 0; k < len; k += 2) x.fillRect(Math.round(px - k * 0.19), Math.round(py + k), 1, 2);
+    }
+    body.style.setProperty("--rain", `url(${c.toDataURL()})`);
+  }
+
   /* ================= BOOT ================= */
   fillContent();
+  makeRain();
   bindUI();
   const saved = store.get("nb-mode");
   const ride = saved ? saved === "ride" : !reduceMotion;

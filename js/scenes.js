@@ -67,80 +67,7 @@
     }
   }
 
-  /* ---------------- 1. THE STREET ---------------- */
-  function street(W, H, o) {
-    const g = Math.round(H * 0.8), hz = Math.round(H * 0.6), r = rng(7);
-    bands(W, 0, hz, [T.nightDeep, "#170E32", T.night, "#26185A", T.nightMid, T.dusk, T.duskPink]);
-    for (let i = 0; i < W / 4; i++) R(r() * W, r() * hz * 0.6, 1, 1, r() < 0.2 ? T.marigold : T.paper, 0.6 + r() * 0.4);
-    // moon
-    disc(o.vwA * 0.78, H * 0.12, 9, T.paper);
-    R(o.vwA * 0.78 - 3, H * 0.12 - 2, 3, 2, "#D9C8B0"); R(o.vwA * 0.78 + 3, H * 0.12 + 3, 2, 2, "#D9C8B0");
-    // sea link far away
-    const sl = o.vwA * 1.25;
-    R(sl, hz - 40, 2, 40, "#3A2A6E");
-    for (let i = 0; i < 6; i++) { line(sl, hz - 38 + i * 4, sl - 30 + i * 4, hz - 6, "#3A2A6E"); line(sl + 1, hz - 38 + i * 4, sl + 31 - i * 4, hz - 6, "#3A2A6E"); }
-    R(sl - 60, hz - 6, 120, 2, "#3A2A6E");
-    // far skyline + IT towers + cranes
-    skyline(W, hz + 4, "#2A1D55", 11, 14, 46, { chance: 0.12, colors: ["#4A3A8A", T.cyan] });
-    const r2 = rng(3);
-    for (let x = 30; x < W; x += 140 + r2() * 120) {
-      const h = 60 + r2() * 30;
-      R(x, hz - h, 14, h, "#271A50");
-      for (let wy = hz - h + 2; wy < hz; wy += 3) R(x + 2, wy, 10, 1, T.cyan, 0.35);
-      R(x + 60, hz - 70, 1, 70, "#3A2A6E"); R(x + 40, hz - 70, 36, 1, "#3A2A6E"); R(x + 72, hz - 70, 1, 10, "#3A2A6E");
-    }
-    // mid buildings
-    skyline(W, g - 20, "#221544", 21, 30, 70, { chance: 0.2, colors: [T.sodium, T.sodium, T.magenta, "#5A4A9A"] });
-    // metro overpass + train
-    const oy = Math.round(H * 0.46);
-    R(0, oy, W, 5, "#3A2D5E"); R(0, oy, W, 1, "#5A4A8A");
-    for (let x = 20; x < W; x += 90) { R(x, oy + 5, 6, g - oy - 5, "#2E2358"); R(x, oy + 5, 1, g - oy - 5, "#4A3A7A"); }
-    const tx = o.vwA * 0.9;
-    for (let c = 0; c < 3; c++) {
-      R(tx + c * 42, oy - 11, 40, 11, "#8FA7B8"); R(tx + c * 42, oy - 11, 40, 1, T.fluoro);
-      for (let w = 0; w < 5; w++) R(tx + c * 42 + 3 + w * 7, oy - 8, 5, 3, T.cyan);
-      R(tx + c * 42, oy - 3, 40, 1, T.magenta);
-    }
-    // shopfronts
-    const r3 = rng(5);
-    for (let x = 0; x < W; ) {
-      const w = 40 + Math.floor(r3() * 40), h = 26 + Math.floor(r3() * 10);
-      const col = [T.nightMid, "#3A2466", "#2A1A52"][Math.floor(r3() * 3)];
-      R(x, g - h, w - 2, h, col); R(x, g - h, w - 2, 1, T.dusk);
-      R(x + 4, g - 14, w - 10, 14, "#1A1238"); // shutter
-      for (let y = g - 13; y < g; y += 2) R(x + 4, y, w - 10, 1, "#231A45");
-      const aw = [T.magenta, T.saffron, T.autoGreen, T.cyan][Math.floor(r3() * 4)];
-      for (let i = 0; i < w - 2; i += 4) R(x + i, g - h + 6, 2, 3, aw, 0.9); // awning stripes
-      x += w;
-    }
-    // chai stall
-    const cx = o.vwA * 0.1;
-    R(cx, g - 16, 34, 16, "#6B3E22"); R(cx, g - 16, 34, 2, T.saffron); R(cx - 2, g - 30, 38, 3, T.velvet);
-    R(cx + 2, g - 27, 1, 11, "#6B3E22"); R(cx + 31, g - 27, 1, 11, "#6B3E22");
-    R(cx + 8, g - 21, 6, 5, "#8C96A0"); R(cx + 18, g - 19, 3, 3, T.paper); R(cx + 23, g - 19, 3, 3, T.paper);
-    R(cx + 36, g - 3, 10, 3, "#8A6A4A"); R(cx + 44, g - 5, 4, 3, "#8A6A4A"); // sleeping dog
-    // lamps
-    for (let x = o.vwA * 0.32; x < W; x += 110) {
-      R(x, g - 44, 1, 44, "#3A2D5E"); R(x, g - 45, 6, 2, "#3A2D5E"); R(x + 4, g - 43, 3, 1, T.sodium);
-      cone(x + 5, g - 42, 3, 26, 42, T.sodium, 0.13);
-    }
-    // sidewalk + road
-    R(0, g, W, 4, "#3A2D5E"); R(0, g, W, 1, "#5A4A8A");
-    R(0, g + 4, W, H - g - 4, "#1A1238");
-    for (let x = 0; x < W; x += 24) R(x, g + 4 + (H - g) * 0.45, 12, 1, "#4A3A70");
-    const r4 = rng(9);
-    for (let x = 0; x < W; x += 30 + r4() * 50) {
-      const c = [T.magenta, T.cyan, T.sodium][Math.floor(r4() * 3)];
-      for (let y = g + 6; y < H - 2; y += 2) R(x + (y % 4 ? 1 : 0), y, 2, 1, c, 0.35);
-    }
-    // auto-rickshaw + taxi
-    const ax = o.vwA * 0.55, ay = g + 10;
-    R(ax, ay, 22, 8, T.autoGreen); R(ax + 2, ay - 8, 16, 8, T.marigold); R(ax + 5, ay - 6, 8, 5, "#1A1238");
-    R(ax - 2, ay - 9, 22, 2, "#1A1238"); disc(ax + 4, ay + 9, 2, T.outline); disc(ax + 18, ay + 9, 2, T.outline);
-    const txx = o.vwA * 1.05;
-    R(txx, ay + 2, 32, 7, "#1A1238"); R(txx + 6, ay - 3, 18, 5, T.marigold); R(txx + 8, ay - 2, 14, 3, "#5E7C8A");
-    R(txx, ay + 2, 32, 2, T.marigold); disc(txx + 6, ay + 10, 2, T.outline); disc(txx + 26, ay + 10, 2, T.outline);
-  }
+  /* 1. THE STREET is real art now: assets/scenes/street.webp */
 
   /* ---------------- 2. THE DRAIN ---------------- */
   function drain(W, H, o) {
@@ -346,7 +273,7 @@
     R(px, g - 10, 12, 2, "#E8DCC8"); R(px, g - 20, 2, 10, "#E8DCC8"); R(px, g - 8, 2, 8, "#D0C4B0"); R(px + 10, g - 8, 2, 8, "#D0C4B0");
   }
 
-  const DRAW = { street, drain, subway, cinema, exhibition, rooftop };
+  const DRAW = { drain, subway, cinema, exhibition, rooftop };
 
   window.Scenes = {
     paint(canvas, name, cssW, cssH, P, opts) {

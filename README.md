@@ -24,7 +24,8 @@ Then open http://localhost:8080.
 |---|---|
 | `js/data.js` | **All content**: name, intro, projects, reels, photos, socials. Edit this first. |
 | `js/main.js` | Scroll engine: lays out the world, builds the path, and moves the camera and character |
-| `js/scenes.js` | Placeholder pixel-art backgrounds, painted in code (swap for real PNGs later) |
+| `assets/scenes/street.webp` | Street art. Billboard corners, road line and manhole spot are measured in `STREET` in `js/main.js` |
+| `js/scenes.js` | Placeholder pixel-art backgrounds for the other locations, painted in code |
 | `js/sprite.js` | Character animations: frame lists per pose, plus the rim-light tint per location |
 | `assets/character/` | `source-sheet.webp` (the original art) and `sheet.webp` (packed by `tools/pack_sprite.py`) |
 | `styles.css` | Tokens from the style guide plus all UI components |
