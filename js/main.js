@@ -134,13 +134,15 @@
   const CINEMA = {
     w: 1672, h: 941,
     lobby: {
-      stairs: [[30, 875], [470, 662]],   // continues the subway stairs up into the lobby
-      floor: 678, ticket: 660, door: 1515,
+      // the same step edge in both images: the lobby's first full step continues the subway's last one
+      join: { lobby: [25, 815], subway: [6534, 330] },
+      stairs: [[30, 815], [440, 602]],   // his feet from the first lobby step to the top landing
+      floor: 600, ticket: 655, door: 1470,
       quads: {
-        marquee: [[320, 122], [1262, 122], [1262, 198], [320, 198]],
-        sign: [[572, 288], [748, 288], [748, 322], [572, 322]],
-        poster1: [[340, 296], [455, 296], [455, 466], [340, 466]],
-        poster2: [[1022, 296], [1138, 296], [1138, 466], [1022, 466]],
+        marquee: [[330, 115], [1228, 115], [1228, 182], [330, 182]],
+        sign: [[574, 270], [738, 270], [738, 299], [574, 299]],
+        poster1: [[349, 278], [452, 278], [452, 427], [349, 427]],
+        poster2: [[1005, 278], [1106, 278], [1106, 425], [1005, 425]],
       },
     },
     front: {
@@ -233,9 +235,9 @@
       return { x: Math.round(b.x * ss), y: Math.round(b.y * ss), iw: Math.round(b.h * f.w / f.h * ss), ih: Math.round(b.h * ss) };
     });
     // 4. cinema: the lobby's stairs pick up where the subway stairs leave the screen
-    const C = CINEMA, cs = ss;
-    const cinema = {
-      x: subway.x + subway.w, y: Math.round(subway.y + (SUBWAY.stairs[1][1] - C.lobby.stairs[0][1]) * cs),
+    const C = CINEMA, cs = ss, J = C.lobby.join;
+    const cinema = {   // overlaps the subway's last few columns so the step edges line up
+      x: Math.round(subway.x + (J.subway[0] - J.lobby[0]) * cs), y: Math.round(subway.y + (J.subway[1] - J.lobby[1]) * cs),
       w: Math.round(C.w * cs), h: Math.round(C.h * cs),
     };
     L.ty = cinema.y + Math.round(C.lobby.floor * cs);                 // lobby floor; later scenes share it
