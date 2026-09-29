@@ -148,6 +148,7 @@
   const GALLERY = {
     w: 6496, h: 941,
     floor: 770,                 // his feet on the wooden floor
+    scale: 1.4,                 // the gallery is drawn bigger (doors ~1.5x the cinema's), so he is too
     enter: 140, exit: 3930,     // double doors he comes in by; the door out to the roof
     frames: [[1063, 270, 438, 191], [2064, 263, 152, 197], [2436, 272, 424, 188], [3351, 277, 323, 178]],
     plaques: [[1240, 508, 78, 20], [2107, 505, 70, 19], [2608, 505, 76, 20], [3475, 500, 75, 19]],
@@ -368,14 +369,14 @@
     const G = GALLERY, gs = exhibition.s, gty = L.gty, gx = (x) => exhibition.x + x * gs;
     const gIn = [gx(G.enter), gty], gOut = [gx(G.exit), gty];
     const gCam = (x) => ({ x: Math.min(Math.max(x - vw * 0.4, exhibition.x), exhibition.x + exhibition.w - vw), y: exhibition.y });
-    add({ loc: "cinema", loc2: "exhibition", pose: "walk", a: exit, b: gIn, len: 260, ease: "cut",
+    add({ loc: "cinema", loc2: "exhibition", pose: "walk", a: exit, b: gIn, len: 260, ease: "cut", scale2: G.scale,
       cut: tri, cam: (t) => (t < 0.5 ? frontCam : gCam(gIn[0])) });
-    add({ id: "gallery", loc: "exhibition", pose: "walk", a: gIn, b: gOut, len: (gOut[0] - gIn[0]) / 0.7, cam: (t, p) => gCam(p.x) });
+    add({ id: "gallery", loc: "exhibition", pose: "walk", scale: G.scale, a: gIn, b: gOut, len: (gOut[0] - gIn[0]) / 0.7, cam: (t, p) => gCam(p.x) });
     // through the door and out into the dawn
     const endCam = { x: exhibition.x + Math.min(Math.max(G.roof.seat * gs - vw * 0.5, 0), exhibition.w - vw), y: exhibition.y };
     const out = [gx(G.roof.out), exhibition.y + G.roof.floor * gs];
     const seat = [gx(G.roof.seat), exhibition.y + G.roof.seatFloor * gs];
-    add({ loc: "exhibition", loc2: "rooftop", pose: "walk", a: gOut, b: out, len: 260, ease: "cut",
+    add({ loc: "exhibition", loc2: "rooftop", pose: "walk", a: gOut, b: out, len: 260, ease: "cut", scale: G.scale,
       cut: (t) => tri(t) * 0.85, cam: (t) => gCam(t < 0.5 ? gOut[0] : out[0]) });
     // along the roof to the bench, the camera settling on the final view
     add({ loc: "rooftop", pose: "walk", a: out, b: seat, len: Math.max(200, (seat[0] - out[0]) * 0.8), cam: (t, p) => ({ x: Math.min(gCam(p.x).x, endCam.x), y: exhibition.y }) });
@@ -486,7 +487,7 @@
       }
     }
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
-    const scale = s.scale && !(cutSide && s.loc2) ? s.scale : 1;
+    const scale = (cutSide ? s.scale2 : s.scale) || 1;   // cuts can change his scale on the far side
     const bob = Sprite.bob(anim, n) * L.cs;
     charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale})` : "");
     charEl.style.setProperty("--face", flips ? facing : 1);
