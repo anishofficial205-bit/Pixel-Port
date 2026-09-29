@@ -6,7 +6,7 @@ A design portfolio built as one continuous 16-bit game level. As you scroll, the
 
 The visual rules live in [`docs/NEON_BHARAT_STYLE.md`](docs/NEON_BHARAT_STYLE.md).
 
-> **Status: mock.** All art, text, and media are placeholders. We'll replace them one location at a time.
+> **Status:** all six locations use real art. Text, projects, reels and photos in `js/data.js` are still placeholders.
 
 ## Run it locally
 
@@ -29,7 +29,7 @@ Then open http://localhost:8080.
 | `assets/scenes/subway.webp` | Subway platform, built from `assets/subway/src/` by `tools/build_subway.py`. Billboard spots, floor and stairs live in `SUBWAY` in `js/main.js` |
 | `assets/subway/frame-*.png` | Billboard frames (wide metal, tall LED). Project images show through their windows |
 | `assets/scenes/cinema-*.webp` | Cinema lobby and auditorium front view (screen keyed out). `assets/cinema/seat-row.webp` is the foreground row. Positions live in `CINEMA` in `js/main.js`; sources in `assets/cinema/src/` |
-| `js/scenes.js` | Placeholder pixel-art backgrounds for the gallery and rooftop, painted in code |
+| `assets/scenes/gallery.webp` | Gallery (entrance, window wall, exit) plus the dawn rooftop footer, built by `tools/build_gallery.py`. Frames, plaques and the roof live in `GALLERY` in `js/main.js` |
 | `js/sprite.js` | Character animations: frame lists per pose, plus the rim-light tint per location |
 | `assets/character/` | `source-sheet.webp` (the original art) and `sheet.webp` (packed by `tools/pack_sprite.py`) |
 | `styles.css` | Tokens from the style guide plus all UI components |

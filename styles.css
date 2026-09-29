@@ -72,7 +72,7 @@ a { color: var(--accent); }
 button { font: inherit; color: inherit; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .hi { font-family: var(--font-hindi); font-weight: 700; }
-.pixel-art, canvas.bg { image-rendering: pixelated; image-rendering: crisp-edges; }
+.pixel-art { image-rendering: pixelated; image-rendering: crisp-edges; }
 .work-media { image-rendering: auto; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -175,7 +175,6 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
   position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h);
   overflow: hidden; overflow: clip; /* clip: focus can't scroll it */
 }
-.ride .scene > canvas.bg { position: absolute; left: 0; top: 0; }
 .ride .content, .ride .deco > * { position: absolute; left: var(--x); top: var(--y); }
 .ride .deco { position: absolute; inset: 0; pointer-events: none; }
 .spacer { width: 1px; }
@@ -418,17 +417,26 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .gallery-title h2 { font-size: 24px; text-shadow: 3px 3px 0 var(--outline); }
 .gallery-title .hi { font-size: 20px; }
 .gallery-title span:last-child { color: var(--spotlight); font-size: 22px; }
+.ride #exhibition .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); pointer-events: none; }
+.ride #exhibition .photos { z-index: 1; }  /* each photo fills its frame's window exactly; plaques ride on the brass */
+.ride .gallery-title { text-shadow: 0 0 6px rgba(255, 227, 176, 0.3); }
 .photos { margin: 0; }
+/* photos sit behind the keyed-out picture areas of the frames in the art */
 .photo { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); margin: 0; }
 .photo-frame {
-  display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: zoom-in; background: var(--paper);
-  box-shadow:
-    0 0 0 12px var(--paper), 0 0 0 16px #8C6A2A, 0 0 0 20px var(--brass), 0 0 0 24px var(--outline),
-    12px 16px 0 20px rgba(18, 10, 38, 0.45);
+  display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: zoom-in; background: var(--outline);
 }
 .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
-.photo-frame:hover { transform: translateY(-4px); }
-.photo-frame:focus-visible { outline-offset: 28px; }
+.photo-frame:hover img { filter: brightness(1.12); }
+.photo-frame:focus-visible { outline-offset: 22px; }
+/* title engraved on the brass plaque under each frame */
+.ride .photo .plaque {
+  position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); margin: 0; padding: 0 3px;
+  display: grid; place-items: center; overflow: hidden; background: none; box-shadow: none; max-width: none;
+  color: #3A2410; font-size: 13px; line-height: 1; white-space: nowrap; pointer-events: none;
+}
+.ride .photo .plaque b { font-family: var(--font-body); font-size: 13px; }
+.ride .photo .plaque span { display: none; }
 .plaque {
   display: flex; flex-direction: column; gap: 2px; width: max-content; max-width: 260px;
   margin: 44px auto 0; padding: 6px 12px;
@@ -492,7 +500,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
   position: relative; display: block; padding: 120px 16px 96px; min-height: 60vh;
   overflow: hidden;
 }
-.static canvas.bg, .static .deco, .static .char, .static #drain { display: none; }
+.static #exhibition .bg-img, .static .deco, .static .char, .static #drain { display: none; }
 .static .content { position: relative; left: auto; top: auto; }
 .static #street { background: var(--night); }
 .static #subway { background: #1C2A36; }
@@ -512,6 +520,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .static .screen { aspect-ratio: 16 / 9; height: auto; }
 .static .reel-bar { margin: 24px auto 0; max-width: 960px; }
 .static .tickets { justify-content: center; }
+.static .photo .plaque { margin: 36px auto 0; }
 .static .photos { display: flex; flex-wrap: wrap; gap: 120px 64px; max-width: 1100px; margin: 0 auto; padding: 24px; }
 .static .photo { position: relative; left: auto; top: auto; width: min(var(--w), 100%); height: auto; aspect-ratio: var(--ar); margin-bottom: 64px; }
 .static .credits { width: auto; max-width: 720px; margin: 0 auto; }
@@ -527,7 +536,6 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
   .marquee-text { font-size: 8px; }
   .credits-title { font-size: 16px; }
   .credits-line { font-size: 22px; }
-  .ride .credits { left: 16px !important; width: calc(100vw - 32px); }
   .reel-controls .btn { padding: 8px 10px; }
   .now-showing { padding: 8px; }
   .now-showing b { font-size: 8px; }

@@ -66,12 +66,11 @@ window.SITE = {
   ],
 
   /* Exhibition photos. w/h is the aspect ratio of the photo. */
+  /* Exhibition photos (4, one per frame). Frame 2 is portrait, the others landscape. */
   photos: [
     { title: "Marine Drive", place: "Mumbai", year: "2026", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph1/1200/800" },
     { title: "Chor Bazaar", place: "Mumbai", year: "2025", w: 4, h: 5, src: "https://picsum.photos/seed/pp-ph2/960/1200" },
     { title: "Ghats at Dawn", place: "Varanasi", year: "2025", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph3/1200/800" },
-    { title: "Blue Door", place: "Jodhpur", year: "2024", w: 1, h: 1, src: "https://picsum.photos/seed/pp-ph4/1000/1000" },
-    { title: "Local Train", place: "Mumbai", year: "2024", w: 4, h: 5, src: "https://picsum.photos/seed/pp-ph5/960/1200" },
     { title: "Tea Estate", place: "Munnar", year: "2023", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph6/1200/800" },
   ],
 };
