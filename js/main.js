@@ -25,6 +25,17 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } },
   };
 
+  // billboard frame art (assets/subway/frame-*.png): size and the window the project shows through
+  const FRAMES = {
+    wide: { w: 1108, h: 626, win: [76, 113, 958, 470] },
+    tall: { w: 445, h: 845, win: [38, 96, 369, 689] },
+  };
+  const frameVars = (shape) => {
+    const f = FRAMES[shape === "tall" ? "tall" : "wide"], [x, y, w, h] = f.win;
+    const pc = (v, t) => (v / t * 100).toFixed(3) + "%";
+    return `--ar:${f.w / f.h};--wx:${pc(x, f.w)};--wy:${pc(y, f.h)};--ww:${pc(w, f.w)};--wh:${pc(h, f.h)}`;
+  };
+
   /* ================= CONTENT ================= */
   function fillContent() {
     $("#site-name").textContent = S.name;
@@ -36,9 +47,9 @@
     $("#copyright").textContent = `© ${S.year} ${S.name} · NEON BHARAT GAMES`;
 
     $("#billboards").innerHTML = S.projects.map((p, i) => `
-      <a class="billboard shape-${p.shape}" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="--ar:${{ wide: 16 / 9, std: 4 / 3, tall: 9 / 16 }[p.shape]}">
-        <span class="bb-lamps" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="bb-frame"><img class="work-media" src="${p.image}" alt="${p.title}: ${p.blurb}" decoding="async" /></span>
+      <a class="billboard shape-${p.shape}" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="${frameVars(p.shape)}">
+        <span class="bb-window"><img class="work-media" src="${p.image}" alt="${p.title}: ${p.blurb}" decoding="async" /></span>
+        <img class="bb-frame pixel-art" src="assets/subway/frame-${p.shape === "tall" ? "tall" : "wide"}.png" alt="" />
         <span class="bb-sign" style="--band:${p.band}">
           <span class="bb-line">${p.line}</span>
           <span class="bb-title">${p.title}</span>
@@ -86,6 +97,24 @@
     w: 1672, h: 2526,
     hole: 792,   // centre of the manhole opening, lines up with STREET.manhole
     top: 95,     // soil starts here; everything above sits behind the street's road
+  };
+
+  // assets/scenes/subway.webp: entry, platform x2, stairs; built by tools/build_subway.py
+  const SUBWAY = {
+    w: 6544, h: 941,
+    grate: 830,          // ceiling grate + water stream; sits under the drain's grate
+    drainGrate: 800,     // grate centre in the drain art
+    cut: 150,            // top rows hidden under the drain's bottom edge
+    floor: 680,          // his feet on the platform
+    sign: [[936, 331], [1204, 331], [1204, 409], [936, 409]],   // blank station sign in the entry
+    // billboards on the tiled wall: left, top, frame height (art px)
+    boards: [
+      { x: 2172, y: 215, h: 330 },
+      { x: 3160, y: 190, h: 420 },
+      { x: 3796, y: 215, h: 330 },
+      { x: 5328, y: 215, h: 330 },
+    ],
+    stairs: [[5880, 680], [6540, 330]],   // bottom and top of the climb to the cinema
   };
 
   // Map an element (sized to its quad's bounding box) onto a quad with a projective transform
@@ -140,25 +169,22 @@
       x: Math.round(mh - DRAIN.hole * ss), y: Math.round(street.h - DRAIN.top * ss),
       w: Math.round(DRAIN.w * ss), h: Math.round(DRAIN.h * ss),
     };
-    // 3. subway: starts right under the drain's ceiling grate; billboards along the wall
-    const subway = { x: Math.round(camEnd.x), y: drain.y + drain.h, h: vh };
-    const bh = Math.round(Math.min(Math.max(vh * 0.3, 140), 290));
-    const gap = Math.round(Math.max(170, vw * 0.16));
-    let cur = snap(vw * 0.95);
-    const pillars = [], benches = [];
-    const boards = S.projects.map((p, i) => {
-      const ih = p.shape === "tall" ? Math.round(bh * 1.25) : bh;
-      const iw = Math.round(p.shape === "wide" ? bh * 16 / 9 : p.shape === "std" ? bh * 4 / 3 : ih * 9 / 16);
-      const b = { x: cur, y: snap(vh * 0.2 - (ih - bh) / 2), iw, ih };
-      cur += iw + 24 + gap;
-      pillars.push((cur - gap / 2) / P);
-      if (i % 2 === 0) benches.push((cur - gap + 16) / P);
-      return b;
+    // 3. subway: its grate sits right under the drain's grate; the drain covers its top rows
+    const subway = {
+      x: Math.round(drain.x + (SUBWAY.drainGrate - SUBWAY.grate) * ss), y: Math.round(drain.y + drain.h - SUBWAY.cut * ss),
+      w: Math.round(SUBWAY.w * ss), h: Math.round(SUBWAY.h * ss),
+    };
+    L.sy = subway.y + Math.round(SUBWAY.floor * ss);                                   // platform feet line
+    L.subCamY = Math.min(Math.max(subway.y, L.sy - vh * 0.8), subway.y + subway.h - vh);
+    L.ty = subway.y + Math.round(SUBWAY.stairs[1][1] * ss);                             // top of the stairs
+    const row = L.ty - L.gy;                                                           // later scenes share this ground
+    const boards = S.projects.slice(0, SUBWAY.boards.length).map((p, i) => {
+      const f = FRAMES[p.shape === "tall" ? "tall" : "wide"], b = SUBWAY.boards[i];
+      return { x: Math.round(b.x * ss), y: Math.round(b.y * ss), iw: Math.round(b.h * f.w / f.h * ss), ih: Math.round(b.h * ss) };
     });
-    subway.w = snap(cur + vw * 0.55);
     // 4. cinema
     const lobbyW = snap(Math.max(vw * 0.9, 640));
-    const cinema = { x: subway.x + subway.w, y: subway.y, h: vh, w: snap(lobbyW + vw * 1.5) };
+    const cinema = { x: subway.x + subway.w, y: row, h: vh, w: snap(lobbyW + vw * 1.5) };
     const seatX = snap(lobbyW + vw * 0.45);
     const scrH = Math.round(Math.min(vh * 0.38, vw * 0.6 * 9 / 16));
     const scr = { w: Math.round(scrH * 16 / 9), h: scrH };
@@ -175,9 +201,9 @@
       if (i % 2 === 0 && i < S.photos.length - 1) windows.push((pc - pgap / 2 - 13 * P) / P);
       return fr;
     });
-    const exhibition = { x: cinema.x + cinema.w, y: subway.y, h: vh, w: snap(pc + vw * 0.35) };
+    const exhibition = { x: cinema.x + cinema.w, y: row, h: vh, w: snap(pc + vw * 0.35) };
     // 6. rooftop
-    const rooftop = { x: exhibition.x + exhibition.w, y: subway.y, w: vw, h: vh };
+    const rooftop = { x: exhibition.x + exhibition.w, y: row, w: vw, h: vh };
 
     Object.assign(L, { street, mh, camStart, camEnd, drain, subway, cinema, exhibition, rooftop, boards, frames, lobbyW, seatX, scr });
 
@@ -193,12 +219,11 @@
     art($(".neon-flicker"), STREET.medical);
     art($(".steam"), STREET.steam);
     $$(".bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
-    setBox($(".station-board"), snap(vw * 0.5), snap(vh * 0.2));
-    setBox($(".platform-display"), snap(vw * 0.12), snap(vh * 0.13));
-    setBox($(".exit-sign"), subway.w - snap(vw * 0.35), snap(vh * 0.2));
+    mapToQuad($(".station-board"), SUBWAY.sign, ss);
     $$(".billboard").forEach((el, i) => {
       const b = boards[i];
-      setBox(el, b.x, b.y, b.iw, b.ih);
+      el.hidden = !b;
+      if (b) setBox(el, b.x, b.y, b.iw, b.ih);
     });
     setBox($(".marquee"), snap(lobbyW * 0.08), snap(vh * 0.1 + 8), snap(lobbyW * 0.84), snap(vh * 0.14 - 8));
     setBox($(".housefull"), snap(lobbyW * 0.4), L.gy - 40 * P - 48);
@@ -212,7 +237,6 @@
       const s = L[id];
       Scenes.paint($("#" + id + " .bg"), id, s.w, s.h, P, opts);
     };
-    paint("subway", { pillars, benches, vending: (vw * 0.14) / P, stairsW: 70 });
     paint("cinema", { lobbyW: lobbyW / P, seatX: seatX / P, seatGap: (70 * L.cs) / P, screen: { x: scr.x / P, y: scr.y / P, w: scr.w / P, h: scr.h / P } });
     paint("exhibition", {
       lights, windows, bench: (frames[1] ? frames[1].x - pgap / 2 - 18 * P : vw) / P,
@@ -230,8 +254,8 @@
 
   /* ================= PATH ================= */
   function buildPath() {
-    const { vw, vh, gy, sgy, street, mh, camStart, camEnd, drain, subway, cinema, exhibition, rooftop, lobbyW, seatX } = L;
-    const sy = subway.y + gy;
+    const { vw, vh, gy, sgy, street, mh, camStart, camEnd, drain, subway, cinema, exhibition, rooftop, lobbyW, seatX, subCamY } = L;
+    const sy = L.sy, ty = L.ty, ss = street.s;
     const follow = (x, y) => ({ x: x - vw * 0.4, y: y - gy });
     segs = [];
     const add = (s) => { s.start = total; total += Math.max(1, Math.round(s.len)); s.len = Math.max(1, Math.round(s.len)); segs.push(s); };
@@ -251,24 +275,28 @@
     // fall: the camera eases with him, so he stays on screen the whole way down
     add({ loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], len: vh * 1.6, ease: "in",
       bubble: ["Shortcut!", 0.12, 0.55],
-      cam: (t) => ({ x: camEnd.x, y: lerp(camEnd.y, subway.y, t * t) }) });
+      cam: (t) => ({ x: camEnd.x, y: lerp(camEnd.y, subCamY, t * t) }) });
     add({ loc: "subway", pose: "land", a: [mh, sy], b: [mh, sy], len: 160, bubble: ["Next stop: Projects!", 0, 1],
-      cam: () => ({ x: camEnd.x, y: subway.y }) });
+      cam: () => ({ x: camEnd.x, y: subCamY }) });
     // hand the camera from the drain framing back to "follow" over his first steps
     const off = camEnd.x - (mh - vw * 0.4);
-    add({ id: "subwalk", loc: "subway", pose: "walk", a: [mh, sy], b: [subway.x + subway.w, sy], len: subway.x + subway.w - mh,
-      cam: (t, p) => ({ x: p.x - vw * 0.4 + off * Math.max(0, 1 - (p.x - mh) / (vw * 0.4)), y: subway.y }) });
+    const [s0, s1] = SUBWAY.stairs.map(([x, y]) => [subway.x + x * ss, subway.y + y * ss]);
+    add({ id: "subwalk", loc: "subway", pose: "walk", a: [mh, sy], b: [s0[0], sy], len: s0[0] - mh,
+      cam: (t, p) => ({ x: p.x - vw * 0.4 + off * Math.max(0, 1 - (p.x - mh) / (vw * 0.4)), y: subCamY }) });
+    // up the stairs to street level; the camera rises with him to the cinema's ground
+    add({ loc: "subway", loc2: "cinema", pose: "walk", a: s0, b: [cinema.x, ty], len: (cinema.x - s0[0]) * 1.2,
+      cam: (t, p) => ({ x: p.x - vw * 0.4, y: lerp(subCamY, ty - gy, t) }) });
     const tkt = (lobbyW * 0.4 + 18 * L.P) / seatX;
-    add({ loc: "cinema", pose: "walk", a: [cinema.x, sy], b: [cinema.x + seatX, sy], len: seatX,
+    add({ loc: "cinema", pose: "walk", a: [cinema.x, ty], b: [cinema.x + seatX, ty], len: seatX,
       bubble: ["Ek ticket, please!", tkt - 0.08, tkt + 0.06] });
-    add({ id: "sit", loc: "cinema", pose: "sit", prop: "popcorn", a: [cinema.x + seatX, sy], b: [cinema.x + seatX, sy], len: vh * 1.1,
-      bubble: ["Housefull!", 0, 0.12], cam: () => follow(cinema.x + seatX, sy) });
-    add({ loc: "cinema", pose: "walk", a: [cinema.x + seatX, sy], b: [cinema.x + cinema.w, sy], len: cinema.w - seatX });
+    add({ id: "sit", loc: "cinema", pose: "sit", prop: "popcorn", a: [cinema.x + seatX, ty], b: [cinema.x + seatX, ty], len: vh * 1.1,
+      bubble: ["Housefull!", 0, 0.12], cam: () => follow(cinema.x + seatX, ty) });
+    add({ loc: "cinema", pose: "walk", a: [cinema.x + seatX, ty], b: [cinema.x + cinema.w, ty], len: cinema.w - seatX });
     const jx = exhibition.x + exhibition.w - vw * 0.15;
-    add({ id: "gallery", loc: "exhibition", pose: "walk", a: [exhibition.x, sy], b: [jx, sy], len: (jx - exhibition.x) / 0.7 });
+    add({ id: "gallery", loc: "exhibition", pose: "walk", a: [exhibition.x, ty], b: [jx, ty], len: (jx - exhibition.x) / 0.7 });
     const rx = rooftop.x + vw * 0.28, ry = rooftop.y + snap(vh * 0.78);
-    add({ loc: "exhibition", loc2: "rooftop", pose: "jump", a: [jx, sy], b: [rx, ry], len: 380, ease: "arc", arc: vh * 0.3,
-      cam: (t) => { const f = follow(jx, sy); return { x: f.x + (rooftop.x - f.x) * t, y: f.y + (rooftop.y - f.y) * t }; } });
+    add({ loc: "exhibition", loc2: "rooftop", pose: "jump", a: [jx, ty], b: [rx, ry], len: 380, ease: "arc", arc: vh * 0.3,
+      cam: (t) => { const f = follow(jx, ty); return { x: f.x + (rooftop.x - f.x) * t, y: f.y + (rooftop.y - f.y) * t }; } });
     add({ loc: "rooftop", pose: "sit", prop: "chai", a: [rx, ry], b: [rx, ry], len: 220, bubble: ["Chai break?", 0.3, 1.01],
       cam: () => ({ x: rooftop.x, y: rooftop.y }) });
 
@@ -589,6 +617,8 @@
   });
 
   document.fonts?.ready.then(() => handleHash(true));
+  // the browser's own jump to #project-… lands after load and would undo ours
+  addEventListener("load", () => requestAnimationFrame(() => handleHash(true)));
   handleHash(true);
   cur = scrollY;
   requestAnimationFrame(frame);

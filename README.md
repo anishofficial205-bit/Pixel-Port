@@ -26,7 +26,9 @@ Then open http://localhost:8080.
 | `js/main.js` | Scroll engine: lays out the world, builds the path, and moves the camera and character |
 | `assets/scenes/street.webp` | Street art. Billboard corners, road line and manhole spot are measured in `STREET` in `js/main.js` |
 | `assets/scenes/drain.webp` | Drain shaft: three frames stitched top to bottom (manhole, shaft, grate into the subway). Alignment lives in `DRAIN` in `js/main.js` |
-| `js/scenes.js` | Placeholder pixel-art backgrounds for the other locations, painted in code |
+| `assets/scenes/subway.webp` | Subway platform, built from `assets/subway/src/` by `tools/build_subway.py`. Billboard spots, floor and stairs live in `SUBWAY` in `js/main.js` |
+| `assets/subway/frame-*.png` | Billboard frames (wide metal, tall LED). Project images show through their windows |
+| `js/scenes.js` | Placeholder pixel-art backgrounds for the cinema, gallery and rooftop, painted in code |
 | `js/sprite.js` | Character animations: frame lists per pose, plus the rim-light tint per location |
 | `assets/character/` | `source-sheet.webp` (the original art) and `sheet.webp` (packed by `tools/pack_sprite.py`) |
 | `styles.css` | Tokens from the style guide plus all UI components |

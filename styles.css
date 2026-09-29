@@ -215,10 +215,11 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .bubble.show { opacity: 1; }
 
 /* ---------------- 1. street ---------------- */
-.ride #street .bg-img, .ride #drain .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
+.ride #street .bg-img, .ride #drain .bg-img, .ride #subway .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
 /* the street's road sits in front of the top of the drain cross-section */
 .ride #street { z-index: 2; }
 .ride #drain { z-index: 1; }
+.ride #subway { z-index: 0; } /* the drain's grate covers the subway ceiling */
 
 /* billboards in the art: content is laid out in art px, then projected onto the board */
 .ride .bb-map { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
@@ -295,23 +296,15 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .manhole-cover[hidden] { display: none; }
 
 /* ---------------- 3. subway ---------------- */
+/* station name on the blank sign in the art */
+.ride .station-board { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
 .station-board {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-  background: #1E4A8C; color: var(--paper); padding: 12px 20px;
-  box-shadow: 0 0 0 4px var(--outline), 8px 8px 0 0 rgba(26, 14, 31, 0.5);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: #1E4A8C; color: var(--paper); text-align: center;
+  box-shadow: inset 0 -6px 0 0 var(--neon-cyan);
 }
-.station-board .hi { font-size: 16px; }
-.station-board h2 { font-size: 16px; }
-.station-sub { font-family: var(--font-body); font-size: 20px; color: var(--tile); }
-.platform-display {
-  font-family: var(--font-display); font-size: 8px; color: var(--sodium);
-  background: var(--outline); padding: 8px 12px; box-shadow: 0 0 0 4px var(--tile-shadow);
-}
-.exit-sign {
-  font-family: var(--font-display); font-size: 8px; color: var(--paper);
-  background: var(--auto-green); padding: 8px 12px; box-shadow: 0 0 0 4px var(--outline);
-}
-.exit-sign .hi { font-size: 14px; }
+.station-board .hi { font-size: 16px; line-height: 1; }
+.station-board h2 { font-size: 16px; text-shadow: 2px 2px 0 var(--outline); }
 
 .billboards { list-style: none; margin: 0; padding: 0; }
 .ride .billboards, .ride .photos { left: 0; top: 0; }
@@ -319,38 +312,32 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
   position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h);
   display: block; text-decoration: none; color: var(--paper);
 }
-.bb-frame {
-  position: absolute; inset: 0; display: block; background: var(--outline);
-  box-shadow:
-    0 0 0 4px #8C96A0, 0 0 0 8px #3E5460, 0 0 0 12px var(--outline),
-    16px 16px 0 4px rgba(26, 14, 31, 0.35);
+.billboard[hidden] { display: none; }
+/* the project image shows through the frame's window at full quality */
+.bb-window {
+  position: absolute; left: var(--wx); top: var(--wy); width: var(--ww); height: var(--wh);
+  background: var(--outline); overflow: hidden;
 }
-.shape-tall .bb-frame { box-shadow: 0 0 0 4px var(--neon-cyan), 0 0 0 8px #3E5460, 0 0 0 12px var(--outline), 0 0 12px 8px rgba(61, 242, 255, 0.35); }
-.bb-frame img { width: 100%; height: 100%; object-fit: cover; }
-.bb-lamps { position: absolute; left: 0; right: 0; top: -28px; display: flex; justify-content: space-around; }
-.bb-lamps i {
-  display: block; width: 16px; height: 8px; background: #3E5460;
-  box-shadow: 0 8px 0 0 var(--sodium), 0 0 0 2px var(--outline);
+.bb-window img { width: 100%; height: 100%; object-fit: cover; }
+.bb-frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* lamps brighten on hover: a warm wash over the top of the picture */
+.bb-window::after {
+  content: ""; position: absolute; inset: 0 0 60% 0; background: var(--sodium); opacity: 0.06;
+  transition: opacity 0.2s steps(2); pointer-events: none;
 }
-.billboard::before { /* lamp light wash */
-  content: ""; position: absolute; left: 8%; right: 8%; top: -20px; height: 20px;
-  background: var(--sodium); opacity: 0.15; pointer-events: none;
-  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
-  transition: opacity 0.2s steps(2);
-}
-.billboard:hover::before, .billboard:focus-visible::before { opacity: 0.4; }
-.billboard:hover .bb-lamps i, .billboard:focus-visible .bb-lamps i { box-shadow: 0 8px 0 0 var(--marigold), 0 0 0 2px var(--outline), 0 12px 12px 0 var(--marigold); }
+.billboard:hover .bb-window::after, .billboard:focus-visible .bb-window::after { opacity: 0.22; }
 .shape-tall:hover .bb-frame { animation: flicker 0.3s steps(1) 1; }
-.billboard:focus-visible { outline-offset: 16px; }
+.billboard:focus-visible { outline-offset: 8px; }
 .bb-sign {
-  position: absolute; left: 0; top: calc(100% + 24px); min-width: 100%; width: max-content; max-width: 360px;
-  display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 4px; align-items: center;
-  background: var(--night); padding: 10px 12px;
-  box-shadow: 0 0 0 4px var(--outline); border-top: 8px solid var(--band);
+  position: absolute; left: var(--wx); top: calc(100% + 10px); width: max-content; max-width: 360px; min-width: var(--ww);
+  display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 2px; align-items: center;
+  background: var(--night); padding: 6px 10px;
+  box-shadow: 0 0 0 3px var(--outline); border-top: 6px solid var(--band);
 }
-.bb-line { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--band); padding: 4px 6px; }
+.shape-tall .bb-sign { left: 50%; transform: translateX(-50%); min-width: 0; }
+.bb-line { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--band); padding: 3px 5px; }
 .bb-title { font-family: var(--font-display); font-size: 8px; line-height: 1.6; }
-.bb-blurb { grid-column: 1 / -1; font-size: 20px; color: var(--tile); }
+.bb-blurb { grid-column: 1 / -1; font-size: 18px; color: var(--tile); line-height: 1.05; }
 
 /* ---------------- 4. cinema ---------------- */
 .marquee {
@@ -502,7 +489,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .static .bb-map { position: relative; transform: none; width: auto !important; height: auto !important; max-width: 720px; margin: 0 auto 16px; padding: 20px; }
 .static .station-board, .static .gallery-title { margin: 0 auto 64px; max-width: 1100px; }
 .static .billboards { display: flex; flex-wrap: wrap; gap: 96px 48px; max-width: 1100px; margin: 0 auto; padding: 24px 12px 64px; }
-.static .billboard { position: relative; left: auto; top: auto; width: min(var(--w), 100%); height: auto; aspect-ratio: var(--ar); margin-bottom: 96px; }
+.static .billboard { position: relative; left: auto; top: auto; width: min(var(--w), 100%); height: auto; aspect-ratio: var(--ar); margin-bottom: 110px; }
+.static #subway .bg-img { display: none; }
+.static .station-board { transform: none; width: auto !important; height: auto !important; padding: 16px; }
 .static .bb-sign { max-width: 100%; }
 .static .cinema-content { width: min(960px, 100%); height: auto; margin: 0 auto 220px; }
 .static .screen { aspect-ratio: 16 / 9; height: auto; }

@@ -18,7 +18,7 @@ window.SITE = {
     { label: "Dribbble", short: "dr", url: "#" },
   ],
 
-  /* Subway billboards. shape: "wide" (16:9), "std" (4:3) or "tall" (LED, 9:16) */
+  /* Subway billboards (4). shape: "wide" (metal frame, ~2:1 window) or "tall" (cyan LED, ~9:17 window) */
   projects: [
     {
       id: "chai-co",
@@ -44,7 +44,7 @@ window.SITE = {
       line: "Line 3",
       blurb: "Festival campaign and wayfinding system",
       year: "2025", role: "Visual Designer", tools: "After Effects, Figma",
-      shape: "std", band: "#FF9933",
+      shape: "wide", band: "#FF9933",
       image: "https://picsum.photos/seed/pp-kala/1200/900",
     },
     {
@@ -55,15 +55,6 @@ window.SITE = {
       year: "2024", role: "Design Systems", tools: "Figma, Storybook",
       shape: "wide", band: "#2F8F3E",
       image: "https://picsum.photos/seed/pp-dabba/1280/720",
-    },
-    {
-      id: "monsoon",
-      title: "Monsoon",
-      line: "Line 5",
-      blurb: "Weather app concept with hand-drawn motion",
-      year: "2024", role: "UI + Motion", tools: "Rive, Figma",
-      shape: "std", band: "#FFC21A",
-      image: "https://picsum.photos/seed/pp-monsoon/1200/900",
     },
   ],
 

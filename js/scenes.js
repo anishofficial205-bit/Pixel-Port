@@ -71,45 +71,7 @@
 
   /* 2. THE DRAIN is real art now: assets/scenes/drain.webp */
 
-  /* ---------------- 3. THE SUBWAY ---------------- */
-  function subway(W, H, o) {
-    const g = Math.round(H * 0.8), ceil = Math.round(H * 0.1), r = rng(17);
-    R(0, 0, W, ceil, "#2A3440"); R(0, ceil - 1, W, 1, T.outline);
-    // tiled wall
-    R(0, ceil, W, g - ceil, T.tile);
-    for (let y = ceil; y < g; y += 5) R(0, y, W, 1, "#B4D2D2");
-    for (let y = ceil; y < g; y += 5) for (let x = (y / 5) % 2 ? 0 : 4; x < W; x += 8) R(x, y, 1, 5, "#B4D2D2");
-    R(0, ceil, W, 4, "#A8C6C8"); // shadow under ceiling
-    R(0, Math.round(H * 0.66), W, 3, T.cyan); R(0, Math.round(H * 0.66) + 3, W, 1, T.tileShadow);
-    R(0, Math.round(H * 0.69), W, g - Math.round(H * 0.69), "#9FBFC0"); // lower dado
-    // tube lights
-    for (let x = 10; x < W; x += 48) { R(x, ceil - 3, 18, 2, T.fluoro); R(x - 1, ceil - 1, 20, 1, T.fluoro, 0.4); cone(x + 9, ceil, 18, 36, 18, T.fluoro, 0.12); }
-    // pillars
-    o.pillars.forEach((x) => {
-      R(x - 7, ceil, 14, g - ceil, T.tileShadow); R(x - 7, ceil, 2, g - ceil, "#8FA7B8"); R(x + 5, ceil, 2, g - ceil, "#3E5460");
-      R(x - 8, ceil, 16, 3, "#3E5460");
-    });
-    // benches
-    o.benches.forEach((x) => {
-      R(x, g - 8, 26, 2, "#8C5A3A"); R(x, g - 13, 26, 2, "#8C5A3A"); R(x + 2, g - 6, 2, 6, "#3E5460"); R(x + 22, g - 6, 2, 6, "#3E5460");
-    });
-    // chai vending machine
-    const vx = o.vending;
-    R(vx, g - 34, 18, 34, T.velvet); R(vx + 2, g - 30, 14, 12, "#1A1238"); R(vx + 4, g - 28, 10, 2, T.saffron);
-    R(vx + 4, g - 14, 4, 3, T.cyan); R(vx + 10, g - 14, 4, 3, T.marigold); R(vx, g - 34, 18, 1, "#A83050");
-    // platform + safety line + track
-    R(0, g, W, 10, "#6E7F8C"); R(0, g, W, 1, "#9AAAB4");
-    for (let x = 0; x < W; x += 12) R(x + (r() * 6) | 0, g + 3 + ((r() * 4) | 0), 2, 1, "#5E6E7A");
-    R(0, g + 8, W, 2, T.safety);
-    for (let x = 0; x < W; x += 8) R(x, g + 8, 4, 2, "#C9A020");
-    R(0, g + 10, W, H - g - 10, "#101620");
-    for (let x = 0; x < W; x += 10) R(x, H - 10, 6, 3, "#2A2420");
-    R(0, H - 12, W, 1, "#8C96A0"); R(0, H - 5, W, 1, "#8C96A0");
-    // exit stairs at the far end
-    const sx = W - o.stairsW;
-    for (let i = 0; i < 10; i++) R(sx + i * 6, g - i * 6, W - sx - i * 6, 6, i % 2 ? "#6E7F8C" : "#7A8C98");
-    R(sx + 6, g - 70, 1, 70, "#3E5460");
-  }
+  /* 3. THE SUBWAY is real art now: assets/scenes/subway.webp */
 
   /* ---------------- 4. THE CINEMA ---------------- */
   function cinema(W, H, o) {
@@ -235,7 +197,7 @@
     R(px, g - 10, 12, 2, "#E8DCC8"); R(px, g - 20, 2, 10, "#E8DCC8"); R(px, g - 8, 2, 8, "#D0C4B0"); R(px + 10, g - 8, 2, 8, "#D0C4B0");
   }
 
-  const DRAW = { subway, cinema, exhibition, rooftop };
+  const DRAW = { cinema, exhibition, rooftop };
 
   window.Scenes = {
     paint(canvas, name, cssW, cssH, P, opts) {
