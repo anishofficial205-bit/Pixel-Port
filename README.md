@@ -28,7 +28,7 @@ Then open http://localhost:8080.
 | `assets/scenes/drain.webp` | Drain shaft: three frames stitched top to bottom (manhole, shaft, grate into the subway). Alignment lives in `DRAIN` in `js/main.js` |
 | `assets/scenes/subway.webp` | Subway platform, built from `assets/subway/src/` by `tools/build_subway.py`. Billboard spots, floor and stairs live in `SUBWAY` in `js/main.js` |
 | `assets/subway/frame-*.png` | Billboard frames (wide metal, tall LED). Project images show through their windows |
-| `assets/scenes/cinema-*.webp` | Cinema lobby, hall (side view) and front view (screen keyed out). `assets/cinema/seat-row.webp` is the foreground row. Positions live in `CINEMA` in `js/main.js`; sources in `assets/cinema/src/` |
+| `assets/scenes/cinema-*.webp` | Cinema lobby and auditorium front view (screen keyed out). `assets/cinema/seat-row.webp` is the foreground row. Positions live in `CINEMA` in `js/main.js`; sources in `assets/cinema/src/` |
 | `js/scenes.js` | Placeholder pixel-art backgrounds for the gallery and rooftop, painted in code |
 | `js/sprite.js` | Character animations: frame lists per pose, plus the rim-light tint per location |
 | `assets/character/` | `source-sheet.webp` (the original art) and `sheet.webp` (packed by `tools/pack_sprite.py`) |

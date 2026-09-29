@@ -122,7 +122,7 @@
     stairs: [[5880, 680], [6540, 330]],   // bottom and top of the climb to the cinema
   };
 
-  // assets/scenes/cinema-*.webp (1672 x 941 each): lobby, hall (side view), front view of the screen
+  // assets/scenes/cinema-*.webp (1672 x 941 each): lobby and the auditorium's front view
   const CINEMA = {
     w: 1672, h: 941,
     lobby: {
@@ -135,12 +135,12 @@
         poster2: [[1022, 296], [1138, 296], [1138, 466], [1022, 466]],
       },
     },
-    hall: { door: [115, 652], landing: [440, 656], aisle: [1330, 882], stop: [1420, 884], screen: [1662, 380] },
     front: {
       screen: [477, 248, 718, 339],      // magenta area, keyed out; the reel plays behind it
       stage: [380, 640, 920, 64],        // front of the stage: reel controls live here
       rowTop: 700, rowH: 319,             // foreground seat row (assets/cinema/seat-row.webp)
-      seats: [115, 320, 525, 725, 935, 1140, 1345, 1550],   // seat centres in that row
+      door: 1590, doorH: 225, floor: 690, // side exit door he enters by; the aisle floor in front of it
+      stand: 1415,                        // where he stops beside the stage to watch
     },
   };
 
@@ -215,11 +215,10 @@
     };
     L.ty = cinema.y + Math.round(C.lobby.floor * cs);                 // lobby floor; later scenes share it
     const row = L.ty - L.gy;
-    // the hall and front view are only reached through cuts, so leave a screen of space around them
-    const hall = { x: cinema.x + cinema.w + vw, y: cinema.y, w: cinema.w, h: cinema.h };
+    // the auditorium is only reached through a cut, so leave a screen of space around it
     const fs = Math.max(vw / C.w, Math.min(vh / C.h, vw / 760));   // phones: fit the screen, not the room
     const fw = Math.round(C.w * fs), fh = Math.round(C.h * fs);
-    const front = { x: hall.x + hall.w + vw, y: cinema.y, w: Math.max(fw, vw), h: Math.max(fh, vh), s: fs };
+    const front = { x: cinema.x + cinema.w + vw, y: cinema.y, w: Math.max(fw, vw), h: Math.max(fh, vh), s: fs };
     front.ox = Math.round((front.w - fw) / 2); front.oy = Math.round((front.h - fh) / 2);
     // 5. exhibition
     const ph = Math.round(Math.min(Math.max(vh * 0.3, 130), 280));
@@ -237,10 +236,10 @@
     // 6. rooftop
     const rooftop = { x: exhibition.x + exhibition.w, y: row, w: vw, h: vh };
 
-    Object.assign(L, { street, mh, camStart, camEnd, drain, subway, cinema, hall, front, exhibition, rooftop, boards, frames });
+    Object.assign(L, { street, mh, camStart, camEnd, drain, subway, cinema, front, exhibition, rooftop, boards, frames });
 
     // place scenes
-    for (const [id, s] of Object.entries({ street, drain, subway, cinema, "cinema-hall": hall, "cinema-front": front, exhibition, rooftop })) {
+    for (const [id, s] of Object.entries({ street, drain, subway, cinema, "cinema-front": front, exhibition, rooftop })) {
       setBox($("#" + id), s.x, s.y, s.w, s.h);
     }
     // place content inside scenes
@@ -294,7 +293,7 @@
 
   /* ================= PATH ================= */
   function buildPath() {
-    const { vw, vh, gy, sgy, street, mh, camStart, camEnd, drain, subway, cinema, hall, front, exhibition, rooftop, subCamY } = L;
+    const { vw, vh, gy, sgy, street, mh, camStart, camEnd, drain, subway, cinema, front, exhibition, rooftop, subCamY } = L;
     const sy = L.sy, ty = L.ty, ss = street.s;
     const follow = (x, y) => ({ x: x - vw * 0.4, y: y - gy });
     segs = [];
@@ -339,54 +338,27 @@
     const tk = (C.lobby.ticket * ss + cinema.x - l1[0]) / (door[0] - l1[0]);
     add({ loc: "cinema", pose: "walk", a: [l1[0], ty], b: door, len: door[0] - l1[0],
       bubble: ["Ek ticket, please!", tk - 0.07, tk + 0.07], cam: (t, p) => camIn(cinema, p) });
-    // through the doors: velvet cut to the hall
-    const hd = at(hall, C.hall.door), hl = at(hall, C.hall.landing), ha = at(hall, C.hall.aisle), hs = at(hall, C.hall.stop);
-    const doorCam = camIn(cinema, { x: door[0], y: door[1] }), hallCam = camIn(hall, { x: hd[0], y: hd[1] });
-    add({ loc: "cinema", pose: "walk", a: door, b: hd, len: 260, ease: "cut",
-      cut: tri, cam: (t) => (t < 0.5 ? doorCam : hallCam) });
-    add({ loc: "cinema", pose: "walk", a: hd, b: hl, len: hl[0] - hd[0], bubble: ["Housefull!", 0.1, 0.9], cam: (t, p) => camIn(hall, p) });
-    add({ loc: "cinema", pose: "walk", a: hl, b: ha, len: (ha[0] - hl[0]) * 1.1, cam: (t, p) => camIn(hall, p) });
-    add({ loc: "cinema", pose: "walk", a: ha, b: hs, len: hs[0] - ha[0], cam: (t, p) => camIn(hall, p) });
-    // camera pushes in on the screen, then dissolves to the front view
-    const endCam = camIn(hall, { x: hs[0], y: hs[1] }), scr = at(hall, C.hall.screen);
-    // one continuous shot: dolly into the glowing screen edge, through its light, out of the front screen
-    add({ id: "push", loc: "cinema", pose: "look", a: hs, b: hs, len: 460, light: true,
-      cut: (t) => Math.max(0, (t - 0.62) / 0.38) ** 1.5,
-      cam: (t) => {
-        const e = t * t * t, z = 1 + 5 * e;                     // slow start, accelerating push
-        const m = t * t * (3 - 2 * t);
-        let cx = lerp(endCam.x + vw / 2, scr[0], m), cy = lerp(endCam.y + vh / 2, scr[1], m);
-        // keep the zoomed view inside the hall art (its right edge is the screen)
-        const hw = vw / (2 * z), hh = vh / (2 * z);
-        cx = Math.min(Math.max(cx, hall.x + hw), hall.x + hall.w - hw);
-        cy = Math.min(Math.max(cy, hall.y + hh), hall.y + hall.h - hh);
-        return { x: cx - vw / 2, y: cy - vh / 2, z };
-      } });
+    // through the lobby doors: velvet cut into the auditorium, entering by its side door
+    const F = C.front;
     const frontCam = {
       x: Math.min(Math.max(front.x + front.ox + 836 * fs - vw / 2, front.x), front.x + front.w - vw),
       y: front.y + (front.h - vh) / 2,
     };
-    // seated he's in the foreground row, so he's drawn bigger; his head and shoulders clear the seat backs
-    const k = Math.max(1, Math.round((C.front.rowH * fs * 0.95) / (154 * L.cs) * 2) / 2);
-    const seated = 126 * L.cs * k;   // visible height of the seated frames
-    // he takes the rightmost seat that's on screen, clear of the screen and the stage controls
-    const rightArt = (frontCam.x + vw - front.x - front.ox) / fs - 110;
-    const seatX = C.front.seats.filter((x) => x <= Math.min(1345, rightArt)).pop() || C.front.seats[0];
-    const seat = [front.x + front.ox + seatX * fs, front.y + front.oy + C.front.rowTop * fs + seated * 0.55];
-    // start inside the front screen (it fills the view) and pull back to reveal the room and him
-    const F = C.front, sc = [front.x + front.ox + (F.screen[0] + F.screen[2] / 2) * fs, front.y + front.oy + (F.screen[1] + F.screen[3] / 2) * fs];
-    const z0 = Math.max(vw / (F.screen[2] * fs), vh / (F.screen[3] * fs)) * 1.15;
-    add({ id: "reveal", loc: "cinema", pose: "sit", prop: "popcorn", a: seat, b: seat, len: 420, scale: k, light: true,
-      cut: (t) => Math.max(0, 1 - t / 0.3) ** 1.5,
-      cam: (t) => {
-        const e = 1 - (1 - t) ** 3;                               // fast out of the screen, settling gently
-        const z = lerp(z0, 1, e);
-        const cx = lerp(sc[0], frontCam.x + vw / 2, e), cy = lerp(sc[1], frontCam.y + vh / 2, e);
-        return { x: cx - vw / 2, y: cy - vh / 2, z };
-      } });
-    add({ id: "sit", loc: "cinema", pose: "sit", prop: "popcorn", a: seat, b: seat, len: vh * 1.1, scale: k, cam: () => frontCam });
+    const doorCam = camIn(cinema, { x: door[0], y: door[1] });
+    // standing near the screen he's further away than the seat row, so sized to the side door
+    const k = Math.max(1, Math.round((F.doorH * fs * 0.8) / (170 * L.cs) * 2) / 2);
+    const fx = (x) => front.x + front.ox + x * fs, fy = front.y + front.oy + F.floor * fs;
+    // he stops beside the stage, clear of the screen and controls (on phones: the right edge of the view)
+    const rightArt = (frontCam.x + vw - front.x - front.ox) / fs;
+    const enter = [fx(F.door), fy], spot = [fx(Math.min(F.stand, rightArt - 70)), fy];
+    add({ loc: "cinema", pose: "walk", a: door, b: enter, len: 260, ease: "cut", scale: k,
+      cut: tri, cam: (t) => (t < 0.5 ? doorCam : frontCam) });
+    add({ loc: "cinema", pose: "walk", a: enter, b: spot, len: Math.max(160, enter[0] - spot[0]), scale: k,
+      bubble: ["Housefull!", 0.2, 0.9], cam: () => frontCam });
+    // turns to the screen and watches (profile, looking up)
+    add({ id: "sit", loc: "cinema", pose: "watch", a: spot, b: spot, len: vh * 1.1, scale: k, cam: () => frontCam });
     const g0 = [exhibition.x, ty];
-    add({ loc: "cinema", loc2: "exhibition", pose: "sit", pose2: "walk", prop: "popcorn", a: seat, b: g0, len: 260, ease: "cut", scale: k,
+    add({ loc: "cinema", loc2: "exhibition", pose: "watch", pose2: "walk", a: spot, b: g0, len: 260, ease: "cut", scale: k,
       cut: tri, cam: (t) => (t < 0.5 ? frontCam : { x: exhibition.x, y: ty - gy }) });
     const jx = exhibition.x + exhibition.w - vw * 0.15;
     add({ id: "gallery", loc: "exhibition", pose: "walk", a: [exhibition.x, ty], b: [jx, ty], len: (jx - exhibition.x) / 0.7 });
@@ -474,6 +446,7 @@
       case "land": anim = t < 0.6 ? "land" : "talk"; n = t < 0.25 ? 0 : t < 0.45 ? 1 : t < 0.6 ? 2 : tick(220); break;
       case "jump": anim = "jump"; n = Math.min(4, Math.floor(t * 5)); break;
       case "look": anim = "look"; n = tick(700); break;
+      case "watch": anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = -1; break;
       case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
     }
     const flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);
@@ -515,9 +488,8 @@
       ? `translate3d(${-Math.round(cam.x)}px, ${-Math.round(cam.y)}px, 0)`
       : `translate(${L.vw / 2}px, ${L.vh / 2}px) scale(${z.toFixed(4)}) translate(${-(cam.x + L.vw / 2)}px, ${-(cam.y + L.vh / 2)}px)`;
     // cuts between cinema views: a stepped velvet fade
-    const cutV = Math.round(ev.cut * (s.light ? 24 : 6)) / (s.light ? 24 : 6);
+    const cutV = Math.round(ev.cut * 6) / 6;
     if (cutV !== lastCut) { lastCut = cutV; cutEl.style.opacity = cutV; }
-    cutEl.classList.toggle("light", !!s.light);
 
     // speech bubble
     let say = "";
