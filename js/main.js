@@ -72,6 +72,11 @@
         <figcaption class="plaque"><b>${p.title}</b><span>${p.place} · ${p.year}</span></figcaption>
       </figure>`).join("");
 
+    $$(".cin-poster").forEach((el, i) => {
+      const r = S.reels[i % S.reels.length];
+      $("img", el).src = r.poster; $("span", el).textContent = r.title;
+    });
+
     $("#socials").innerHTML = S.socials.map((s) => `
       <li><a class="social" href="${s.url}" aria-label="${s.label}"><span class="s-icon">${s.short}</span><span>${s.label}</span></a></li>`).join("");
   }
@@ -115,6 +120,28 @@
       { x: 5328, y: 215, h: 330 },
     ],
     stairs: [[5880, 680], [6540, 330]],   // bottom and top of the climb to the cinema
+  };
+
+  // assets/scenes/cinema-*.webp (1672 x 941 each): lobby, hall (side view), front view of the screen
+  const CINEMA = {
+    w: 1672, h: 941,
+    lobby: {
+      stairs: [[30, 875], [470, 662]],   // continues the subway stairs up into the lobby
+      floor: 678, ticket: 660, door: 1515,
+      quads: {
+        marquee: [[320, 122], [1262, 122], [1262, 198], [320, 198]],
+        sign: [[572, 288], [748, 288], [748, 322], [572, 322]],
+        poster1: [[340, 296], [455, 296], [455, 466], [340, 466]],
+        poster2: [[1022, 296], [1138, 296], [1138, 466], [1022, 466]],
+      },
+    },
+    hall: { door: [115, 652], landing: [440, 656], aisle: [1330, 882], stop: [1420, 884], screen: [1662, 380] },
+    front: {
+      screen: [477, 248, 718, 339],      // magenta area, keyed out; the reel plays behind it
+      stage: [380, 640, 920, 64],        // front of the stage: reel controls live here
+      rowTop: 700, rowH: 319,             // foreground seat row (assets/cinema/seat-row.webp)
+      seats: [115, 320, 525, 725, 935, 1140, 1345, 1550],   // seat centres in that row
+    },
   };
 
   // Map an element (sized to its quad's bounding box) onto a quad with a projective transform
@@ -176,19 +203,24 @@
     };
     L.sy = subway.y + Math.round(SUBWAY.floor * ss);                                   // platform feet line
     L.subCamY = Math.min(Math.max(subway.y, L.sy - vh * 0.8), subway.y + subway.h - vh);
-    L.ty = subway.y + Math.round(SUBWAY.stairs[1][1] * ss);                             // top of the stairs
-    const row = L.ty - L.gy;                                                           // later scenes share this ground
     const boards = S.projects.slice(0, SUBWAY.boards.length).map((p, i) => {
       const f = FRAMES[p.shape === "tall" ? "tall" : "wide"], b = SUBWAY.boards[i];
       return { x: Math.round(b.x * ss), y: Math.round(b.y * ss), iw: Math.round(b.h * f.w / f.h * ss), ih: Math.round(b.h * ss) };
     });
-    // 4. cinema
-    const lobbyW = snap(Math.max(vw * 0.9, 640));
-    const cinema = { x: subway.x + subway.w, y: row, h: vh, w: snap(lobbyW + vw * 1.5) };
-    const seatX = snap(lobbyW + vw * 0.45);
-    const scrH = Math.round(Math.min(vh * 0.38, vw * 0.6 * 9 / 16));
-    const scr = { w: Math.round(scrH * 16 / 9), h: scrH };
-    scr.x = snap(lobbyW + vw * 0.64 - scr.w / 2); scr.y = snap(Math.max(vh * 0.15, 100));
+    // 4. cinema: the lobby's stairs pick up where the subway stairs leave the screen
+    const C = CINEMA, cs = ss;
+    const cinema = {
+      x: subway.x + subway.w, y: Math.round(subway.y + (SUBWAY.stairs[1][1] - C.lobby.stairs[0][1]) * cs),
+      w: Math.round(C.w * cs), h: Math.round(C.h * cs),
+    };
+    L.ty = cinema.y + Math.round(C.lobby.floor * cs);                 // lobby floor; later scenes share it
+    const row = L.ty - L.gy;
+    // the hall and front view are only reached through cuts, so leave a screen of space around them
+    const hall = { x: cinema.x + cinema.w + vw, y: cinema.y, w: cinema.w, h: cinema.h };
+    const fs = Math.max(vw / C.w, Math.min(vh / C.h, vw / 760));   // phones: fit the screen, not the room
+    const fw = Math.round(C.w * fs), fh = Math.round(C.h * fs);
+    const front = { x: hall.x + hall.w + vw, y: cinema.y, w: Math.max(fw, vw), h: Math.max(fh, vh), s: fs };
+    front.ox = Math.round((front.w - fw) / 2); front.oy = Math.round((front.h - fh) / 2);
     // 5. exhibition
     const ph = Math.round(Math.min(Math.max(vh * 0.3, 130), 280));
     const pgap = Math.round(Math.max(150, vw * 0.14));
@@ -201,14 +233,14 @@
       if (i % 2 === 0 && i < S.photos.length - 1) windows.push((pc - pgap / 2 - 13 * P) / P);
       return fr;
     });
-    const exhibition = { x: cinema.x + cinema.w, y: row, h: vh, w: snap(pc + vw * 0.35) };
+    const exhibition = { x: front.x + front.w + vw, y: row, h: vh, w: snap(pc + vw * 0.35) };
     // 6. rooftop
     const rooftop = { x: exhibition.x + exhibition.w, y: row, w: vw, h: vh };
 
-    Object.assign(L, { street, mh, camStart, camEnd, drain, subway, cinema, exhibition, rooftop, boards, frames, lobbyW, seatX, scr });
+    Object.assign(L, { street, mh, camStart, camEnd, drain, subway, cinema, hall, front, exhibition, rooftop, boards, frames });
 
     // place scenes
-    for (const [id, s] of Object.entries({ street, drain, subway, cinema, exhibition, rooftop })) {
+    for (const [id, s] of Object.entries({ street, drain, subway, cinema, "cinema-hall": hall, "cinema-front": front, exhibition, rooftop })) {
       setBox($("#" + id), s.x, s.y, s.w, s.h);
     }
     // place content inside scenes
@@ -225,9 +257,18 @@
       el.hidden = !b;
       if (b) setBox(el, b.x, b.y, b.iw, b.ih);
     });
-    setBox($(".marquee"), snap(lobbyW * 0.08), snap(vh * 0.1 + 8), snap(lobbyW * 0.84), snap(vh * 0.14 - 8));
-    setBox($(".housefull"), snap(lobbyW * 0.4), L.gy - 40 * P - 48);
-    setBox($(".cinema-content"), scr.x, scr.y, scr.w, scr.h);
+    $$("#cinema [data-quad]").forEach((el) => mapToQuad(el, C.lobby.quads[el.dataset.quad], cs));
+    const F = C.front, fbox = (el, [x, y, w, h]) => setBox(el, Math.round(x * fs), Math.round(y * fs), Math.round(w * fs), Math.round(h * fs));
+    setBox($(".front-art"), front.ox, front.oy, fw, fh);
+    fbox($(".cinema-content"), F.screen);
+    // controls sit on the stage front; on tall narrow screens there's room below the room instead
+    const visLeft = Math.min(Math.max(front.ox + 836 * fs - vw / 2, 0), front.w - vw) - front.ox;   // camera's left edge, in art-box px
+    if (front.h - front.oy - fh > 140) setBox($(".reel-bar"), visLeft + 12, fh + 20, vw - 24, front.h - front.oy - fh - 40);
+    else fbox($(".reel-bar"), F.stage);
+    // the seat row sits in front of him, clipped to the bottom of the room
+    const rowY = front.y + front.oy + Math.round(F.rowTop * fs);
+    setBox($(".front-row"), front.x + front.ox, rowY, fw, front.y + front.oy + fh - rowY);
+    $(".front-row img").style.width = fw + "px";
     setBox($(".gallery-title"), snap(vw * 0.22), snap(vh * 0.24));
     $$(".photo").forEach((el, i) => setBox(el, frames[i].x, frames[i].y, frames[i].w, frames[i].h));
     setBox($(".credits"), snap(vw * 0.45), snap(vh * 0.12), snap(vw * 0.5));
@@ -237,7 +278,6 @@
       const s = L[id];
       Scenes.paint($("#" + id + " .bg"), id, s.w, s.h, P, opts);
     };
-    paint("cinema", { lobbyW: lobbyW / P, seatX: seatX / P, seatGap: (70 * L.cs) / P, screen: { x: scr.x / P, y: scr.y / P, w: scr.w / P, h: scr.h / P } });
     paint("exhibition", {
       lights, windows, bench: (frames[1] ? frames[1].x - pgap / 2 - 18 * P : vw) / P,
       plant: (vw * 0.12) / P, rope: (exhibition.w - vw * 0.3) / P,
@@ -254,7 +294,7 @@
 
   /* ================= PATH ================= */
   function buildPath() {
-    const { vw, vh, gy, sgy, street, mh, camStart, camEnd, drain, subway, cinema, exhibition, rooftop, lobbyW, seatX, subCamY } = L;
+    const { vw, vh, gy, sgy, street, mh, camStart, camEnd, drain, subway, cinema, hall, front, exhibition, rooftop, subCamY } = L;
     const sy = L.sy, ty = L.ty, ss = street.s;
     const follow = (x, y) => ({ x: x - vw * 0.4, y: y - gy });
     segs = [];
@@ -283,15 +323,71 @@
     const [s0, s1] = SUBWAY.stairs.map(([x, y]) => [subway.x + x * ss, subway.y + y * ss]);
     add({ id: "subwalk", loc: "subway", pose: "walk", a: [mh, sy], b: [s0[0], sy], len: s0[0] - mh,
       cam: (t, p) => ({ x: p.x - vw * 0.4 + off * Math.max(0, 1 - (p.x - mh) / (vw * 0.4)), y: subCamY }) });
-    // up the stairs to street level; the camera rises with him to the cinema's ground
-    add({ loc: "subway", loc2: "cinema", pose: "walk", a: s0, b: [cinema.x, ty], len: (cinema.x - s0[0]) * 1.2,
-      cam: (t, p) => ({ x: p.x - vw * 0.4, y: lerp(subCamY, ty - gy, t) }) });
-    const tkt = (lobbyW * 0.4 + 18 * L.P) / seatX;
-    add({ loc: "cinema", pose: "walk", a: [cinema.x, ty], b: [cinema.x + seatX, ty], len: seatX,
-      bubble: ["Ek ticket, please!", tkt - 0.08, tkt + 0.06] });
-    add({ id: "sit", loc: "cinema", pose: "sit", prop: "popcorn", a: [cinema.x + seatX, ty], b: [cinema.x + seatX, ty], len: vh * 1.1,
-      bubble: ["Housefull!", 0, 0.12], cam: () => follow(cinema.x + seatX, ty) });
-    add({ loc: "cinema", pose: "walk", a: [cinema.x + seatX, ty], b: [cinema.x + cinema.w, ty], len: cinema.w - seatX });
+    // --- cinema ---
+    const C = CINEMA, fs = front.s;
+    const at = (sc, [x, y]) => [sc.x + x * ss, sc.y + y * ss];
+    const clampX = (sc, x) => Math.min(Math.max(x, sc.x), sc.x + sc.w - vw);
+    const camIn = (sc, p) => ({ x: clampX(sc, p.x - vw * 0.4), y: Math.min(Math.max(p.y - vh * 0.8, sc.y), sc.y + sc.h - vh) });
+    const tri = (t) => 1 - Math.abs(2 * t - 1);                  // 0 -> 1 -> 0: a cut at the midpoint
+    const l0 = at(cinema, C.lobby.stairs[0]), l1 = at(cinema, C.lobby.stairs[1]);
+    const lobbyCam = camIn(cinema, { x: l0[0], y: ty });
+    // up the subway stairs; the camera rises to the lobby
+    add({ loc: "subway", loc2: "cinema", pose: "walk", a: s0, b: l0, len: (l0[0] - s0[0]) * 1.2,
+      cam: (t, p) => ({ x: p.x - vw * 0.4, y: lerp(subCamY, lobbyCam.y, t) }) });
+    add({ loc: "cinema", pose: "walk", a: l0, b: l1, len: (l1[0] - l0[0]) * 1.2, cam: (t, p) => camIn(cinema, { x: p.x, y: ty }) });
+    const door = at(cinema, [C.lobby.door, C.lobby.floor]);
+    const tk = (C.lobby.ticket * ss + cinema.x - l1[0]) / (door[0] - l1[0]);
+    add({ loc: "cinema", pose: "walk", a: [l1[0], ty], b: door, len: door[0] - l1[0],
+      bubble: ["Ek ticket, please!", tk - 0.07, tk + 0.07], cam: (t, p) => camIn(cinema, p) });
+    // through the doors: velvet cut to the hall
+    const hd = at(hall, C.hall.door), hl = at(hall, C.hall.landing), ha = at(hall, C.hall.aisle), hs = at(hall, C.hall.stop);
+    const doorCam = camIn(cinema, { x: door[0], y: door[1] }), hallCam = camIn(hall, { x: hd[0], y: hd[1] });
+    add({ loc: "cinema", pose: "walk", a: door, b: hd, len: 260, ease: "cut",
+      cut: tri, cam: (t) => (t < 0.5 ? doorCam : hallCam) });
+    add({ loc: "cinema", pose: "walk", a: hd, b: hl, len: hl[0] - hd[0], bubble: ["Housefull!", 0.1, 0.9], cam: (t, p) => camIn(hall, p) });
+    add({ loc: "cinema", pose: "walk", a: hl, b: ha, len: (ha[0] - hl[0]) * 1.1, cam: (t, p) => camIn(hall, p) });
+    add({ loc: "cinema", pose: "walk", a: ha, b: hs, len: hs[0] - ha[0], cam: (t, p) => camIn(hall, p) });
+    // camera pushes in on the screen, then dissolves to the front view
+    const endCam = camIn(hall, { x: hs[0], y: hs[1] }), scr = at(hall, C.hall.screen);
+    // one continuous shot: dolly into the glowing screen edge, through its light, out of the front screen
+    add({ id: "push", loc: "cinema", pose: "look", a: hs, b: hs, len: 460, light: true,
+      cut: (t) => Math.max(0, (t - 0.62) / 0.38) ** 1.5,
+      cam: (t) => {
+        const e = t * t * t, z = 1 + 5 * e;                     // slow start, accelerating push
+        const m = t * t * (3 - 2 * t);
+        let cx = lerp(endCam.x + vw / 2, scr[0], m), cy = lerp(endCam.y + vh / 2, scr[1], m);
+        // keep the zoomed view inside the hall art (its right edge is the screen)
+        const hw = vw / (2 * z), hh = vh / (2 * z);
+        cx = Math.min(Math.max(cx, hall.x + hw), hall.x + hall.w - hw);
+        cy = Math.min(Math.max(cy, hall.y + hh), hall.y + hall.h - hh);
+        return { x: cx - vw / 2, y: cy - vh / 2, z };
+      } });
+    const frontCam = {
+      x: Math.min(Math.max(front.x + front.ox + 836 * fs - vw / 2, front.x), front.x + front.w - vw),
+      y: front.y + (front.h - vh) / 2,
+    };
+    // seated he's in the foreground row, so he's drawn bigger; his head and shoulders clear the seat backs
+    const k = Math.max(1, Math.round((C.front.rowH * fs * 0.95) / (154 * L.cs) * 2) / 2);
+    const seated = 126 * L.cs * k;   // visible height of the seated frames
+    // he takes the rightmost seat that's on screen, clear of the screen and the stage controls
+    const rightArt = (frontCam.x + vw - front.x - front.ox) / fs - 110;
+    const seatX = C.front.seats.filter((x) => x <= Math.min(1345, rightArt)).pop() || C.front.seats[0];
+    const seat = [front.x + front.ox + seatX * fs, front.y + front.oy + C.front.rowTop * fs + seated * 0.55];
+    // start inside the front screen (it fills the view) and pull back to reveal the room and him
+    const F = C.front, sc = [front.x + front.ox + (F.screen[0] + F.screen[2] / 2) * fs, front.y + front.oy + (F.screen[1] + F.screen[3] / 2) * fs];
+    const z0 = Math.max(vw / (F.screen[2] * fs), vh / (F.screen[3] * fs)) * 1.15;
+    add({ id: "reveal", loc: "cinema", pose: "sit", prop: "popcorn", a: seat, b: seat, len: 420, scale: k, light: true,
+      cut: (t) => Math.max(0, 1 - t / 0.3) ** 1.5,
+      cam: (t) => {
+        const e = 1 - (1 - t) ** 3;                               // fast out of the screen, settling gently
+        const z = lerp(z0, 1, e);
+        const cx = lerp(sc[0], frontCam.x + vw / 2, e), cy = lerp(sc[1], frontCam.y + vh / 2, e);
+        return { x: cx - vw / 2, y: cy - vh / 2, z };
+      } });
+    add({ id: "sit", loc: "cinema", pose: "sit", prop: "popcorn", a: seat, b: seat, len: vh * 1.1, scale: k, cam: () => frontCam });
+    const g0 = [exhibition.x, ty];
+    add({ loc: "cinema", loc2: "exhibition", pose: "sit", pose2: "walk", prop: "popcorn", a: seat, b: g0, len: 260, ease: "cut", scale: k,
+      cut: tri, cam: (t) => (t < 0.5 ? frontCam : { x: exhibition.x, y: ty - gy }) });
     const jx = exhibition.x + exhibition.w - vw * 0.15;
     add({ id: "gallery", loc: "exhibition", pose: "walk", a: [exhibition.x, ty], b: [jx, ty], len: (jx - exhibition.x) / 0.7 });
     const rx = rooftop.x + vw * 0.28, ry = rooftop.y + snap(vh * 0.78);
@@ -305,7 +401,7 @@
       street: 0,
       drain: find("crouch").start - 60,
       subway: find("subwalk").start + 2,
-      cinema: find("sit").start + 40,
+      cinema: find("sit").start + 20,
       exhibition: find("gallery").start + (vw * 0.45) / 0.7,
       rooftop: total,
     };
@@ -320,16 +416,19 @@
     const t = Math.min(1, Math.max(0, (d - s.start) / s.len));
     let k = t;
     if (s.ease === "in") k = t * t;
+    if (s.ease === "cut") k = t < 0.5 ? 0 : 1;
     let x = s.a[0] + (s.b[0] - s.a[0]) * k;
     let y = s.a[1] + (s.b[1] - s.a[1]) * k;
     if (s.ease === "arc") y -= s.arc * 4 * t * (1 - t);
     const p = { x, y };
     const cam = s.cam ? s.cam(t, p) : { x: x - L.vw * 0.4, y: y - L.gy };
-    return { s, t, p, cam };
+    return { s, t, p, cam, cut: s.cut ? s.cut(t) : 0 };
   }
 
   /* ================= RENDER LOOP ================= */
   let target = 0, cur = 0, lastX = null, facing = 1, lastMove = 0, lastLoc = "", hoverLook = false;
+  let lastCut = -1;
+  const cutEl = $(".cut");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
   function frame(now) {
@@ -339,7 +438,7 @@
     const diff = target - cur;
     cur = Math.abs(diff) < 0.5 ? target : cur + diff * 0.2;
 
-    const { s, t, p, cam } = evalPath(cur);
+    const ev = evalPath(cur), { s, t, p, cam } = ev;
 
     // movement bookkeeping: speed in px/ms, smoothed so wheel ticks don't flicker the pose
     const dt = Math.min(64, Math.max(1, now - (lastNow || now - 16)));
@@ -356,7 +455,9 @@
     const tick = (ms) => Math.floor(now / ms);
     const saying = s.bubble && t >= s.bubble[1] && t <= s.bubble[2];
     let anim = "idle", n = tick(260);
-    switch (s.pose) {
+    const cutSide = s.ease === "cut" && t >= 0.5;          // past the midpoint of a cut
+    const poseNow = cutSide && s.pose2 ? s.pose2 : s.pose;
+    switch (poseNow) {
       case "walk":
         if (moving) {
           // steady game cadence (8 fps walk, 12 fps run), like the style guide's steps() timing
@@ -372,12 +473,13 @@
       case "fall": anim = "fall"; n = tick(110); break;
       case "land": anim = t < 0.6 ? "land" : "talk"; n = t < 0.25 ? 0 : t < 0.45 ? 1 : t < 0.6 ? 2 : tick(220); break;
       case "jump": anim = "jump"; n = Math.min(4, Math.floor(t * 5)); break;
+      case "look": anim = "look"; n = tick(700); break;
       case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
     }
     const flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);
 
     // location
-    const loc = s.loc2 && t > 0.55 ? s.loc2 : s.loc;
+    const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
     if (loc !== lastLoc) {
       lastLoc = loc;
       body.dataset.location = loc;
@@ -397,8 +499,9 @@
       }
     }
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
+    const scale = s.scale && !(cutSide && s.pose2) ? s.scale : 1;
     const bob = Sprite.bob(anim, n) * L.cs;
-    charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)`;
+    charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale})` : "");
     charEl.style.setProperty("--face", flips ? facing : 1);
 
     // dropping into the manhole: hide the part of him that's below the street surface
@@ -407,7 +510,14 @@
       s.pose === "fall" && A < h && B > 0 ? `linear-gradient(#000 0 ${A}px, transparent ${A}px ${B}px, #000 ${B}px)` : "";
     charEl.classList.toggle("no-shadow", !["walk", "run", "idle", "talk", "point", "look", "gaze", "wave"].includes(anim));
 
-    world.style.transform = `translate3d(${-Math.round(cam.x)}px, ${-Math.round(cam.y)}px, 0)`;
+    const z = cam.z || 1;
+    world.style.transform = z === 1
+      ? `translate3d(${-Math.round(cam.x)}px, ${-Math.round(cam.y)}px, 0)`
+      : `translate(${L.vw / 2}px, ${L.vh / 2}px) scale(${z.toFixed(4)}) translate(${-(cam.x + L.vw / 2)}px, ${-(cam.y + L.vh / 2)}px)`;
+    // cuts between cinema views: a stepped velvet fade
+    const cutV = Math.round(ev.cut * (s.light ? 24 : 6)) / (s.light ? 24 : 6);
+    if (cutV !== lastCut) { lastCut = cutV; cutEl.style.opacity = cutV; }
+    cutEl.classList.toggle("light", !!s.light);
 
     // speech bubble
     let say = "";
@@ -420,10 +530,6 @@
     const cr = segs.find((x) => x.id === "crouch");
     $(".manhole-cover").hidden = cur > cr.start + cr.len * 0.1;
 
-    // cinema curtains open as the character reaches the seat
-    const sit = segs.find((x) => x.id === "sit");
-    const near = Math.min(1, Math.max(0, 1 - (sit.start - cur) / (L.vw * 0.5)));
-    body.style.setProperty("--curtain", (1 - near).toFixed(3));
 
     // route progress
     const ord = stops.order;
@@ -443,7 +549,7 @@
       scrollTo({ top, behavior: instant || reduceMotion ? "auto" : "smooth" });
       if (instant) { cur = top; }
     } else {
-      const el = typeof stop === "string" ? document.getElementById(stop) : null;
+      const el = typeof stop === "string" ? document.getElementById(stop === "cinema" ? "cinema-front" : stop) : null;
       if (el) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
     }
   }

@@ -73,59 +73,7 @@
 
   /* 3. THE SUBWAY is real art now: assets/scenes/subway.webp */
 
-  /* ---------------- 4. THE CINEMA ---------------- */
-  function cinema(W, H, o) {
-    const g = Math.round(H * 0.8), L = o.lobbyW;
-    // --- lobby: street-level facade at night
-    bands(L, 0, H * 0.3, [T.nightDeep, T.night, "#26185A"]);
-    R(0, H * 0.1, L, g - H * 0.1, "#4A2440"); R(0, H * 0.1, L, 2, T.brass);
-    for (let x = 6; x < L; x += 24) R(x, H * 0.1 + 2, 2, g - H * 0.1 - 2, "#5A2E4E"); // deco fluting
-    R(0, H * 0.24, L, 10, T.brass); R(0, H * 0.24 + 10, L, 2, "#8C6A2A"); // canopy
-    // poster frames
-    [0.18, 0.62].forEach((f, i) => {
-      const px = L * f, py = H * 0.32;
-      R(px - 2, py - 2, 34, 48, T.brass); R(px, py, 30, 44, i ? T.velvetDeep : "#1E3A5A");
-      R(px + 4, py + 6, 22, 16, i ? T.saffron : T.magenta, 0.8); R(px + 6, py + 26, 18, 3, T.paper); R(px + 8, py + 32, 14, 2, T.paper, 0.6);
-    });
-    // ticket window
-    const tw = L * 0.4;
-    R(tw, g - 40, 36, 40, "#3D0818"); R(tw + 4, g - 34, 28, 14, "#FFE3B0", 0.8); R(tw + 4, g - 34, 28, 1, T.brass);
-    for (let x = tw + 6; x < tw + 32; x += 4) R(x, g - 34, 1, 14, "#8C6A2A");
-    R(tw - 2, g - 18, 40, 3, T.brass);
-    R(0, g, L, H - g, "#2E2238"); R(0, g, L, 1, "#4A3A58");
-    // --- hall
-    R(L, 0, W - L, H, T.velvetDeep);
-    for (let x = L; x < W; x += 16) R(x, 0, 8, g, "#45091C");
-    R(L, 0, 4, H, T.brass);
-    // sconces
-    for (let x = L + 20; x < W; x += 80) { R(x, H * 0.3, 4, 6, T.brass); cone(x + 2, H * 0.3 - 10, 2, 8, 10, T.sodium, 0.25); }
-    // proscenium + curtains around the screen
-    const s = o.screen;
-    R(s.x - 10, s.y - 10, s.w + 20, s.h + 20, T.brass);
-    R(s.x - 8, s.y - 8, s.w + 16, s.h + 16, "#8C6A2A");
-    R(s.x - 6, s.y - 6, s.w + 12, s.h + 12, T.outline);
-    for (let i = 0; i < 14; i++) {
-      R(s.x - 30 + i * 2, s.y - 16, 2, s.h + 40, i % 2 ? T.velvet : "#5A0E24");
-      R(s.x + s.w + 4 + i * 2, s.y - 16, 2, s.h + 40, i % 2 ? T.velvet : "#5A0E24");
-    }
-    for (let x = s.x - 30; x < s.x + s.w + 32; x += 6) R(x, s.y - 20, 5, 8, T.velvet); // valance
-    R(s.x - 32, s.y - 21, s.w + 66, 2, T.brass);
-    // projector beam from the back wall
-    const bx = W - 20, by = H * 0.14;
-    R(bx - 2, by - 3, 10, 6, "#2A2A30"); R(bx - 3, by - 1, 2, 2, T.spotlight);
-    ctx.globalAlpha = 0.07; ctx.fillStyle = T.spotlight;
-    ctx.beginPath(); ctx.moveTo(bx - 2, by - 1); ctx.lineTo(s.x + s.w, s.y + 4); ctx.lineTo(s.x + s.w, s.y + s.h - 4); ctx.lineTo(bx - 2, by + 1);
-    ctx.fill(); ctx.globalAlpha = 1;
-    // exit sign
-    R(W - 40, H * 0.08, 18, 7, T.autoGreen); R(W - 38, H * 0.08 + 2, 14, 3, "#8FE3A0");
-    // floor + seats
-    R(L, g, W - L, H - g, "#2A0612");
-    for (let x = L + 8; x < W - 8; x += 14) {
-      if (Math.abs(x + 6 - o.seatX) < o.seatGap) continue; // the sprite brings its own seat
-      R(x, g - 12, 12, 10, T.velvet); R(x, g - 12, 12, 1, "#A83050"); R(x + 1, g - 2, 10, 3, "#5A0E24");
-    }
-    for (let x = L + 2; x < W; x += 14) { R(x, g + 8, 12, 12, "#5A0E24"); R(x, g + 8, 12, 1, "#8A1E3C"); }
-  }
+  /* 4. THE CINEMA is real art now: assets/scenes/cinema-*.webp */
 
   /* ---------------- 5. THE EXHIBITION ---------------- */
   function exhibition(W, H, o) {
@@ -197,7 +145,7 @@
     R(px, g - 10, 12, 2, "#E8DCC8"); R(px, g - 20, 2, 10, "#E8DCC8"); R(px, g - 8, 2, 8, "#D0C4B0"); R(px + 10, g - 8, 2, 8, "#D0C4B0");
   }
 
-  const DRAW = { cinema, exhibition, rooftop };
+  const DRAW = { exhibition, rooftop };
 
   window.Scenes = {
     paint(canvas, name, cssW, cssH, P, opts) {
