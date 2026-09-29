@@ -15,6 +15,14 @@
   const spacer = $("#spacer");
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* ---- stairwell (subway -> cinema lobby) tunables ---- */
+  const STAIR_ZONE = 0.25;             // handoff zone: this fraction of the viewport width on each side of the seam
+  const SUBWAY_TOP_CROP = 40;          // art px cropped off the subway's top: exactly the ceiling rows build_subway.py duplicates
+  const STAIR_VIGNETTE = 0.6;          // peak opacity of the stairwell vignette
+  const FILL_DARK = "#120A1E";         // what the stairwell fillers fade to
+  const FALLBACK_SUBWAY_TOP = "#1A2432";    // used if edge-colour sampling fails
+  const FALLBACK_LOBBY_BOTTOM = "#161C2A";
+
   const RIM = {
     street: "#FF3D9A", drain: "#6BE3A8", subway: "#E8FBFF",
     cinema: "#D9A441", exhibition: "#FFE3B0", rooftop: "#FFB26B",
@@ -214,8 +222,12 @@
       x: Math.round(drain.x + (SUBWAY.drainGrate - SUBWAY.grate) * ss), y: Math.round(drain.y + drain.h - SUBWAY.cut * ss),
       w: Math.round(SUBWAY.w * ss), h: Math.round(SUBWAY.h * ss),
     };
+    // subway top is cropped (see SUBWAY_TOP_CROP); its bounding box starts below the crop
+    const subCrop = Math.round(SUBWAY_TOP_CROP * ss);
+    $("#subway .bg-img").style.clipPath = `inset(${subCrop}px 0 0 0)`;
+    L.subBox = { left: subway.x, top: subway.y + subCrop, right: subway.x + subway.w, bottom: subway.y + subway.h };
     L.sy = subway.y + Math.round(SUBWAY.floor * ss);                                   // platform feet line
-    L.subCamY = Math.min(Math.max(subway.y, L.sy - vh * 0.8), subway.y + subway.h - vh);
+    L.subCamY = Math.min(Math.max(L.subBox.top, L.sy - vh * 0.8), L.subBox.bottom - vh);   // clamped to the subway's box
     const boards = S.projects.slice(0, SUBWAY.boards.length).map((p, i) => {
       const f = FRAMES[p.shape === "tall" ? "tall" : "wide"], b = SUBWAY.boards[i];
       return { x: Math.round(b.x * ss), y: Math.round(b.y * ss), iw: Math.round(b.h * f.w / f.h * ss), ih: Math.round(b.h * ss) };
@@ -227,6 +239,10 @@
       w: Math.round(C.w * cs), h: Math.round(C.h * cs),
     };
     L.ty = cinema.y + Math.round(C.lobby.floor * cs);                 // lobby floor; later scenes share it
+    L.lobbyBox = { left: cinema.x, top: cinema.y, right: cinema.x + cinema.w, bottom: cinema.y + cinema.h };
+    // stairwell fillers: soft gradients in the two empty regions the stair camera can reveal
+    setBox($(".fill-above-subway"), L.subBox.left, L.subBox.top - vh, subway.w, vh);
+    setBox($(".fill-below-lobby"), L.lobbyBox.left, L.lobbyBox.bottom, cinema.w, vh);
     const row = L.ty - L.gy;
     // the auditorium is only reached through a cut, so leave a screen of space around it
     const fs = Math.max(vw / C.w, Math.min(vh / C.h, vw / 760));   // phones: fit the screen, not the room
@@ -344,11 +360,23 @@
     const camIn = (sc, p) => ({ x: clampX(sc, p.x - vw * 0.4), y: Math.min(Math.max(p.y - vh * 0.8, sc.y), sc.y + sc.h - vh) });
     const tri = (t) => 1 - Math.abs(2 * t - 1);                  // 0 -> 1 -> 0: a cut at the midpoint
     const l0 = at(cinema, C.lobby.stairs[0]), l1 = at(cinema, C.lobby.stairs[1]);
-    const lobbyCam = camIn(cinema, { x: l0[0], y: ty });
-    // up the subway stairs; the camera rises to the lobby
-    add({ loc: "subway", loc2: "cinema", pose: "walk", a: s0, b: l0, len: (l0[0] - s0[0]) * 1.2,
-      cam: (t, p) => ({ x: p.x - vw * 0.4, y: lerp(subCamY, lobbyCam.y, t) }) });
-    add({ loc: "cinema", pose: "walk", a: l0, b: l1, len: (l1[0] - l0[0]) * 1.2, cam: (t, p) => camIn(cinema, { x: p.x, y: ty }) });
+    // Stair camera. Each image clamps the view to its own bounding box:
+    //  - subway: follow him, but the view's top never rises above the (cropped) subway top
+    //  - lobby:  frame the lobby floor; the view's bottom never drops below the lobby bottom,
+    //            and its left edge stays inside the lobby
+    // Around the seam the two targets are blended by his horizontal progress (smoothstep), so the
+    // camera tilts up as he climbs and back down as he descends, with no snap either way.
+    const SB = L.subBox, LB = L.lobbyBox, seam = LB.left;
+    const zoneL = Math.max(s0[0], seam - vw * STAIR_ZONE), zoneR = Math.min(l1[0], seam + vw * STAIR_ZONE);
+    const zoneK = (x) => { const u = Math.min(1, Math.max(0, (x - zoneL) / (zoneR - zoneL))); return u * u * (3 - 2 * u); };
+    const subY = (p) => Math.min(Math.max(p.y - vh * 0.8, SB.top), SB.bottom - vh);
+    const lobbyY = Math.min(Math.max(ty - vh * 0.8, LB.top), LB.bottom - vh);
+    const stairCam = (t, p) => {
+      const k = zoneK(p.x), x = p.x - vw * 0.4;
+      return { x: lerp(x, Math.max(x, LB.left), k), y: lerp(subY(p), lobbyY, k) };
+    };
+    add({ loc: "subway", loc2: "cinema", pose: "walk", a: s0, b: l0, len: (l0[0] - s0[0]) * 1.2, zoneK, cam: stairCam });
+    add({ loc: "cinema", pose: "walk", a: l0, b: l1, len: (l1[0] - l0[0]) * 1.2, zoneK, cam: stairCam });
     const door = at(cinema, [C.lobby.door, C.lobby.floor]);
     const tk = (C.lobby.ticket * ss + cinema.x - l1[0]) / (door[0] - l1[0]);
     add({ loc: "cinema", pose: "walk", a: [l1[0], ty], b: door, len: door[0] - l1[0],
@@ -421,7 +449,8 @@
 
   /* ================= RENDER LOOP ================= */
   let target = 0, cur = 0, lastX = null, facing = 1, lastMove = 0, lastLoc = "", hoverLook = false;
-  let lastCut = -1;
+  let lastCut = -1, lastVig = -1;
+  const vigEl = $(".stair-vignette");
   const cutEl = $(".cut");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
@@ -510,6 +539,10 @@
       ? `translate3d(${-Math.round(cam.x)}px, ${-Math.round(cam.y)}px, 0)`
       : `translate(${L.vw / 2}px, ${L.vh / 2}px) scale(${z.toFixed(4)}) translate(${-(cam.x + L.vw / 2)}px, ${-(cam.y + L.vh / 2)}px)`;
     // cuts between cinema views: a stepped velvet fade
+    // stairwell vignette: peaks mid-zone, gone outside it
+    const vk = s.zoneK ? s.zoneK(p.x) : 0, vig = vk > 0 && vk < 1 ? STAIR_VIGNETTE * Math.min(1, 4 * vk * (1 - vk) * 1.4) : 0;
+    if (Math.abs(vig - lastVig) > 0.01) { lastVig = vig; vigEl.style.opacity = vig.toFixed(2); }
+
     const cutV = Math.round(ev.cut * 6) / 6;
     if (cutV !== lastCut) { lastCut = cutV; cutEl.style.opacity = cutV; }
 
@@ -700,10 +733,41 @@
     if (img.complete && img.naturalWidth) draw(); else img.addEventListener("load", draw, { once: true });
   }
 
+  // Stairwell fillers. Each continues its image's edge row outward (a 1px slice stretched by CSS, so
+  // every column keeps its own colour), then a shade fades it through the edge's average colour to
+  // FILL_DARK, so the gap reads as the wall disappearing into shadow. The average is sampled once from
+  // a thin strip; if sampling fails (e.g. CORS) the fixed fallback colours are used.
+  function stairFillers() {
+    const avg = (img, sy) => {
+      const w = Math.min(img.naturalWidth, 2000), c = document.createElement("canvas"); c.width = w; c.height = 4;
+      const x = c.getContext("2d"); x.drawImage(img, img.naturalWidth - w, sy, w, 4, 0, 0, w, 4);
+      const d = x.getImageData(0, 0, w, 4).data; let r = 0, g = 0, b = 0;
+      for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+      const n = d.length / 4; return `${(r / n) | 0}, ${(g / n) | 0}, ${(b / n) | 0}`;
+    };
+    const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)).join(", ");
+    const setup = (el, img, fallback, row, dir) => {
+      const edge = $(".edge", el), shade = $(".shade", el);
+      const shadeWith = (rgb) => (shade.style.background =
+        `linear-gradient(${dir}, rgba(${rgb}, 0) 0, rgba(${rgb}, 0.85) 22%, ${FILL_DARK} 60%)`);
+      shadeWith(hexRgb(fallback));
+      const go = () => {
+        const y = row(img);
+        edge.width = img.naturalWidth; edge.height = 1;
+        edge.getContext("2d").drawImage(img, 0, y, img.naturalWidth, 1, 0, 0, img.naturalWidth, 1);
+        try { shadeWith(avg(img, Math.min(y, img.naturalHeight - 4))); } catch (e) { shadeWith(hexRgb(fallback)); }
+      };
+      if (img.complete && img.naturalWidth) go(); else img.addEventListener("load", go, { once: true });
+    };
+    setup($(".fill-above-subway"), $("#subway .bg-img"), FALLBACK_SUBWAY_TOP, () => SUBWAY_TOP_CROP, "to top");
+    setup($(".fill-below-lobby"), $("#cinema .bg-img"), FALLBACK_LOBBY_BOTTOM, (img) => img.naturalHeight - 1, "to bottom");
+  }
+
   /* ================= BOOT ================= */
   fillContent();
   makeRain();
   galleryTop();
+  stairFillers();
   bindUI();
   const saved = store.get("nb-mode");
   const ride = saved ? saved === "ride" : !reduceMotion;
