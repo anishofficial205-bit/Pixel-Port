@@ -148,7 +148,7 @@
   const GALLERY = {
     w: 6496, h: 941,
     floor: 770,                 // his feet on the wooden floor
-    scale: 1.4,                 // the gallery is drawn bigger (doors ~1.5x the cinema's), so he is too
+    artScale: 1.4,              // this art is drawn ~1.4x bigger than the other scenes, so it's shown smaller
     enter: 140, exit: 3930,     // double doors he comes in by; the door out to the roof
     frames: [[1063, 270, 438, 191], [2064, 263, 152, 197], [2436, 272, 424, 188], [3351, 277, 323, 178]],
     plaques: [[1240, 508, 78, 20], [2107, 505, 70, 19], [2608, 505, 76, 20], [3475, 500, 75, 19]],
@@ -235,11 +235,18 @@
     front.ox = Math.round((front.w - fw) / 2); front.oy = Math.round((front.h - fh) / 2);
     // 5. exhibition + 6. rooftop: one strip of art; the rooftop is its right end
     const G = GALLERY;
-    const gs = Math.max(vw / 1672, vh / G.h);                 // same cover scale as a single screen of art
-    const exhibition = { x: front.x + front.w + vw, y: row, w: Math.round(G.w * gs), h: Math.round(G.h * gs), s: gs };
-    L.gty = exhibition.y + Math.round(G.floor * gs);
+    // shown at the other scenes' scale so he's the same size relative to the room; the art sits at the
+    // bottom of the screen and its top edge (ceiling, night sky) is stretched up to fill the rest
+    const gs = Math.max(vw / 1672, vh / G.h) / G.artScale;
+    const artH = Math.round(G.h * gs);
+    const exhibition = { x: front.x + front.w + vw, y: row, w: Math.round(G.w * gs), h: Math.max(vh, artH), s: gs };
+    exhibition.oy = exhibition.h - artH;                                   // art top, inside the section
+    L.gty = exhibition.y + exhibition.oy + Math.round(G.floor * gs);
     const rooftop = { x: exhibition.x + Math.round(G.roof.x * gs), y: exhibition.y, w: Math.round((G.w - G.roof.x) * gs), h: exhibition.h };
-    const frames = G.frames.map(([x, y, w, h]) => ({ x: Math.round(x * gs), y: Math.round(y * gs), w: Math.round(w * gs), h: Math.round(h * gs) }));
+    const gimg = $("#exhibition .bg-img");
+    gimg.style.top = exhibition.oy + "px"; gimg.style.height = artH + "px";
+    setBox($(".gal-top"), 0, 0, exhibition.w, exhibition.oy + 2);
+    const frames = G.frames.map(([x, y, w, h]) => ({ x: Math.round(x * gs), y: exhibition.oy + Math.round(y * gs), w: Math.round(w * gs), h: Math.round(h * gs) }));
 
     Object.assign(L, { street, mh, camStart, camEnd, drain, subway, cinema, front, exhibition, rooftop, boards, frames });
 
@@ -273,23 +280,23 @@
     const rowY = front.y + front.oy + Math.round(F.rowTop * fs);
     setBox($(".front-row"), front.x + front.ox, rowY, fw, front.y + front.oy + fh - rowY);
     $(".front-row img").style.width = fw + "px";
-    setBox($(".gallery-title"), Math.round(640 * gs), Math.round(300 * gs));
+    setBox($(".gallery-title"), Math.round(560 * gs), exhibition.oy + Math.round(300 * gs));
     $$(".photo").forEach((el, i) => {
       const f = frames[i]; el.hidden = !f;
       if (!f) return;
       setBox(el, f.x, f.y, f.w, f.h);
       const [px, py, pw, phh] = G.plaques[i];
-      setBox($(".plaque", el), Math.round(px * gs) - f.x, Math.round(py * gs) - f.y, Math.round(pw * gs), Math.round(phh * gs));
+      setBox($(".plaque", el), Math.round(px * gs) - f.x, exhibition.oy + Math.round(py * gs) - f.y, Math.round(pw * gs), Math.round(phh * gs));
     });
     // string lights over the bench twinkle
     const bulbs = $(".bulbs");
     if (!bulbs.children.length) bulbs.innerHTML = G.bulbs.map((_, i) => `<i style="animation-delay:${(i * 0.37) % 2.2}s"></i>`).join("");
-    [...bulbs.children].forEach((b, i) => setBox(b, Math.round((G.bulbs[i][0] - G.roof.x) * gs), Math.round(G.bulbs[i][1] * gs)));
+    [...bulbs.children].forEach((b, i) => setBox(b, Math.round((G.bulbs[i][0] - G.roof.x) * gs), exhibition.oy + Math.round(G.bulbs[i][1] * gs)));
     // end credits in the dawn sky, kept inside the final view
     const endX = Math.min(Math.max(G.roof.seat * gs - vw * 0.5, 0), exhibition.w - vw);   // final view: the bench
     const [kx, ky, kw] = G.roof.sky;   // credits float in the dawn sky
     const cl = Math.max(kx * gs, endX + 16);
-    setBox($(".credits"), Math.round(cl - G.roof.x * gs), Math.round(Math.max(ky * gs, 76)), Math.round(Math.min(kw * gs, endX + vw - cl - 16)));
+    setBox($(".credits"), Math.round(cl - G.roof.x * gs), Math.round(Math.max(76, exhibition.oy - 40, ky * gs + exhibition.oy - 200)), Math.round(Math.min(kw * gs, endX + vw - cl - 16)));
 
     sprite.width = Sprite.W * L.ck; sprite.height = Sprite.H * L.ck;
     charEl.style.setProperty("--w", Math.round(Sprite.W * L.cs) + "px");
@@ -369,14 +376,14 @@
     const G = GALLERY, gs = exhibition.s, gty = L.gty, gx = (x) => exhibition.x + x * gs;
     const gIn = [gx(G.enter), gty], gOut = [gx(G.exit), gty];
     const gCam = (x) => ({ x: Math.min(Math.max(x - vw * 0.4, exhibition.x), exhibition.x + exhibition.w - vw), y: exhibition.y });
-    add({ loc: "cinema", loc2: "exhibition", pose: "walk", a: exit, b: gIn, len: 260, ease: "cut", scale2: G.scale,
+    add({ loc: "cinema", loc2: "exhibition", pose: "walk", a: exit, b: gIn, len: 260, ease: "cut",
       cut: tri, cam: (t) => (t < 0.5 ? frontCam : gCam(gIn[0])) });
-    add({ id: "gallery", loc: "exhibition", pose: "walk", scale: G.scale, a: gIn, b: gOut, len: (gOut[0] - gIn[0]) / 0.7, cam: (t, p) => gCam(p.x) });
+    add({ id: "gallery", loc: "exhibition", pose: "walk", a: gIn, b: gOut, len: (gOut[0] - gIn[0]) / 0.7, cam: (t, p) => gCam(p.x) });
     // through the door and out into the dawn
     const endCam = { x: exhibition.x + Math.min(Math.max(G.roof.seat * gs - vw * 0.5, 0), exhibition.w - vw), y: exhibition.y };
-    const out = [gx(G.roof.out), exhibition.y + G.roof.floor * gs];
-    const seat = [gx(G.roof.seat), exhibition.y + G.roof.seatFloor * gs];
-    add({ loc: "exhibition", loc2: "rooftop", pose: "walk", a: gOut, b: out, len: 260, ease: "cut", scale: G.scale,
+    const out = [gx(G.roof.out), exhibition.y + exhibition.oy + G.roof.floor * gs];
+    const seat = [gx(G.roof.seat), exhibition.y + exhibition.oy + G.roof.seatFloor * gs];
+    add({ loc: "exhibition", loc2: "rooftop", pose: "walk", a: gOut, b: out, len: 260, ease: "cut",
       cut: (t) => tri(t) * 0.85, cam: (t) => gCam(t < 0.5 ? gOut[0] : out[0]) });
     // along the roof to the bench, the camera settling on the final view
     add({ loc: "rooftop", pose: "walk", a: out, b: seat, len: Math.max(200, (seat[0] - out[0]) * 0.8), cam: (t, p) => ({ x: Math.min(gCam(p.x).x, endCam.x), y: exhibition.y }) });
@@ -686,9 +693,17 @@
     body.style.setProperty("--rain", `url(${c.toDataURL()})`);
   }
 
+  // the gallery's top row, stretched upward by CSS to fill the space above the art
+  function galleryTop() {
+    const img = $("#exhibition .bg-img"), c = $(".gal-top");
+    const draw = () => { c.width = img.naturalWidth; c.height = 1; c.getContext("2d").drawImage(img, 0, 0, img.naturalWidth, 1, 0, 0, img.naturalWidth, 1); };
+    if (img.complete && img.naturalWidth) draw(); else img.addEventListener("load", draw, { once: true });
+  }
+
   /* ================= BOOT ================= */
   fillContent();
   makeRain();
+  galleryTop();
   bindUI();
   const saved = store.get("nb-mode");
   const ride = saved ? saved === "ride" : !reduceMotion;

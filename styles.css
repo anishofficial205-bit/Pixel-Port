@@ -417,7 +417,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .gallery-title h2 { font-size: 24px; text-shadow: 3px 3px 0 var(--outline); }
 .gallery-title .hi { font-size: 20px; }
 .gallery-title span:last-child { color: var(--spotlight); font-size: 22px; }
-.ride #exhibition .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); pointer-events: none; }
+.ride #exhibition .bg-img { position: absolute; left: 0; top: 0; width: var(--w); pointer-events: none; }
+.ride .gal-top { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
+.static .gal-top { display: none; }
 .ride #exhibition .photos { z-index: 1; }  /* each photo fills its frame's window exactly; plaques ride on the brass */
 .ride .gallery-title { text-shadow: 0 0 6px rgba(255, 227, 176, 0.3); }
 .photos { margin: 0; }
