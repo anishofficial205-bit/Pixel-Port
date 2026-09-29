@@ -136,11 +136,11 @@
       },
     },
     front: {
-      screen: [477, 248, 718, 339],      // magenta area, keyed out; the reel plays behind it
+      screen: [476, 246, 720, 342],      // magenta area, keyed out; the reel plays behind it
       stage: [380, 640, 920, 64],        // front of the stage: reel controls live here
       rowTop: 700, rowH: 319,             // foreground seat row (assets/cinema/seat-row.webp)
-      door: 1590, doorH: 225, floor: 690, // side exit door he enters by; the aisle floor in front of it
-      stand: 1415,                        // where he stops beside the stage to watch
+      door: 105, doorH: 270, floor: 692,  // left exit door he enters and leaves by; the floor in front of it
+      stand: 235,                         // where he stops beside the stage to watch
     },
   };
 
@@ -348,17 +348,19 @@
     // standing near the screen he's further away than the seat row, so sized to the side door
     const k = Math.max(1, Math.round((F.doorH * fs * 0.8) / (170 * L.cs) * 2) / 2);
     const fx = (x) => front.x + front.ox + x * fs, fy = front.y + front.oy + F.floor * fs;
-    // he stops beside the stage, clear of the screen and controls (on phones: the right edge of the view)
-    const rightArt = (frontCam.x + vw - front.x - front.ox) / fs;
-    const enter = [fx(F.door), fy], spot = [fx(Math.min(F.stand, rightArt - 70)), fy];
+    // he stops beside the stage, left of the screen and controls (on phones: the left edge of the view)
+    const leftArt = (frontCam.x - front.x - front.ox) / fs;
+    const enter = [fx(F.door), fy], spot = [fx(Math.max(F.stand, leftArt + 70)), fy];
     add({ loc: "cinema", pose: "walk", a: door, b: enter, len: 260, ease: "cut", scale: k,
       cut: tri, cam: (t) => (t < 0.5 ? doorCam : frontCam) });
-    add({ loc: "cinema", pose: "walk", a: enter, b: spot, len: Math.max(160, enter[0] - spot[0]), scale: k,
+    add({ loc: "cinema", pose: "walk", a: enter, b: spot, len: Math.max(160, spot[0] - enter[0]), scale: k,
       bubble: ["Housefull!", 0.2, 0.9], cam: () => frontCam });
     // turns to the screen and watches (profile, looking up)
-    add({ id: "sit", loc: "cinema", pose: "watch", a: spot, b: spot, len: vh * 1.1, scale: k, cam: () => frontCam });
+    add({ id: "sit", loc: "cinema", pose: "watch", face: 1, a: spot, b: spot, len: vh * 1.1, scale: k, cam: () => frontCam });
+    // back out the same door, then a velvet cut to the gallery
+    add({ loc: "cinema", pose: "walk", a: spot, b: enter, len: Math.max(160, spot[0] - enter[0]), scale: k, cam: () => frontCam });
     const g0 = [exhibition.x, ty];
-    add({ loc: "cinema", loc2: "exhibition", pose: "watch", pose2: "walk", a: spot, b: g0, len: 260, ease: "cut", scale: k,
+    add({ loc: "cinema", loc2: "exhibition", pose: "walk", a: enter, b: g0, len: 260, ease: "cut", scale: k,
       cut: tri, cam: (t) => (t < 0.5 ? frontCam : { x: exhibition.x, y: ty - gy }) });
     const jx = exhibition.x + exhibition.w - vw * 0.15;
     add({ id: "gallery", loc: "exhibition", pose: "walk", a: [exhibition.x, ty], b: [jx, ty], len: (jx - exhibition.x) / 0.7 });
@@ -446,7 +448,7 @@
       case "land": anim = t < 0.6 ? "land" : "talk"; n = t < 0.25 ? 0 : t < 0.45 ? 1 : t < 0.6 ? 2 : tick(220); break;
       case "jump": anim = "jump"; n = Math.min(4, Math.floor(t * 5)); break;
       case "look": anim = "look"; n = tick(700); break;
-      case "watch": anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = -1; break;
+      case "watch": anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = s.face || -1; break;
       case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
     }
     const flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);
@@ -472,7 +474,7 @@
       }
     }
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
-    const scale = s.scale && !(cutSide && s.pose2) ? s.scale : 1;
+    const scale = s.scale && !(cutSide && s.loc2) ? s.scale : 1;
     const bob = Sprite.bob(anim, n) * L.cs;
     charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale})` : "");
     charEl.style.setProperty("--face", flips ? facing : 1);
