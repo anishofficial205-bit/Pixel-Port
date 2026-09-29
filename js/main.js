@@ -148,12 +148,12 @@
   const GALLERY = {
     w: 6496, h: 941,
     floor: 770,                 // his feet on the wooden floor
-    enter: 165, exit: 3930,     // double doors he comes in by; the door out to the roof
-    frames: [[1170, 268, 400, 212], [2124, 232, 165, 232], [2474, 242, 404, 220], [3301, 277, 355, 190]],
-    plaques: [[1330, 528, 84, 21], [2165, 512, 85, 20], [2632, 512, 86, 20], [3441, 512, 77, 19]],
+    enter: 140, exit: 3930,     // double doors he comes in by; the door out to the roof
+    frames: [[1063, 270, 438, 191], [2064, 263, 152, 197], [2436, 272, 424, 188], [3351, 277, 323, 178]],
+    plaques: [[1240, 508, 78, 20], [2107, 505, 70, 19], [2608, 505, 76, 20], [3475, 500, 75, 19]],
     // rooftop at dawn (the footer): he steps out at `out`, walks to the bench under the string lights
-    bulbs: [[5749, 414], [5803, 436], [5873, 454], [5939, 460], [6005, 460], [6055, 454], [6104, 444], [6152, 431], [6201, 412]],
-    roof: { x: 4100, floor: 800, out: 4300, seat: 5869, seatFloor: 722, sky: [5000, 60, 1000] },
+    bulbs: [[5749, 382], [5803, 402], [5873, 418], [5939, 424], [6005, 424], [6055, 418], [6104, 409], [6152, 397], [6201, 380]],   // rooftop rows are remapped by build_gallery.py
+    roof: { x: 4100, floor: 781, out: 4300, seat: 5869, seatFloor: 692, sky: [5000, 60, 1000] },
   };
 
   // Map an element (sized to its quad's bounding box) onto a quad with a projective transform

@@ -15,6 +15,17 @@ from scipy import ndimage as nd
 SRC = "assets/gallery/src/"
 W, H, OV = 1672, 941, 64
 parts = [np.array(Image.open(SRC + n).convert("RGBA")) for n in ("entry.webp", "wall.webp", "exit.webp", "rooftop.webp")]
+
+# The rooftop art's parapet (rows 612-708) sits lower than the exit image's (564-676).
+# Remap its rows in three bands (sky, parapet, floor) with nearest-row sampling so they meet.
+def remap_rows(img, src, dst):
+    rows = np.zeros(H, int)
+    for (s0, s1), (d0, d1) in zip(zip(src, src[1:]), zip(dst, dst[1:])):
+        for y in range(d0, d1):
+            rows[y] = min(H - 1, int(s0 + (y - d0 + 0.5) * (s1 - s0) / (d1 - d0)))
+    return img[rows]
+ROOF_SRC, ROOF_DST = [0, 612, 708, H], [0, 564, 676, H]
+parts[3] = remap_rows(parts[3], ROOF_SRC, ROOF_DST)
 out = np.zeros((H, W * len(parts) - OV * (len(parts) - 1), 4), np.uint8)
 bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
 x = 0
