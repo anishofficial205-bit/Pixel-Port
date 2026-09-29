@@ -73,7 +73,7 @@
 
     $("#billboards").innerHTML = S.projects.map((p, i) => `
       <a class="billboard shape-${p.shape}" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="${frameVars(p.shape)}">
-        <span class="bb-window"><img class="work-media" src="${p.image}" alt="${p.title}: ${p.blurb}" decoding="async" /></span>
+        <span class="bb-window"><img class="work-media" src="${SITE.img(p.cover, 1024)}" alt="${p.title}: ${p.blurb}" decoding="async" /></span>
         <img class="bb-frame pixel-art" src="assets/subway/frame-${p.shape === "tall" ? "tall" : "wide"}.png" alt="" />
         <span class="bb-sign" style="--band:${p.band}">
           <span class="bb-line">${p.line}</span>
