@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1790709951" />
+  <link rel="stylesheet" href="styles.css?v=1790711372" />
 </head>
 <body class="ride" data-location="street">
   <a class="skip-link" href="#subway">Skip to projects</a>
@@ -74,13 +74,9 @@
           <div class="content billboards" id="billboards"></div>
         </section>
 
-        <!-- stairwell fillers: soft gradients where the stair camera can see past the two images -->
-        <div class="stair-fill fill-above-subway" aria-hidden="true"><canvas class="edge pixel-art"></canvas><div class="shade"></div></div>
-        <div class="stair-fill fill-below-lobby" aria-hidden="true"><canvas class="edge pixel-art"></canvas><div class="shade"></div></div>
-
-        <!-- 4. THE CINEMA: lobby -> auditorium (front view of the screen) -->
-        <section class="scene" id="cinema" data-location="cinema" aria-label="Cinema lobby">
-          <img class="bg-img pixel-art" src="assets/scenes/cinema-lobby.webp" alt="" decoding="async" fetchpriority="low" />
+        <!-- 4. THE STAIRWELL: subway platform -> stairs -> cinema lobby (one image) -->
+        <section class="scene" id="stairwell" data-location="cinema" aria-label="Stairs up to the cinema lobby">
+          <img class="bg-img pixel-art" src="assets/scenes/stairwell.webp" alt="" decoding="async" fetchpriority="low" />
           <div class="content cin-marquee" data-quad="marquee" aria-hidden="true">
             <span class="hi">अब चल रहा है</span><span class="mq-main">NOW SHOWING · REELS</span>
           </div>
@@ -88,6 +84,7 @@
           <div class="content cin-poster" data-quad="poster1" aria-hidden="true"><img class="work-media" alt="" /><span></span></div>
           <div class="content cin-poster" data-quad="poster2" aria-hidden="true"><img class="work-media" alt="" /><span></span></div>
         </section>
+        <!-- 5. THE THEATER (reached through the lobby's red doors) -->
         <section class="scene" id="cinema-front" data-location="cinema" aria-labelledby="cinema-title">
           <div class="front-art">
             <div class="content cinema-content">
@@ -106,7 +103,7 @@
           </div>
         </section>
 
-        <!-- 5. THE EXHIBITION -->
+        <!-- 6. THE EXHIBITION -->
         <section class="scene" id="exhibition" data-location="exhibition" aria-labelledby="gallery-title">
           <div class="content photos" id="photos"></div>
           <canvas class="gal-top pixel-art" aria-hidden="true"></canvas>
@@ -118,7 +115,7 @@
           </div>
         </section>
 
-        <!-- 6. THE ROOFTOP / END CREDITS -->
+        <!-- 7. THE ROOFTOP / END CREDITS -->
         <footer class="scene" id="rooftop" data-location="rooftop" aria-labelledby="credits-title">
           <div class="deco" aria-hidden="true"><div class="bulbs"></div></div>
           <div class="content credits">
@@ -159,17 +156,14 @@
     <button class="btn btn-sm lb-close" type="button">Close X</button>
   </div>
 
-  <!-- shadowy vignette while climbing the subway stairs -->
-  <div class="stair-vignette" aria-hidden="true"></div>
-
   <!-- scroll-driven cut between cinema views -->
   <div class="cut" aria-hidden="true"></div>
 
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1790709951"></script>
-  <script src="js/sprite.js?v=1790709951"></script>
-  <script src="js/main.js?v=1790709951"></script>
+  <script src="js/data.js?v=1790711372"></script>
+  <script src="js/sprite.js?v=1790711372"></script>
+  <script src="js/main.js?v=1790711372"></script>
 </body>
 </html>

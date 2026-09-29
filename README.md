@@ -28,7 +28,8 @@ Then open http://localhost:8080.
 | `assets/scenes/drain.webp` | Drain shaft: three frames stitched top to bottom (manhole, shaft, grate into the subway). Alignment lives in `DRAIN` in `js/main.js` |
 | `assets/scenes/subway.webp` | Subway platform, built from `assets/subway/src/` by `tools/build_subway.py`. Billboard spots, floor and stairs live in `SUBWAY` in `js/main.js` |
 | `assets/subway/frame-*.png` | Billboard frames (wide metal, tall LED). Project images show through their windows |
-| `assets/scenes/cinema-*.webp` | Cinema lobby and auditorium front view (screen keyed out). `assets/cinema/seat-row.webp` is the foreground row. Positions live in `CINEMA` in `js/main.js`; sources in `assets/cinema/src/` |
+| `assets/scenes/stairwell.webp` | Subway platform, stairs and cinema lobby in one image. Scale is solved from two shared lines with the subway; path, doors and signage live in the `STAIRWELL_*` constants at the top of `js/main.js`. Press **D** (or add `?debug`) to see bounds, path and camera |
+| `assets/scenes/cinema-front.webp` | Theater front view (screen keyed out); `assets/cinema/seat-row.webp` is the foreground row. Positions in `CINEMA` in `js/main.js` |
 | `assets/scenes/gallery.webp` | Gallery (entrance, window wall, exit) plus the dawn rooftop footer (`assets/gallery/src/rooftop.webp`), built by `tools/build_gallery.py`. Frames, plaques and the roof live in `GALLERY` in `js/main.js` |
 | `js/sprite.js` | Character animations: frame lists per pose, plus the rim-light tint per location |
 | `assets/character/` | `source-sheet.webp` and `climb-source.webp` (original art); `sheet.webp` is packed by `tools/pack_sprite.py`, then `tools/pack_climb.py` appends the stair frames |

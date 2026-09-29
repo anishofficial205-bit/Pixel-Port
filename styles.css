@@ -339,25 +339,25 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .bb-blurb { grid-column: 1 / -1; font-size: 18px; color: var(--tile); line-height: 1.05; }
 
 /* ---------------- 4. cinema ---------------- */
-.ride #cinema .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
+.ride #stairwell .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
 .ride #cinema-front { background: #140409; }
 .ride .front-art { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
 .ride .front-art .bg-img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .ride .front-art .content { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
 
 /* lobby signage, projected onto the blank boards in the art */
-.ride #cinema [data-quad] { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
+.ride #stairwell [data-quad] { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
 .cin-marquee {
-  display: flex; align-items: center; justify-content: center; gap: 28px;
+  display: flex; align-items: center; justify-content: center; gap: 18px;
   background: #3D0818; color: var(--marigold);
 }
-.cin-marquee .hi { font-size: 26px; color: var(--sodium); }
-.mq-main { font-family: var(--font-display); font-size: 32px; text-shadow: 3px 3px 0 var(--outline), 0 0 8px var(--saffron); }
+.cin-marquee .hi { font-size: 20px; color: var(--sodium); }
+.mq-main { font-family: var(--font-display); font-size: 24px; text-shadow: 3px 3px 0 var(--outline), 0 0 8px var(--saffron); }
 .cin-sign {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  background: #3D0818; font-family: var(--font-display); font-size: 16px; color: var(--marigold);
+  background: #3D0818; font-family: var(--font-display); font-size: 12px; color: var(--marigold);
 }
-.cin-sign .hi { font-size: 18px; }
+.cin-sign .hi { font-size: 13px; }
 .cin-poster { display: block; background: var(--outline); overflow: hidden; }
 .cin-poster img { width: 100%; height: 100%; object-fit: cover; }
 .cin-poster span {
@@ -404,16 +404,6 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 }
 .ride .front-row img { display: block; height: auto; }
 .char { transform-origin: 50% 100%; }
-
-/* stairwell: fillers behind the images, vignette over the screen */
-.stair-fill { display: none; }
-.ride .stair-fill { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: -1; pointer-events: none; }
-.stair-fill .edge, .stair-fill .shade { position: absolute; inset: 0; width: 100%; height: 100%; }
-.stair-vignette {
-  position: fixed; inset: 0; z-index: 30; pointer-events: none; opacity: 0;
-  background: radial-gradient(ellipse at 50% 55%, transparent 45%, rgba(18, 10, 30, 0.75) 80%, #120A1E 100%);
-}
-.static .stair-vignette { display: none; }
 
 /* cuts between cinema views */
 .cut {
@@ -526,8 +516,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .static .content { position: relative; left: auto; top: auto; }
 .static #street { background: var(--night); }
 .static #subway { background: #1C2A36; }
-.static #cinema, .static #cinema-front { background: var(--velvet-deep); }
-.static #cinema, .static .front-art .bg-img { display: none; }
+.static #cinema-front { background: var(--velvet-deep); }
+.static #stairwell, .static .front-art .bg-img { display: none; }
 .static #exhibition { background: var(--gallery-wall); }
 .static #rooftop { background: linear-gradient(var(--night) 0 30%, var(--dusk) 30% 55%, var(--dusk-pink) 55% 75%, var(--dawn-pink) 75% 90%, var(--dawn-orange) 90%); }
 .static #street .bg-img { display: block; width: 100%; max-width: 960px; margin: 0 auto 32px; }
@@ -567,3 +557,6 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* debug mode (D key or ?debug) */
+.debug-layer { position: fixed; inset: 0; z-index: 95; pointer-events: none; }
