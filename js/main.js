@@ -28,7 +28,7 @@
   /* ================= CONTENT ================= */
   function fillContent() {
     $("#site-name").textContent = S.name;
-    $("#site-role").textContent = S.role + " · " + S.location;
+    $("#site-role").textContent = S.role;
     $("#site-intro").textContent = S.intro;
     $(".hud-logo").textContent = S.name;
     $("#mail-link").href = "mailto:" + S.email;
@@ -66,19 +66,19 @@
   }
 
   /* ================= STREET ART ================= */
-  // Measured on assets/scenes/street.webp (1254 x 1254 art px)
+  // Measured on assets/scenes/street.webp (1672 x 941 art px)
   const STREET = {
-    size: 1254,
-    road: 1150,          // feet line on the wet road, in front of the taxi and auto
-    start: 190,          // where he waits during the intro
-    manhole: 520,        // in the gap of the road divider
+    w: 1672, h: 941,
+    road: 845,           // feet line on the wet road, just behind the divider
+    start: 150,          // where he waits during the intro, outside the general store
+    manhole: 790,        // in the gap between the two road dividers
     quads: {             // blank billboards: TL, TR, BR, BL
-      left: [[131, 190], [524, 252], [525, 408], [130, 337]],
-      led: [[1023, 237], [1188, 203], [1190, 558], [1021, 589]],
-      mid: [[697, 671], [930, 668], [930, 749], [698, 758]],
+      left: [[400, 128], [705, 180], [705, 303], [400, 245]],
+      led: [[1294, 210], [1416, 182], [1417, 446], [1293, 470]],
+      mid: [[969, 488], [1176, 484], [1177, 554], [969, 563]],
     },
-    medical: [112, 590, 96, 150],  // MEDICAL STORE neon: x, y, w, h
-    steam: [846, 860, 70, 70],     // above the chai pot
+    medical: [356, 402, 70, 110],  // MEDICAL STORE neon: x, y, w, h
+    steam: [1103, 640, 62, 72],    // above the chai pot
   };
 
   // Map an element (sized to its quad's bounding box) onto a quad with a projective transform
@@ -120,11 +120,14 @@
     L.cs = L.ck / dpr;                                         // css px per sheet px
 
     // 1. street: the art covers the screen (wide screens tilt down it, tall ones pan across)
-    const ss = Math.max(vw, vh) / STREET.size;              // art px -> css px
-    const street = { x: 0, y: 0, w: Math.round(STREET.size * ss), h: Math.round(STREET.size * ss), s: ss };
+    const ss = Math.max(vw / STREET.w, vh / STREET.h);     // art px -> css px (cover)
+    const street = { x: 0, y: 0, w: Math.round(STREET.w * ss), h: Math.round(STREET.h * ss), s: ss };
     const mh = Math.round(STREET.manhole * ss);             // manhole centre
     L.sgy = Math.round(STREET.road * ss);                   // where his feet meet the road
     const camEnd = { x: Math.min(Math.max(0, mh - vw * 0.4), street.w - vw), y: street.h - vh };
+    const nameX = (STREET.quads.left[0][0] + STREET.quads.left[1][0]) / 2 * ss;   // centre of the name billboard
+    const camStart = { x: Math.min(Math.max(0, nameX - vw / 2), camEnd.x), y: 0 };
+    L.x0 = Math.max(STREET.start * ss, camStart.x + vw * 0.2);                    // he starts in the opening frame
     // 2. drain: straight below the street, framed where the street camera ends
     const drain = { x: Math.round(camEnd.x), y: street.h, w: vw, h: snap(vh * 1.3) };
     // 3. subway: billboards along the wall
@@ -166,7 +169,7 @@
     // 6. rooftop
     const rooftop = { x: exhibition.x + exhibition.w, y: subway.y, w: vw, h: vh };
 
-    Object.assign(L, { street, mh, camEnd, drain, subway, cinema, exhibition, rooftop, boards, frames, lobbyW, seatX, scr });
+    Object.assign(L, { street, mh, camStart, camEnd, drain, subway, cinema, exhibition, rooftop, boards, frames, lobbyW, seatX, scr });
 
     // place scenes
     for (const [id, s] of Object.entries({ street, drain, subway, cinema, exhibition, rooftop })) {
@@ -221,22 +224,22 @@
 
   /* ================= PATH ================= */
   function buildPath() {
-    const { vw, vh, gy, sgy, street, mh, camEnd, drain, subway, cinema, exhibition, rooftop, lobbyW, seatX } = L;
+    const { vw, vh, gy, sgy, street, mh, camStart, camEnd, drain, subway, cinema, exhibition, rooftop, lobbyW, seatX } = L;
     const sy = subway.y + gy;
     const follow = (x, y) => ({ x: x - vw * 0.4, y: y - gy });
     segs = [];
     const add = (s) => { s.start = total; total += Math.max(1, Math.round(s.len)); s.len = Math.max(1, Math.round(s.len)); segs.push(s); };
     total = 0;
 
-    const x0 = Math.round(STREET.start * street.s), stand = mh - Sprite.HOLE.dx * L.cs;
+    const x0 = Math.round(L.x0), stand = mh - Sprite.HOLE.dx * L.cs;
     const lerp = (a, b, t) => a + (b - a) * t;
     // intro: he waits on the road while the camera tilts from the billboards down to the street
     add({ id: "intro", loc: "street", pose: "walk", a: [x0, sgy], b: [x0, sgy], len: Math.max(160, camEnd.y),
       bubble: ["Hi! I'm " + S.name[0] + S.name.slice(1).toLowerCase() + ".", 0.7, 1],
-      cam: (t) => ({ x: 0, y: camEnd.y * (t * t * (3 - 2 * t)) }) });
+      cam: (t) => ({ x: camStart.x, y: camEnd.y * (t * t * (3 - 2 * t)) }) });
     add({ loc: "street", pose: "walk", a: [x0, sgy], b: [stand, sgy], len: Math.max(120, stand - x0),
       bubble: ["Chalo, let's go!", 0, 0.3],
-      cam: (t) => ({ x: lerp(0, camEnd.x, t), y: camEnd.y }) });
+      cam: (t) => ({ x: lerp(camStart.x, camEnd.x, t), y: camEnd.y }) });
     add({ id: "crouch", loc: "street", pose: "crouch", a: [stand, sgy], b: [stand, sgy], len: 220,
       cam: () => camEnd });
     // fall: the camera eases with him, so he stays on screen the whole way down
