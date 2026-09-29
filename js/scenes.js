@@ -69,45 +69,7 @@
 
   /* 1. THE STREET is real art now: assets/scenes/street.webp */
 
-  /* ---------------- 2. THE DRAIN ---------------- */
-  function drain(W, H, o) {
-    const r = rng(13), cx = o.cx, sw = 24;
-    R(0, 0, W, H, "#0B0818");
-    for (let y = 0; y < H; y += 4) for (let x = (y / 4) % 2 ? 0 : 5; x < W; x += 10) if (r() < 0.5) R(x, y, 9, 3, "#120E24");
-    // shaft interior: dark, with subway light rising from below
-    const cols = ["#08121A", "#08121A", "#0A161C", "#0C1C20", "#0E2426", "#123030", T.drainTeal, "#3E8F8A", "#8FC7C4", T.fluoro];
-    const bh = H / cols.length;
-    cols.forEach((c, i) => R(cx - sw, i * bh, sw * 2, bh + 1, c));
-    // light from the street above
-    R(cx - 10, 0, 20, 10, T.sodium, 0.35); R(cx - 6, 10, 12, 8, T.sodium, 0.2);
-    // brick walls
-    for (let y = 0; y < H; y += 3) {
-      const off = (y / 3) % 2 ? 0 : 3;
-      for (let x = -6 + off; x < 12; x += 6) {
-        R(cx - sw - 12 + x, y, 5, 2, "#1D3A3A"); R(cx + sw + x, y, 5, 2, "#1D3A3A");
-      }
-    }
-    R(cx - sw - 1, 0, 1, H, T.outline); R(cx + sw, 0, 1, H, T.outline);
-    // ladder
-    R(cx - sw + 2, 0, 1, H * 0.85, "#5E4A3A"); R(cx - sw + 9, 0, 1, H * 0.85, "#5E4A3A");
-    for (let y = 2; y < H * 0.85; y += 6) R(cx - sw + 2, y, 8, 1, "#7A5E48");
-    // pipes with drips
-    for (let i = 1; i < 5; i++) {
-      const y = Math.round((H * i) / 5.5), left = i % 2 === 0;
-      const x0 = left ? cx - sw - 12 : cx + sw - 16;
-      R(x0, y, 28, 4, "#7A4A2E"); R(x0, y, 28, 1, "#A0673A"); R(left ? x0 + 26 : x0, y - 1, 2, 6, "#5A341E");
-      R(left ? x0 + 27 : x0 - 1, y + 4, 1, 2, T.slime);
-    }
-    // slime puddles and glow patches
-    for (let i = 0; i < 16; i++) {
-      const side = r() < 0.5 ? cx - sw - 8 + r() * 6 : cx + sw + 2 + r() * 6;
-      R(side, r() * H, 2 + r() * 3, 1, T.slime, 0.8);
-    }
-    // rat on a ledge
-    const ry = Math.round(H * 0.45);
-    R(cx + sw - 6, ry + 3, 6, 1, "#1D3A3A");
-    R(cx + sw - 5, ry, 4, 3, "#6A6A7A"); R(cx + sw - 6, ry + 1, 1, 1, T.magenta); R(cx + sw - 1, ry + 2, 3, 1, "#8A7A8A");
-  }
+  /* 2. THE DRAIN is real art now: assets/scenes/drain.webp */
 
   /* ---------------- 3. THE SUBWAY ---------------- */
   function subway(W, H, o) {
@@ -273,7 +235,7 @@
     R(px, g - 10, 12, 2, "#E8DCC8"); R(px, g - 20, 2, 10, "#E8DCC8"); R(px, g - 8, 2, 8, "#D0C4B0"); R(px + 10, g - 8, 2, 8, "#D0C4B0");
   }
 
-  const DRAW = { drain, subway, cinema, exhibition, rooftop };
+  const DRAW = { subway, cinema, exhibition, rooftop };
 
   window.Scenes = {
     paint(canvas, name, cssW, cssH, P, opts) {

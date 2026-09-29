@@ -81,6 +81,13 @@
     steam: [1103, 640, 62, 72],    // above the chai pot
   };
 
+  // assets/scenes/drain.webp: three stitched frames (manhole from below, shaft, grate into the subway)
+  const DRAIN = {
+    w: 1672, h: 2526,
+    hole: 792,   // centre of the manhole opening, lines up with STREET.manhole
+    top: 95,     // soil starts here; everything above sits behind the street's road
+  };
+
   // Map an element (sized to its quad's bounding box) onto a quad with a projective transform
   function mapToQuad(el, q, s) {
     const P = q.map(([x, y]) => [x * s, y * s]);
@@ -128,10 +135,13 @@
     const nameX = (STREET.quads.left[0][0] + STREET.quads.left[1][0]) / 2 * ss;   // centre of the name billboard
     const camStart = { x: Math.min(Math.max(0, nameX - vw / 2), camEnd.x), y: 0 };
     L.x0 = Math.max(STREET.start * ss, camStart.x + vw * 0.2);                    // he starts in the opening frame
-    // 2. drain: straight below the street, framed where the street camera ends
-    const drain = { x: Math.round(camEnd.x), y: street.h, w: vw, h: snap(vh * 1.3) };
-    // 3. subway: billboards along the wall
-    const subway = { x: drain.x, y: drain.y + drain.h, h: vh };
+    // 2. drain: the shaft art hangs under the street, its manhole under the street's manhole
+    const drain = {
+      x: Math.round(mh - DRAIN.hole * ss), y: Math.round(street.h - DRAIN.top * ss),
+      w: Math.round(DRAIN.w * ss), h: Math.round(DRAIN.h * ss),
+    };
+    // 3. subway: starts right under the drain's ceiling grate; billboards along the wall
+    const subway = { x: Math.round(camEnd.x), y: drain.y + drain.h, h: vh };
     const bh = Math.round(Math.min(Math.max(vh * 0.3, 140), 290));
     const gap = Math.round(Math.max(170, vw * 0.16));
     let cur = snap(vw * 0.95);
@@ -183,9 +193,6 @@
     art($(".neon-flicker"), STREET.medical);
     art($(".steam"), STREET.steam);
     $$(".bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
-    const shaft = mh - drain.x;
-    setBox($(".graffiti"), snap(shaft + 30 * P), snap(drain.h * 0.3));
-    $$(".drip").forEach((d, i) => setBox(d, snap(shaft + [-16, 8, 18][i] * P), snap(drain.h * (0.2 + i * 0.22))));
     setBox($(".station-board"), snap(vw * 0.5), snap(vh * 0.2));
     setBox($(".platform-display"), snap(vw * 0.12), snap(vh * 0.13));
     setBox($(".exit-sign"), subway.w - snap(vw * 0.35), snap(vh * 0.2));
@@ -205,7 +212,6 @@
       const s = L[id];
       Scenes.paint($("#" + id + " .bg"), id, s.w, s.h, P, opts);
     };
-    paint("drain", { cx: shaft / P });
     paint("subway", { pillars, benches, vending: (vw * 0.14) / P, stairsW: 70 });
     paint("cinema", { lobbyW: lobbyW / P, seatX: seatX / P, seatGap: (70 * L.cs) / P, screen: { x: scr.x / P, y: scr.y / P, w: scr.w / P, h: scr.h / P } });
     paint("exhibition", {
@@ -243,7 +249,7 @@
     add({ id: "crouch", loc: "street", pose: "crouch", a: [stand, sgy], b: [stand, sgy], len: 220,
       cam: () => camEnd });
     // fall: the camera eases with him, so he stays on screen the whole way down
-    add({ loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], len: drain.h * 0.9 + vh * 0.2, ease: "in",
+    add({ loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], len: vh * 1.6, ease: "in",
       bubble: ["Shortcut!", 0.12, 0.55],
       cam: (t) => ({ x: camEnd.x, y: lerp(camEnd.y, subway.y, t * t) }) });
     add({ loc: "subway", pose: "land", a: [mh, sy], b: [mh, sy], len: 160, bubble: ["Next stop: Projects!", 0, 1],
