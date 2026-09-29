@@ -9,8 +9,10 @@
 
   const ANIMS = {
     idle: [0, 1, 2, 3],
-    walk: [4, 5, 6, 7, 8, 9, 10, 11, 12],
-    run: [13, 14, 15, 16, 17, 18],
+    // The sheet's walk/run frames are all mid-stride, so the cycles alternate
+    // a stride frame with a legs-together "passing" frame (40 = side stand).
+    walk: [4, 40, 12, 40],
+    run: [18, 16, 14, 13],
     crouch: [19, 20, 21],        // grab cover, lift it, look into the hole
     fall: [22, 23, 24, 29],
     land: [30, 31, 25],          // squash with dust, rise, stand
@@ -24,6 +26,9 @@
     wave: [46, 47, 48, 49],
     talk: [50, 51, 52],
   };
+
+  // vertical bob per cycle frame, in sheet px (negative = up): passing/flight frames rise
+  const BOB = { walk: [0, -3, 0, -3], run: [1, -7, 1, -7] };
 
   // sheet-pixel measurements used to line the scene up with the art
   const HOLE = { dx: 35, w: 64, h: 16 }; // manhole centre offset from the anchor, in the crouch frames
@@ -50,19 +55,17 @@
     ctx.drawImage(img, (idx % COLS) * CW, Math.floor(idx / COLS) * CH, CW, CH, 0, 0, CW, CH);
 
     if (rim) {
-      // rim light: tint opaque pixels that sit within 3px of the left (back) edge
+      // rim light: tint the single outermost pixel on the left (back) edge
       const d = ctx.getImageData(0, 0, CW, CH);
       const px = d.data, r = hex(rim), A = (x, y) => px[(y * CW + x) * 4 + 3] > 100;
       for (let y = 0; y < CH; y++) {
         for (let x = 0; x < CW; x++) {
           if (!A(x, y)) continue;
-          let edge = false;
-          for (let k = 1; k <= 3 && !edge; k++) if (x - k < 0 || !A(x - k, y)) edge = true;
-          if (!edge) continue;
+          if (x > 0 && A(x - 1, y)) continue;
           const i = (y * CW + x) * 4;
-          px[i] = (px[i] * 0.45 + r[0] * 0.55) | 0;
-          px[i + 1] = (px[i + 1] * 0.45 + r[1] * 0.55) | 0;
-          px[i + 2] = (px[i + 2] * 0.45 + r[2] * 0.55) | 0;
+          px[i] = (px[i] * 0.6 + r[0] * 0.4) | 0;
+          px[i + 1] = (px[i + 1] * 0.6 + r[1] * 0.4) | 0;
+          px[i + 2] = (px[i + 2] * 0.6 + r[2] * 0.4) | 0;
         }
       }
       ctx.putImageData(d, 0, 0);
@@ -73,6 +76,7 @@
 
   window.Sprite = {
     W: CW, H: CH, ANIMS, HOLE, frame,
+    bob: (anim, n) => { const b = BOB[anim]; return b ? b[((n % b.length) + b.length) % b.length] : 0; },
     count: (anim) => (ANIMS[anim] || ANIMS.idle).length,
     whenReady: (f) => (ready ? f() : onReady.push(f)),
   };

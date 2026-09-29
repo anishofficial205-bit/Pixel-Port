@@ -81,7 +81,10 @@
     const P = vw < 700 ? 3 : 4;
     Object.assign(L, { vw, vh, P });
     L.gy = snap(vh * 0.8);
-    L.cs = Math.min(1.1, Math.max(0.55, (vh * 0.2) / 170)); // character scale (sheet px -> css px)
+    // character scale: a whole number of device pixels per sheet pixel keeps him sharp
+    const dpr = window.devicePixelRatio || 1;
+    L.ck = Math.max(1, Math.round(((vh * 0.2) / 170) * dpr)); // device px per sheet px
+    L.cs = L.ck / dpr;                                         // css px per sheet px
 
     // 1. street
     const street = { x: 0, y: 0, w: snap(vw + Math.max(vw * 0.8, 700)), h: vh };
@@ -173,7 +176,7 @@
     });
     paint("rooftop", {});
 
-    sprite.width = Sprite.W; sprite.height = Sprite.H;
+    sprite.width = Sprite.W * L.ck; sprite.height = Sprite.H * L.ck;
     charEl.style.setProperty("--w", Math.round(Sprite.W * L.cs) + "px");
     charEl.style.setProperty("--h", Math.round(Sprite.H * L.cs) + "px");
     lastKey = "";
@@ -244,8 +247,8 @@
   }
 
   /* ================= RENDER LOOP ================= */
-  let target = 0, cur = 0, lastX = null, walkDist = 0, facing = 1, lastMove = 0, lastLoc = "", hoverLook = false;
-  let lastKey = "";
+  let target = 0, cur = 0, lastX = null, facing = 1, lastMove = 0, lastLoc = "", hoverLook = false;
+  let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -256,12 +259,15 @@
 
     const { s, t, p, cam } = evalPath(cur);
 
-    // movement bookkeeping
-    if (lastX !== null) {
-      const dx = p.x - lastX;
-      if (Math.abs(dx) > 0.05) { walkDist += Math.abs(dx); facing = dx >= 0 ? 1 : -1; lastMove = now; }
-    }
+    // movement bookkeeping: speed in px/ms, smoothed so wheel ticks don't flicker the pose
+    const dt = Math.min(64, Math.max(1, now - (lastNow || now - 16)));
+    lastNow = now;
+    const dx = lastX === null ? 0 : p.x - lastX;
+    if (Math.abs(dx) > 0.05) { facing = dx >= 0 ? 1 : -1; lastMove = now; }
     lastX = p.x;
+    speed += (Math.abs(dx) / dt - speed) * 0.15;
+    if (!running && speed > 1.4) running = true;       // hysteresis: harder to start running
+    else if (running && speed < 0.7) running = false;  // than to keep running
 
     // pose -> animation + frame number
     const moving = now - lastMove < 160;
@@ -271,9 +277,10 @@
     switch (s.pose) {
       case "walk":
         if (moving) {
-          const run = Math.abs(diff) > 60; // fast scrolling breaks into a run
-          anim = run ? "run" : "walk";
-          n = Math.floor(walkDist / (L.cs * (run ? 26 : 16)));
+          // steady game cadence (8 fps walk, 12 fps run), like the style guide's steps() timing
+          anim = running ? "run" : "walk";
+          stepPhase += (dt / 1000) * (running ? 12 : 8);
+          n = Math.floor(stepPhase);
         } else if (hoverLook && s.loc === "subway") anim = "point";
         else if (s.loc === "exhibition") { anim = tick(2400) % 2 ? "gaze" : "look"; n = tick(900); }
         else if (cur < 40) { const w = tick(170) % 12; anim = w < 4 ? "wave" : "idle"; n = w < 4 ? w : tick(260); }
@@ -302,12 +309,14 @@
       if (src) {
         lastKey = key;
         const c = sprite.getContext("2d");
-        c.clearRect(0, 0, Sprite.W, Sprite.H);
-        c.drawImage(src, 0, 0);
+        c.imageSmoothingEnabled = false;
+        c.clearRect(0, 0, sprite.width, sprite.height);
+        c.drawImage(src, 0, 0, sprite.width, sprite.height);
       }
     }
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
-    charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h)}px, 0)`;
+    const bob = Sprite.bob(anim, n) * L.cs;
+    charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)`;
     charEl.style.setProperty("--face", flips ? facing : 1);
 
     // dropping into the manhole: hide the part of him that's below the street surface

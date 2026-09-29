@@ -10,6 +10,23 @@ import sys, numpy as np, json
 from PIL import Image
 from scipy import ndimage as nd
 im = np.array(Image.open(sys.argv[1]).convert('RGBA'))
+# --- clean-up for crisp edges -------------------------------------------
+# 1. hard alpha: pixel art has no semi-transparent edge pixels
+# 2. defringe: drop the saturated magenta/cyan halo left around the outline
+def defringe(im):
+    a = im[..., 3] > 100
+    rgb = im[..., :3].astype(int)
+    mx, mn = rgb.max(-1), rgb.min(-1)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    # the character's palette is warm (red >= blue); cool pixels on the outline are halo
+    cool = (b > r + 30) | ((g > r + 30) & (b > r + 10)) | ((r > g + 50) & (b > g + 50) & (sat > 0.35))
+    for _ in range(4):  # halos can be a few pixels thick
+        near_edge = nd.binary_dilation(~a, iterations=1) & a
+        a = a & ~(near_edge & cool)
+    im[..., 3] = np.where(a, 255, 0)
+    return im
+im = defringe(im)
 fg = im[..., 3] > 100
 L, n = nd.label(fg, structure=np.ones((3,3)))
 sizes = nd.sum(fg, L, range(1, n+1)); objs = nd.find_objects(L)

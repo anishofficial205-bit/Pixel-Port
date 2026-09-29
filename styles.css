@@ -188,6 +188,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 }
 .char-sprite {
   position: absolute; inset: 0; width: 100%; height: 100%;
+  image-rendering: pixelated; image-rendering: crisp-edges;
   transform: scaleX(var(--face, 1));
 }
 .char-shadow {
