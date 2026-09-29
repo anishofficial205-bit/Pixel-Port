@@ -463,7 +463,17 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .lb-open { overflow: hidden; }
 
 /* ---------------- 6. rooftop ---------------- */
-.credits { width: var(--w); display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.bulbs i {
+  position: absolute; left: var(--x); top: var(--y); width: 18px; height: 18px; margin: -9px 0 0 -9px;
+  background: radial-gradient(circle, rgba(255, 214, 120, 0.9) 0 20%, rgba(255, 184, 77, 0.35) 45%, transparent 70%);
+  animation: twinkle 2.2s steps(3) infinite;
+}
+@keyframes twinkle { 0%, 100% { opacity: 1; } 40% { opacity: 0.45; } 70% { opacity: 0.85; } }
+.credits-kicker { margin: 0; font-family: var(--font-display); font-size: 8px; color: var(--dawn-orange); text-shadow: 2px 2px 0 var(--outline); }
+.credits-kicker .hi { font-size: 13px; }
+.credits-actions { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+.credits .copyright { opacity: 0.85; }
+.credits { width: var(--w); display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
 .credits-title {
   font-size: 24px; line-height: 1.4; color: var(--marigold);
   text-shadow: 3px 3px 0 var(--outline), 0 0 8px var(--saffron);

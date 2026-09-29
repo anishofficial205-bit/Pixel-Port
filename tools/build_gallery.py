@@ -3,7 +3,7 @@
 usage: python3 tools/build_gallery.py
 needs: pip install pillow numpy scipy
 
-Order: entry (doors), wall (windows), exit (door onto the rooftop).
+Order: entry (doors), wall (windows), exit (door onto the rooftop), rooftop (footer).
 Seams overlap 64px with an ordered-dither blend. The magenta picture
 areas are keyed out so photos can sit behind them; their boxes are
 printed for GALLERY in js/main.js.
@@ -14,8 +14,8 @@ from scipy import ndimage as nd
 
 SRC = "assets/gallery/src/"
 W, H, OV = 1672, 941, 64
-parts = [np.array(Image.open(SRC + n).convert("RGBA")) for n in ("entry.webp", "wall.webp", "exit.webp")]
-out = np.zeros((H, W * 3 - OV * 2, 4), np.uint8)
+parts = [np.array(Image.open(SRC + n).convert("RGBA")) for n in ("entry.webp", "wall.webp", "exit.webp", "rooftop.webp")]
+out = np.zeros((H, W * len(parts) - OV * (len(parts) - 1), 4), np.uint8)
 bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
 x = 0
 for i, p in enumerate(parts):
@@ -38,5 +38,5 @@ for i, sl in enumerate(nd.find_objects(L)):
 key = nd.binary_dilation(key, iterations=2)
 out[..., 3] = np.where(key, 0, 255)
 Image.fromarray(out).save("assets/scenes/gallery.webp", quality=90, alpha_quality=100, method=6)
-print("gallery strip", out.shape[1], "x", out.shape[0], "offsets", [i * (W - OV) for i in range(3)])
+print("gallery strip", out.shape[1], "x", out.shape[0], "offsets", [i * (W - OV) for i in range(len(parts))])
 print("frames", sorted(boxes))

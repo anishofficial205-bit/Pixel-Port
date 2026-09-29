@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1790705401" />
+  <link rel="stylesheet" href="styles.css?v=1790706319" />
 </head>
 <body class="ride" data-location="street">
   <a class="skip-link" href="#subway">Skip to projects</a>
@@ -115,12 +115,16 @@
 
         <!-- 6. THE ROOFTOP / END CREDITS -->
         <footer class="scene" id="rooftop" data-location="rooftop" aria-labelledby="credits-title">
+          <div class="deco" aria-hidden="true"><div class="bulbs"></div></div>
           <div class="content credits">
+            <p class="credits-kicker">THE END · <span class="hi">समाप्त</span></p>
             <h2 class="credits-title" id="credits-title">THANKS FOR PLAYING</h2>
             <p class="credits-line">Got a project, a job, or just want to share chai? Say hi.</p>
-            <a class="btn credits-mail" id="mail-link" href="#">Send message</a>
+            <div class="credits-actions">
+              <a class="btn credits-mail" id="mail-link" href="#">Send message</a>
+              <button class="btn btn-sm play-again" type="button">Play again ^</button>
+            </div>
             <ul class="socials" id="socials"></ul>
-            <button class="btn btn-sm play-again" type="button">Play again ^</button>
             <p class="copyright" id="copyright"></p>
           </div>
         </footer>
@@ -156,8 +160,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1790705401"></script>
-  <script src="js/sprite.js?v=1790705401"></script>
-  <script src="js/main.js?v=1790705401"></script>
+  <script src="js/data.js?v=1790706319"></script>
+  <script src="js/sprite.js?v=1790706319"></script>
+  <script src="js/main.js?v=1790706319"></script>
 </body>
 </html>

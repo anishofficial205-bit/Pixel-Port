@@ -146,12 +146,14 @@
 
   // assets/scenes/gallery.webp (tools/build_gallery.py): entrance, window wall, exit door + the rooftop outside
   const GALLERY = {
-    w: 4888, h: 941,
+    w: 6496, h: 941,
     floor: 770,                 // his feet on the wooden floor
     enter: 165, exit: 3930,     // double doors he comes in by; the door out to the roof
     frames: [[1170, 268, 400, 212], [2124, 232, 165, 232], [2474, 242, 404, 220], [3301, 277, 355, 190]],
     plaques: [[1330, 528, 84, 21], [2165, 512, 85, 20], [2632, 512, 86, 20], [3441, 512, 77, 19]],
-    roof: { x: 4100, floor: 800, seat: 4260, sky: [4135, 70, 720, 470] },   // rooftop at dawn: the footer
+    // rooftop at dawn (the footer): he steps out at `out`, walks to the bench under the string lights
+    bulbs: [[5749, 414], [5803, 436], [5873, 454], [5939, 460], [6005, 460], [6055, 454], [6104, 444], [6152, 431], [6201, 412]],
+    roof: { x: 4100, floor: 800, out: 4300, seat: 5869, seatFloor: 722, sky: [5000, 60, 1000] },
   };
 
   // Map an element (sized to its quad's bounding box) onto a quad with a projective transform
@@ -278,11 +280,15 @@
       const [px, py, pw, phh] = G.plaques[i];
       setBox($(".plaque", el), Math.round(px * gs) - f.x, Math.round(py * gs) - f.y, Math.round(pw * gs), Math.round(phh * gs));
     });
+    // string lights over the bench twinkle
+    const bulbs = $(".bulbs");
+    if (!bulbs.children.length) bulbs.innerHTML = G.bulbs.map((_, i) => `<i style="animation-delay:${(i * 0.37) % 2.2}s"></i>`).join("");
+    [...bulbs.children].forEach((b, i) => setBox(b, Math.round((G.bulbs[i][0] - G.roof.x) * gs), Math.round(G.bulbs[i][1] * gs)));
     // end credits in the dawn sky, kept inside the final view
-    const endX = exhibition.w - vw;
-    const [kx, ky, kw] = G.roof.sky;
+    const endX = Math.min(Math.max(G.roof.seat * gs - vw * 0.5, 0), exhibition.w - vw);   // final view: the bench
+    const [kx, ky, kw] = G.roof.sky;   // credits float in the dawn sky
     const cl = Math.max(kx * gs, endX + 16);
-    setBox($(".credits"), Math.round(cl - G.roof.x * gs), Math.round(Math.max(ky * gs, 76)), Math.round(Math.min(kw * gs, exhibition.w - cl - 16)));
+    setBox($(".credits"), Math.round(cl - G.roof.x * gs), Math.round(Math.max(ky * gs, 76)), Math.round(Math.min(kw * gs, endX + vw - cl - 16)));
 
     sprite.width = Sprite.W * L.ck; sprite.height = Sprite.H * L.ck;
     charEl.style.setProperty("--w", Math.round(Sprite.W * L.cs) + "px");
@@ -366,10 +372,13 @@
       cut: tri, cam: (t) => (t < 0.5 ? frontCam : gCam(gIn[0])) });
     add({ id: "gallery", loc: "exhibition", pose: "walk", a: gIn, b: gOut, len: (gOut[0] - gIn[0]) / 0.7, cam: (t, p) => gCam(p.x) });
     // through the door and out into the dawn
-    const endCam = { x: exhibition.x + exhibition.w - vw, y: exhibition.y };
-    const seat = [Math.max(gx(G.roof.seat), endCam.x + 60), exhibition.y + G.roof.floor * gs];
-    add({ loc: "exhibition", loc2: "rooftop", pose: "walk", a: gOut, b: seat, len: 300, ease: "cut",
-      cut: (t) => tri(t) * 0.85, cam: (t) => (t < 0.5 ? gCam(gOut[0]) : endCam) });
+    const endCam = { x: exhibition.x + Math.min(Math.max(G.roof.seat * gs - vw * 0.5, 0), exhibition.w - vw), y: exhibition.y };
+    const out = [gx(G.roof.out), exhibition.y + G.roof.floor * gs];
+    const seat = [gx(G.roof.seat), exhibition.y + G.roof.seatFloor * gs];
+    add({ loc: "exhibition", loc2: "rooftop", pose: "walk", a: gOut, b: out, len: 260, ease: "cut",
+      cut: (t) => tri(t) * 0.85, cam: (t) => gCam(t < 0.5 ? gOut[0] : out[0]) });
+    // along the roof to the bench, the camera settling on the final view
+    add({ loc: "rooftop", pose: "walk", a: out, b: seat, len: Math.max(200, (seat[0] - out[0]) * 0.8), cam: (t, p) => ({ x: Math.min(gCam(p.x).x, endCam.x), y: exhibition.y }) });
     add({ loc: "rooftop", pose: "sit", prop: "chai", a: seat, b: seat, len: 260, bubble: ["Chai break?", 0.3, 1.01],
       cam: () => endCam });
 
