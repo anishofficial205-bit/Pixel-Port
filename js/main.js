@@ -377,8 +377,8 @@
       const k = zoneK(p.x), x = p.x - vw * 0.4;
       return { x: lerp(x, Math.max(x, LB.left), k), y: lerp(subY(p), lobbyY, k) };
     };
-    add({ loc: "subway", loc2: "cinema", pose: "walk", a: s0, b: l0, len: (l0[0] - s0[0]) * 1.2, zoneK, cam: stairCam });
-    add({ loc: "cinema", pose: "walk", a: l0, b: l1, len: (l1[0] - l0[0]) * 1.2, zoneK, cam: stairCam });
+    add({ loc: "subway", loc2: "cinema", pose: "walk", stairs: true, a: s0, b: l0, len: (l0[0] - s0[0]) * 1.2, zoneK, cam: stairCam });
+    add({ loc: "cinema", pose: "walk", stairs: true, a: l0, b: l1, len: (l1[0] - l0[0]) * 1.2, zoneK, cam: stairCam });
     const door = at(cinema, [C.lobby.door, C.lobby.floor]);
     const tk = (C.lobby.ticket * ss + cinema.x - l1[0]) / (door[0] - l1[0]);
     add({ loc: "cinema", pose: "walk", a: [l1[0], ty], b: door, len: door[0] - l1[0],
@@ -484,7 +484,12 @@
     const poseNow = cutSide && s.pose2 ? s.pose2 : s.pose;
     switch (poseNow) {
       case "walk":
-        if (moving) {
+        if (s.stairs) {
+          // stair cycle: up while scrolling forward, down while scrolling back; holds a frame when still
+          anim = facing > 0 ? "climbUp" : "climbDown";
+          if (moving) stepPhase += (dt / 1000) * 10;
+          n = Math.floor(stepPhase);
+        } else if (moving) {
           // steady game cadence (8 fps walk, 12 fps run), like the style guide's steps() timing
           anim = running ? "run" : "walk";
           stepPhase += (dt / 1000) * (running ? 12 : 8);
@@ -502,7 +507,7 @@
       case "watch": anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = s.face || -1; break;
       case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
     }
-    const flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);
+    const flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);   // climb frames are drawn facing their direction
 
     // location
     const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
@@ -534,7 +539,7 @@
     const top = p.y - h, A = L.sgy + 2 - top, B = L.street.h - top;
     sprite.style.webkitMaskImage = sprite.style.maskImage =
       s.pose === "fall" && A < h && B > 0 ? `linear-gradient(#000 0 ${A}px, transparent ${A}px ${B}px, #000 ${B}px)` : "";
-    charEl.classList.toggle("no-shadow", !["walk", "run", "idle", "talk", "point", "look", "gaze", "wave"].includes(anim));
+    charEl.classList.toggle("no-shadow", !["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown"].includes(anim));
 
     const z = cam.z || 1;
     world.style.transform = z === 1

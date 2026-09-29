@@ -25,6 +25,8 @@
     chai: [42, 43, 44, 45],
     wave: [46, 47, 48, 49],
     talk: [50, 51, 52],
+    climbUp: [60, 61, 62, 63, 64, 65, 66, 67],     // stairs, going up (faces right)
+    climbDown: [70, 71, 72, 73, 74, 75, 76, 77],   // stairs, coming down (drawn facing left)
   };
 
   // vertical bob per cycle frame, in sheet px (negative = up): passing/flight frames rise
@@ -34,7 +36,7 @@
   const HOLE = { dx: 35, w: 64, h: 16 }; // manhole centre offset from the anchor, in the crouch frames
 
   const img = new Image();
-  img.src = "assets/character/sheet.webp?v=1790708520";
+  img.src = "assets/character/sheet.webp?v=1790709951";
   let ready = false;
   const onReady = [];
   img.onload = () => { ready = true; onReady.forEach((f) => f()); };
