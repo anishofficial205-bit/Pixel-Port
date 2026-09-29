@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project · Neon Bharat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="project.css" />
+</head>
+<body class="project-page" data-location="subway">
+  <header class="hud">
+    <a class="btn btn-sm" id="back" href="index.html#subway">&lt; Back to platform</a>
+    <p class="hud-station" aria-live="polite">NOW ARRIVING · <span id="hud-name"></span></p>
+  </header>
+
+  <main class="carriage">
+    <section class="arrival">
+      <div class="station-board big">
+        <span class="bb-line" id="p-line"></span>
+        <h1 id="p-title"></h1>
+        <span class="station-sub" id="p-blurb"></span>
+      </div>
+      <dl class="meta">
+        <div><dt>Year</dt><dd id="p-year"></dd></div>
+        <div><dt>Role</dt><dd id="p-role"></dd></div>
+        <div><dt>Tools</dt><dd id="p-tools"></dd></div>
+      </dl>
+    </section>
+
+    <figure class="hero-frame">
+      <img class="work-media" id="p-hero" alt="" />
+    </figure>
+
+    <article class="case">
+      <section class="dialog">
+        <h2>Overview</h2>
+        <p>Placeholder text. Two or three sentences about what this project is, who it was for and what you were asked to do.</p>
+      </section>
+      <section class="dialog">
+        <h2>The problem</h2>
+        <p>Placeholder text. What was broken, confusing or missing? Keep it short and specific.</p>
+      </section>
+      <figure class="case-img"><img class="work-media" id="p-img1" alt="Placeholder process image" loading="lazy" /></figure>
+      <section class="dialog">
+        <h2>Process</h2>
+        <p>Placeholder text. Research, sketches, iterations, the key decision that changed the direction.</p>
+      </section>
+      <figure class="case-img"><img class="work-media" id="p-img2" alt="Placeholder final design image" loading="lazy" /></figure>
+      <section class="dialog">
+        <h2>Outcome</h2>
+        <p>Placeholder text. What shipped, and what changed because of it. Numbers if you have them.</p>
+      </section>
+    </article>
+
+    <nav class="next-station" aria-label="Next project">
+      <span>NEXT STATION</span>
+      <a class="btn" id="next"></a>
+    </nav>
+  </main>
+
+  <div class="pixel-wipe" aria-hidden="true"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    (function () {
+      const list = SITE.projects;
+      const id = new URLSearchParams(location.search).get("p");
+      const i = Math.max(0, list.findIndex((p) => p.id === id));
+      const p = list[i], next = list[(i + 1) % list.length];
+      const $ = (s) => document.querySelector(s);
+      document.title = p.title + " · " + SITE.name;
+      document.body.style.setProperty("--band", p.band);
+      $("#hud-name").textContent = p.title.toUpperCase();
+      $("#p-line").textContent = p.line;
+      $("#p-title").textContent = p.title;
+      $("#p-blurb").textContent = p.blurb;
+      $("#p-year").textContent = p.year;
+      $("#p-role").textContent = p.role;
+      $("#p-tools").textContent = p.tools;
+      $("#p-hero").src = p.image; $("#p-hero").alt = p.title + ": " + p.blurb;
+      $("#p-img1").src = `https://picsum.photos/seed/${p.id}-a/1400/900`;
+      $("#p-img2").src = `https://picsum.photos/seed/${p.id}-b/1400/900`;
+      $("#back").href = "index.html#project-" + p.id;
+      $("#next").href = "project.html?p=" + next.id;
+      $("#next").textContent = next.title + " >";
+    })();
+  </script>
+</body>
+</html>

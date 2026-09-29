@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anish · Neon Bharat</title>
+  <meta name="description" content="Design portfolio of Anish: a pixel-art journey through one night in the city." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="ride" data-location="street">
+  <a class="skip-link" href="#subway">Skip to projects</a>
+
+  <!-- HUD: menu, metro route map, skip toggle -->
+  <header class="hud">
+    <a class="hud-logo" href="#street" data-stop="street">ANISH</a>
+    <nav class="route" aria-label="Journey">
+      <div class="route-track"><div class="route-fill"></div></div>
+      <ol>
+        <li><a href="#street" data-stop="street"><span class="dot"></span><span class="lbl">Home</span></a></li>
+        <li><a href="#drain" data-stop="drain"><span class="dot"></span><span class="lbl">Drain</span></a></li>
+        <li><a href="#subway" data-stop="subway"><span class="dot"></span><span class="lbl">Projects</span></a></li>
+        <li><a href="#cinema" data-stop="cinema"><span class="dot"></span><span class="lbl">Reels</span></a></li>
+        <li><a href="#exhibition" data-stop="exhibition"><span class="dot"></span><span class="lbl">Photos</span></a></li>
+        <li><a href="#rooftop" data-stop="rooftop"><span class="dot"></span><span class="lbl">Contact</span></a></li>
+      </ol>
+    </nav>
+    <button class="btn btn-sm skip-ride" type="button" aria-pressed="false">Skip the ride</button>
+  </header>
+
+  <main>
+    <div class="viewport">
+      <div class="world" id="world">
+
+        <!-- 1. THE STREET -->
+        <section class="scene" id="street" data-location="street" aria-label="Home">
+          <canvas class="bg" aria-hidden="true"></canvas>
+          <div class="deco" aria-hidden="true">
+            <div class="neon-sign sign-chai"><span class="hi">चाय</span> CHAI</div>
+            <div class="neon-sign sign-open">OPEN 24×7</div>
+            <div class="neon-sign sign-taxi">TAXI</div>
+            <div class="street-board"><span class="sb-kicker">NOW HIRING?</span><span class="sb-main">LET'S TALK</span></div>
+            <div class="manhole-cover"></div>
+          </div>
+          <div class="content hero">
+            <h1 class="game-title" id="site-name">ANISH</h1>
+            <div class="dialog hero-dialog">
+              <p class="dialog-role" id="site-role"></p>
+              <p id="site-intro"></p>
+            </div>
+            <p class="press-start">Scroll to start <span class="px-arrow" aria-hidden="true"></span></p>
+          </div>
+        </section>
+
+        <!-- 2. THE DRAIN -->
+        <section class="scene" id="drain" data-location="drain" aria-label="Transition: the drain">
+          <canvas class="bg" aria-hidden="true"></canvas>
+          <div class="deco" aria-hidden="true">
+            <p class="graffiti">Neon Bharat<br />was here</p>
+            <span class="drip d1"></span><span class="drip d2"></span><span class="drip d3"></span>
+          </div>
+        </section>
+
+        <!-- 3. THE SUBWAY -->
+        <section class="scene" id="subway" data-location="subway" aria-labelledby="subway-title">
+          <canvas class="bg" aria-hidden="true"></canvas>
+          <div class="deco" aria-hidden="true">
+            <div class="platform-display">NEXT TRAIN · <span class="blink">2 MIN</span></div>
+          </div>
+          <div class="content station-board">
+            <span class="hi">प्रोजेक्ट्स</span>
+            <h2 id="subway-title">PROJECTS</h2>
+            <span class="station-sub">Platform 1 · Click a billboard to board</span>
+          </div>
+          <div class="content billboards" id="billboards"></div>
+          <div class="deco" aria-hidden="true"><div class="exit-sign"><span class="hi">निकास</span> EXIT → CINEMA</div></div>
+        </section>
+
+        <!-- 4. THE CINEMA -->
+        <section class="scene" id="cinema" data-location="cinema" aria-labelledby="cinema-title">
+          <canvas class="bg" aria-hidden="true"></canvas>
+          <div class="deco" aria-hidden="true">
+            <div class="marquee"><span class="marquee-text">NOW SHOWING · REELS</span></div>
+            <div class="housefull"><span class="hi">हाउसफुल</span> HOUSEFULL</div>
+          </div>
+          <div class="content cinema-content">
+            <h2 class="sr-only" id="cinema-title">Reels</h2>
+            <div class="screen">
+              <div class="screen-media" id="screen-media"></div>
+              <div class="curtain left" aria-hidden="true"></div>
+              <div class="curtain right" aria-hidden="true"></div>
+            </div>
+            <div class="reel-bar">
+              <div class="reel-controls">
+                <button class="btn btn-brass" type="button" id="reel-play">Play reel</button>
+                <button class="btn btn-brass" type="button" id="reel-mute" aria-pressed="true">Muted</button>
+                <button class="btn btn-brass" type="button" id="reel-next">Next &gt;</button>
+              </div>
+              <ul class="tickets" id="tickets"></ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. THE EXHIBITION -->
+        <section class="scene" id="exhibition" data-location="exhibition" aria-labelledby="gallery-title">
+          <canvas class="bg" aria-hidden="true"></canvas>
+          <div class="content gallery-title">
+            <span class="hi">प्रदर्शनी</span>
+            <h2 id="gallery-title">ON DISPLAY</h2>
+            <span>Photography</span>
+          </div>
+          <div class="content photos" id="photos"></div>
+        </section>
+
+        <!-- 6. THE ROOFTOP / END CREDITS -->
+        <footer class="scene" id="rooftop" data-location="rooftop" aria-labelledby="credits-title">
+          <canvas class="bg" aria-hidden="true"></canvas>
+          <div class="content credits">
+            <h2 class="credits-title" id="credits-title">THANKS FOR PLAYING</h2>
+            <p class="credits-line">Got a project, a job, or just want to share chai? Say hi.</p>
+            <a class="btn credits-mail" id="mail-link" href="#">Send message</a>
+            <ul class="socials" id="socials"></ul>
+            <button class="btn btn-sm play-again" type="button">Play again ^</button>
+            <p class="copyright" id="copyright"></p>
+          </div>
+        </footer>
+
+        <!-- the character -->
+        <div class="char" id="char" aria-hidden="true">
+          <div class="char-shadow"></div>
+          <canvas class="char-sprite pixel-art"></canvas>
+          <div class="bubble" id="bubble"></div>
+        </div>
+      </div>
+    </div>
+    <div class="spacer" id="spacer"></div>
+  </main>
+
+  <!-- photo lightbox -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+    <figure class="lb-frame">
+      <img id="lb-img" class="work-media" alt="" />
+      <figcaption class="plaque" id="lb-cap"></figcaption>
+    </figure>
+    <button class="btn btn-sm lb-prev" type="button" aria-label="Previous photo">&lt;</button>
+    <button class="btn btn-sm lb-next" type="button" aria-label="Next photo">&gt;</button>
+    <button class="btn btn-sm lb-close" type="button">Close X</button>
+  </div>
+
+  <!-- train wipe used when boarding a project -->
+  <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/sprite.js"></script>
+  <script src="js/scenes.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

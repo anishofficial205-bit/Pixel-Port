@@ -1,0 +1,43 @@
+/* Project page: "inside the train" at the project's station */
+.project-page {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 239px, rgba(94, 124, 138, 0.25) 239px 243px),
+    #16202B;
+  min-height: 100vh;
+}
+.project-page .hud { justify-content: space-between; }
+.hud-station { margin: 0; font-family: var(--font-display); font-size: 8px; color: var(--sodium); }
+
+.carriage { max-width: 1040px; margin: 0 auto; padding: 120px 16px 96px; display: flex; flex-direction: column; gap: 64px; }
+
+.arrival { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end; justify-content: space-between; }
+.station-board.big { border-top: 8px solid var(--band); display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px 24px; }
+.station-board.big h1 { font-size: 32px; line-height: 1.2; text-shadow: 3px 3px 0 var(--outline); }
+.station-board.big .bb-line { --band: inherit; background: var(--band); }
+
+.meta { margin: 0; display: flex; gap: 24px; flex-wrap: wrap; }
+.meta div { background: var(--night); padding: 8px 12px; box-shadow: 0 0 0 4px var(--outline); }
+.meta dt { font-family: var(--font-display); font-size: 8px; color: var(--neon-cyan); margin-bottom: 4px; }
+.meta dd { margin: 0; }
+
+.hero-frame, .case-img { margin: 0; background: var(--outline); box-shadow: 0 0 0 4px #8C96A0, 0 0 0 8px #3E5460, 0 0 0 12px var(--outline); }
+.hero-frame img, .case-img img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+
+.case { display: flex; flex-direction: column; gap: 48px; }
+.case .dialog { max-width: 70ch; }
+.case .dialog h2 { font-size: 16px; color: var(--saffron); margin-bottom: 12px; }
+.case .dialog p { line-height: 1.3; }
+
+.next-station { display: flex; align-items: center; gap: 16px; justify-content: flex-end; font-family: var(--font-display); font-size: 8px; color: var(--sodium); }
+
+/* blocky dissolve on arrival */
+.pixel-wipe {
+  position: fixed; inset: 0; z-index: 90; pointer-events: none;
+  background: conic-gradient(var(--outline) 25%, var(--night) 0 50%, var(--outline) 0 75%, var(--night) 0) 0 0 / 64px 64px;
+  animation: wipe 0.5s steps(5) forwards;
+}
+@keyframes wipe { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+
+@media (max-width: 700px) {
+  .station-board.big h1 { font-size: 16px; }
+}
