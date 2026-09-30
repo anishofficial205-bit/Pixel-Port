@@ -130,6 +130,8 @@
     face.style.setProperty("--ar", P.w / P.h);
     face.style.backgroundSize = `${P.frames * 100}% 100%`;
 
+    renderPlain();
+
     $("#socials").innerHTML = S.socials.map((s) => `
       <li><a class="social" href="${s.url}" aria-label="${s.label}"><span class="s-icon">${s.short}</span><span>${s.label}</span></a></li>`).join("");
   }
@@ -219,6 +221,126 @@
 
   let aboutWords = [], aboutLit = 0, aboutFrame = -1;
 
+  /* ================= SKIP THE RIDE =================
+     The same content as a clean, conventional page. Section ids are "plain-" + the ride's stop names,
+     so the navbar works the same in both modes. */
+  function renderPlain() {
+    const A = S.about, first = S.name[0] + S.name.slice(1).toLowerCase();
+    const head = (n, label, hindi, extra = "") => `
+      <header class="plain-head"><div><p class="plain-kicker">${n} · <span class="hi">${hindi}</span></p><h2>${label}</h2></div>${extra}</header>`;
+    const card = (p) => `
+      <li class="project-card" id="card-${p.id}" style="--band:${p.band}">
+        <a href="project.html?p=${p.id}">
+          <span class="card-frame"><img class="work-media" src="${S.img(p.cover, 1024)}" alt="${p.title}: ${p.blurb}" loading="lazy" decoding="async" /></span>
+          <span class="card-body">
+            <span class="card-meta"><span class="bb-line">${p.line}</span>${p.meta.category || ""} · ${p.meta.year || ""}</span>
+            <span class="card-title">${p.title}</span>
+            <span class="card-blurb">${p.blurb}</span>
+          </span>
+        </a>
+      </li>`;
+    $("#plain").innerHTML = `
+      <section class="plain-hero" id="plain-street" data-loc="street" aria-label="Home">
+        <div class="plain-hero-bg" aria-hidden="true">
+          <div class="plain-art">
+            <img class="pixel-art" src="assets/scenes/street.webp" alt="" />
+            <div class="bb-map bb-left" data-quad="left"><img class="plain-logo" src="assets/brand/logo.png" alt="" /></div>
+            <div class="bb-map bb-led" data-quad="led"><p class="led-kicker">नमस्ते</p><p class="led-intro">HELLO,<br>STRANGER.</p></div>
+            <div class="bb-map bb-mid" data-quad="mid"><p class="press-start">WELCOME</p></div>
+          </div>
+        </div>
+        <div class="plain-wrap plain-hero-in">
+          <p class="plain-kicker">Hello! · <span class="hi">नमस्ते</span></p>
+          <h1 class="game-title">${S.name} SHAH</h1>
+          <p class="plain-role">${S.role} · ${S.location}</p>
+          <p class="plain-intro">${S.intro}</p>
+          <div class="plain-cta"><a class="pbtn" href="#plain-subway" data-stop="subway">See the work</a><button class="pbtn ghost take-ride" type="button">Take the ride &gt;</button></div>
+        </div>
+      </section>
+      <section class="plain-sec" id="plain-drain" data-loc="drain" aria-labelledby="plain-about-h">
+        <div class="plain-wrap">
+          ${head("01", `<span id="plain-about-h">${A.title}</span>`, "मेरे बारे में")}
+          <div class="plain-about">
+            <figure class="plain-portrait"><img src="assets/about/portrait.gif" alt="Portrait of ${first}" loading="lazy" /></figure>
+            <div>
+              <ul class="about-tags">${A.tags.map((t) => `<li>${t}</li>`).join("")}</ul>
+              ${A.text.map((t) => `<p>${t.label ? `<b>${t.label}</b> ` : ""}${t.text}</p>`).join("")}
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="plain-sec" id="plain-subway" data-loc="subway" aria-label="Projects">
+        <div class="plain-wrap">
+          ${head("02", "Projects", "प्रोजेक्ट्स", `<a class="plain-link" href="projects.html">View all projects &gt;</a>`)}
+          <ul class="project-grid">${S.featured().map(card).join("")}</ul>
+        </div>
+      </section>
+      <section class="plain-sec" id="plain-cinema" data-loc="cinema" aria-label="Reels">
+        <div class="plain-wrap">
+          ${head("03", "Reels", "रील्स")}
+          <div class="reel-grid">${S.reels.map((r) => `
+            <figure class="reel-card">
+              <span class="reel-screen">${r.src
+                ? `<video class="work-media" src="${r.src}" poster="${r.poster}" controls muted playsinline preload="none"></video>`
+                : `<img class="work-media" src="${r.poster}" alt="${r.title} poster" loading="lazy" />`}</span>
+              <figcaption><b>${r.title}</b><span>${r.length}${r.src ? "" : ' <span class="reel-soon">· coming soon</span>'}</span></figcaption>
+            </figure>`).join("")}
+          </div>
+        </div>
+      </section>
+      <section class="plain-sec" id="plain-exhibition" data-loc="exhibition" aria-label="Photos">
+        <div class="plain-wrap">
+          ${head("04", "Photos", "प्रदर्शनी")}
+          <div class="plain-photos">${S.photos.map((p, i) => `
+            <figure class="plain-photo">
+              <button class="photo-frame" type="button" data-i="${i}" aria-label="Open photo: ${p.title}, ${p.place}"><img class="work-media" src="${p.src}" alt="${p.title}, ${p.place}" loading="lazy" /></button>
+              <figcaption><b>${p.title}</b><span>${p.place} · ${p.year}</span></figcaption>
+            </figure>`).join("")}
+          </div>
+        </div>
+      </section>
+      <section class="plain-sec plain-contact" id="plain-rooftop" data-loc="rooftop" aria-label="Contact">
+        <div class="plain-wrap">
+          ${head("05", "Let's talk", "संपर्क")}
+          <p class="credits-line">Got a project, a job, or just want to share chai? Say hi.</p>
+          <div class="credits-actions"><a class="pbtn" href="mailto:${S.email}">${S.email}</a></div>
+          <ul class="socials">${S.socials.map((x) => `<li><a class="social" href="${x.url}" aria-label="${x.label}"><span class="s-icon">${x.short}</span><span>${x.label}</span></a></li>`).join("")}</ul>
+          <p class="copyright">© ${S.year} ${S.name} SHAH · NEON BHARAT GAMES</p>
+        </div>
+      </section>`;
+  }
+
+  // Plain hero: the street art at its own pixel size, scaled to cover the hero, so its billboards can
+  // be filled with the same perspective mapping the ride uses.
+  function fitPlainArt() {
+    const hero = $(".plain-hero"), art = $(".plain-art");
+    if (!hero || !art) return;
+    $$(".plain-art [data-quad]").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], 1));
+    const W = hero.clientWidth, H = hero.clientHeight, k = Math.max(W / STREET.w, H / STREET.h);
+    art.style.transform = `translate(${(W - STREET.w * k) / 2}px, ${(H - STREET.h * k) * 0.3}px) scale(${k})`;
+  }
+
+  // In Skip-the-ride mode the navbar follows the section in view, and the progress line follows the page
+  function watchPlain() {
+    fitPlainArt();
+    addEventListener("resize", fitPlainArt);
+    const secs = $$("#plain [data-loc]");
+    const io = new IntersectionObserver((entries) => {
+      if (body.classList.contains("ride")) return;
+      const best = secs.map((el) => [el, el.getBoundingClientRect()])
+        .filter(([, r]) => r.top < innerHeight * 0.5 && r.bottom > innerHeight * 0.3).pop();
+      if (!best) return;
+      const loc = best[0].dataset.loc;
+      if (loc !== lastLoc) { lastLoc = loc; body.dataset.location = loc; markSection(loc); }
+    }, { threshold: [0, 0.25, 0.5, 0.75, 1] });
+    secs.forEach((el) => io.observe(el));
+    addEventListener("scroll", () => {
+      if (body.classList.contains("ride")) return;
+      const max = document.documentElement.scrollHeight - innerHeight;
+      body.style.setProperty("--route", max > 0 ? (scrollY / max).toFixed(4) : 0);
+    }, { passive: true });
+  }
+
   /* ================= LAYOUT ================= */
   const L = {}; // layout numbers
   let segs = [], total = 0, stops = {};
@@ -231,6 +353,7 @@
   const snap = (v) => Math.round(v / L.P) * L.P;
 
   function layout() {
+    fitPlainArt();
     const vw = innerWidth, vh = innerHeight;
     const P = vw < 700 ? 3 : 4;
     Object.assign(L, { vw, vh, P });
@@ -353,7 +476,7 @@
     const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
     art($(".neon-flicker"), STREET.medical);
     art($(".steam"), STREET.steam);
-    $$(".bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
+    $$("#street .bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
     mapToQuad($(".station-board"), SUBWAY.sign, ss);
     // "View all projects" plate hangs under the station sign
     setBox($(".all-projects-sign"), Math.round(SUBWAY.sign[0][0] * ss), Math.round((SUBWAY.sign[2][1] + 12) * ss), Math.round((SUBWAY.sign[1][0] - SUBWAY.sign[0][0]) * ss), 0);
@@ -696,7 +819,7 @@
       scrollTo({ top, behavior: instant || reduceMotion ? "auto" : "smooth" });
       if (instant) { cur = top; }
     } else {
-      const el = typeof stop === "string" ? document.getElementById(stop === "cinema" ? "cinema-front" : stop) : null;
+      const el = typeof stop === "string" ? document.getElementById("plain-" + stop) : null;
       if (el) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
     }
   }
@@ -716,7 +839,7 @@
       if (body.classList.contains("ride")) {
         const d = projectStop(h.slice(8));
         if (d != null) goTo(d, instant);
-      } else document.getElementById(h)?.scrollIntoView();
+      } else document.getElementById("card-" + h.slice(8))?.scrollIntoView({ block: "center" });
     } else if (stops[h] != null) goTo(h, instant);
   }
 
@@ -726,7 +849,7 @@
     $(".skip-ride").setAttribute("aria-pressed", String(!ride));
     $(".skip-ride").textContent = ride ? "Skip the ride" : "Take the ride";
     store.set("nb-mode", ride ? "ride" : "static");
-    if (!ride) { world.style.transform = ""; body.dataset.location = "street"; }
+    if (!ride) { world.style.transform = ""; body.dataset.location = "street"; requestAnimationFrame(fitPlainArt); }
     layout();
   }
 
@@ -738,12 +861,14 @@
       history.replaceState(null, "", "#" + a.dataset.stop);
     }));
 
-    $(".skip-ride").addEventListener("click", () => {
+    const toggleRide = () => {
       const ride = !body.classList.contains("ride");
       const at = lastLoc || "street";
       setMode(ride);
       requestAnimationFrame(() => goTo(at, true));
-    });
+    };
+    $(".skip-ride").addEventListener("click", toggleRide);
+    $$(".take-ride").forEach((b) => b.addEventListener("click", toggleRide));
 
     $(".play-again").addEventListener("click", () => goTo("street"));
 
@@ -997,6 +1122,7 @@
   fillContent();
   makeRain();
   galleryTop();
+  watchPlain();
   pixelLogo();
   roadEdge();
   bindUI();

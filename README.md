@@ -41,6 +41,6 @@ Then open http://localhost:8080.
 
 Scroll distance is mapped onto a path of segments (walk, crouch, fall, land, sit, jump). Each segment knows the character's pose, the location's lighting, and where the camera looks. The page never hijacks scroll speed: the character follows the user's scroll.
 
-- **Skip the ride** (top right) switches to plain stacked sections. This is also the default for `prefers-reduced-motion`.
-- The route map in the HUD shows progress. Click any stop to jump there.
+- **Skip the ride** (top right) switches to a clean, conventional portfolio page built from the same data (`renderPlain()` in `js/main.js`): hero, about, projects, reels, photos, contact. This is also the default for `prefers-reduced-motion`.
+- The navbar highlights the current section and its hairline shows progress, in both modes. Click any section to jump there.
 - Billboards are real links. The **Back to platform** link on a project page returns you to that billboard.

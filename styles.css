@@ -201,9 +201,9 @@ body::after {
   content: ""; position: absolute; inset: 0; background: var(--accent);
   transform-origin: left; transform: scaleX(var(--route, 0)); transition: background-color 0.4s ease;
 }
-.static .route-progress { display: none; }
 
 .hud-right { justify-self: end; display: flex; gap: 10px; align-items: center; }
+.hud-right > *, .hud-back, .hud-station { white-space: nowrap; }
 .hud-all {
   padding: 10px 16px; font-size: 12px; letter-spacing: 0.04em; line-height: 1; color: var(--paper); text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -377,10 +377,6 @@ body::after {
 .about-stack .about-text { padding: 12px 14px; gap: 8px; }
 .about-stack .about-text h2 { font-size: 12px; }
 .about-stack .about-copy p { font-size: 18px; }
-.static .about-pin { display: flex; gap: 32px; align-items: flex-start; max-width: 960px; margin: 0 auto; }
-.static .about-portrait { flex: 0 0 min(30%, 280px); background-position: 0 0; }
-.static .about-text { flex: 1; }
-.static #drain { background: #0E1418; }
 
 /* ---------------- 3. subway ---------------- */
 /* station name on the blank sign in the art */
@@ -402,7 +398,6 @@ body::after {
 }
 .all-projects-sign .hi { font-size: 13px; }
 .all-projects-sign:hover { background: var(--paper); transform: translateY(-2px); }
-.static .all-projects-sign { width: max-content; margin: -40px auto 48px; }
 .billboards { list-style: none; margin: 0; padding: 0; }
 .ride .billboards, .ride .photos { left: 0; top: 0; }
 .billboard {
@@ -620,36 +615,7 @@ body::after {
 .train-wipe.go .train-car { animation: train 0.75s steps(12) forwards; }
 @keyframes train { to { transform: translateX(-100%); } }
 
-/* ---------------- skip the ride: plain sections ---------------- */
-.static .viewport, .static .world { position: static; transform: none !important; }
-.static .scene {
-  position: relative; display: block; padding: 120px 16px 96px; min-height: 60vh;
-  overflow: hidden;
-}
-.static #exhibition .bg-img, .static .deco, .static .char, .static #drain { display: none; }
-.static .content { position: relative; left: auto; top: auto; }
-.static #street { background: var(--night); }
-.static #subway { background: #1C2A36; }
-.static #cinema-front { background: var(--velvet-deep); }
-.static #stairwell, .static .front-art .bg-img { display: none; }
-.static #exhibition { background: var(--gallery-wall); }
-.static #rooftop { background: linear-gradient(var(--night) 0 30%, var(--dusk) 30% 55%, var(--dusk-pink) 55% 75%, var(--dawn-pink) 75% 90%, var(--dawn-orange) 90%); }
-.static #street .bg-img { display: block; width: 100%; max-width: 960px; margin: 0 auto 32px; }
-.static .bb-map { position: relative; transform: none; width: auto !important; height: auto !important; max-width: 720px; margin: 0 auto 16px; padding: 20px; }
-.static .station-board, .static .gallery-title { margin: 0 auto 64px; max-width: 1100px; }
-.static .billboards { display: flex; flex-wrap: wrap; gap: 96px 48px; max-width: 1100px; margin: 0 auto; padding: 24px 12px 64px; }
-.static .billboard { position: relative; left: auto; top: auto; width: min(var(--w), 100%); height: auto; aspect-ratio: var(--ar); margin-bottom: 110px; }
-.static #subway .bg-img { display: none; }
-.static .station-board { transform: none; width: auto !important; height: auto !important; padding: 16px; }
-.static .bb-sign { max-width: 100%; }
-.static .cinema-content { width: min(960px, 100%); height: auto; margin: 0 auto; }
-.static .screen { aspect-ratio: 16 / 9; height: auto; }
-.static .reel-bar { margin: 24px auto 0; max-width: 960px; }
-.static .tickets { justify-content: center; }
-.static .photo .plaque { margin: 36px auto 0; }
-.static .photos { display: flex; flex-wrap: wrap; gap: 120px 64px; max-width: 1100px; margin: 0 auto; padding: 24px; }
-.static .photo { position: relative; left: auto; top: auto; width: min(var(--w), 100%); height: auto; aspect-ratio: var(--ar); margin-bottom: 64px; }
-.static .credits { width: auto; max-width: 720px; margin: 0 auto; }
+
 
 /* ---------------- small screens ---------------- */
 @media (max-width: 700px) {
@@ -662,7 +628,6 @@ body::after {
   .route { position: fixed; left: 50%; bottom: calc(var(--frame) + 12px); transform: translateX(-50%); padding: 4px; }
   .route a { font-size: 11px; padding: 9px 9px; }
   .route-pill { top: 4px; bottom: 4px; }
-  .static .game-title { font-size: 32px; }
   .marquee-text { font-size: 8px; }
   .credits-title { font-size: 16px; }
   .credits-line { font-size: 22px; }
@@ -678,3 +643,110 @@ body::after {
 
 /* debug mode (D key or ?debug) */
 .debug-layer { position: fixed; inset: 0; z-index: 95; pointer-events: none; }
+
+/* ================= project cards (shared: All projects page and Skip-the-ride) ================= */
+.project-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 48px 36px; }
+.project-card[hidden] { display: none; }
+.project-card a { display: flex; flex-direction: column; gap: 18px; color: inherit; text-decoration: none; }
+.card-frame {
+  display: block; aspect-ratio: 3 / 2; overflow: hidden; background: var(--outline);
+  box-shadow: 0 0 0 4px #8C96A0, 0 0 0 8px #3E5460, 0 0 0 12px var(--outline);
+  transition: box-shadow 0.25s ease;
+}
+.card-frame img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.project-card a:hover .card-frame, .project-card a:focus-visible .card-frame {
+  box-shadow: 0 0 0 4px var(--band), 0 0 0 8px #3E5460, 0 0 0 12px var(--outline), 0 0 28px 6px color-mix(in srgb, var(--band) 45%, transparent);
+}
+.project-card a:hover .card-frame img { transform: scale(1.04); }
+.card-body { display: flex; flex-direction: column; gap: 6px; border-top: 6px solid var(--band); padding-top: 12px; }
+.card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-family: "Silkscreen", var(--font-display); font-size: 11px; color: var(--tile); }
+.card-meta .bb-line { background: var(--band); }
+.on-platform { margin-left: auto; font-size: 10px; color: var(--neon-cyan); }
+.card-title { font-family: var(--font-display); font-size: 18px; line-height: 1.3; text-shadow: 2px 2px 0 var(--outline); }
+.card-blurb { font-size: 22px; color: var(--paper); opacity: 0.85; }
+@media (max-width: 700px) { .card-title { font-size: 14px; } .card-blurb { font-size: 20px; } }
+
+/* ================= Skip the ride: a clean, conventional portfolio page ================= */
+.plain { display: none; }
+.static .viewport { display: none; }
+.static .plain { display: block; }
+.plain-wrap { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+.plain-sec { padding: 110px 0; }
+.plain-sec:nth-of-type(even) { background: #150D2C; }
+.plain-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 44px; flex-wrap: wrap; }
+.plain-kicker { margin: 0 0 10px; font-family: "Silkscreen", var(--font-display); font-size: 12px; letter-spacing: 0.08em; color: var(--accent); }
+.plain-kicker .hi { font-size: 14px; letter-spacing: 0; }
+.plain-head h2 { font-size: 32px; line-height: 1.2; text-shadow: 3px 3px 0 var(--outline); }
+.plain-link { font-family: "Silkscreen", var(--font-display); font-size: 13px; color: var(--paper); text-decoration: none; padding: 10px 16px; border-radius: 999px; border: 1px solid rgba(244, 230, 208, 0.2); transition: background-color 0.2s ease, color 0.2s ease; }
+.plain-link:hover { background: var(--paper); color: var(--night-deep); }
+.plain [data-loc="drain"] { --accent: var(--drain-slime); }
+.plain [data-loc="subway"] { --accent: var(--neon-cyan); }
+.plain [data-loc="cinema"] { --accent: var(--brass); }
+.plain [data-loc="exhibition"] { --accent: var(--spotlight); }
+.plain [data-loc="rooftop"] { --accent: var(--saffron); }
+
+/* hero: the street art behind the intro */
+.plain-hero { position: relative; min-height: 92vh; display: flex; align-items: flex-end; overflow: hidden; padding: 140px 0 90px; }
+.plain-hero-bg { position: absolute; inset: 0; overflow: hidden; }
+.plain-art { position: absolute; left: 0; top: 0; width: 1672px; height: 941px; transform-origin: 0 0; }
+.plain-art > img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.plain-art .bb-map { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
+.plain-logo { max-width: 78%; max-height: 90%; filter: drop-shadow(0 0 6px rgba(237, 40, 40, 0.8)); }
+.plain-art .bb-left { background: #120A26; }
+.plain-art .led-intro { font-family: var(--font-display); font-size: 14px; line-height: 1.6; }
+.plain-art .bb-mid .press-start { animation: none; }
+.plain-hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(18, 10, 38, 0.3), rgba(18, 10, 38, 0.45) 40%, rgba(18, 10, 38, 0.8) 70%, var(--night-deep) 97%); }
+.plain-hero-in { position: relative; width: 100%; }
+.plain-hero .game-title { font-size: 64px; margin: 0 0 18px; }
+.plain-role { margin: 0 0 16px; font-family: "Silkscreen", var(--font-display); font-size: 18px; color: var(--marigold); }
+.plain-intro { margin: 0 0 30px; max-width: 46ch; font-size: 28px; line-height: 1.15; text-shadow: 2px 2px 0 var(--outline); }
+.plain-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.pbtn { font-family: "Silkscreen", var(--font-display); font-size: 14px; line-height: 1; padding: 14px 20px; border-radius: 999px; cursor: pointer; text-decoration: none; color: var(--night-deep); background: var(--saffron); border: 1px solid var(--saffron); transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease; }
+.pbtn:hover { background: var(--marigold); transform: translateY(-2px); }
+.pbtn.ghost { background: rgba(14, 9, 28, 0.6); color: var(--paper); border-color: rgba(244, 230, 208, 0.25); }
+.pbtn.ghost:hover { background: var(--paper); color: var(--night-deep); }
+
+/* about */
+.plain-about { display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 56px; align-items: center; }
+.plain-portrait { margin: 0; box-shadow: 0 0 0 6px var(--paper), 0 0 0 10px var(--drain-teal), 0 0 0 14px var(--outline); }
+.plain-portrait img { display: block; width: 100%; aspect-ratio: 7 / 10; object-fit: cover; }
+.plain-about p { margin: 18px 0 0; font-size: 28px; line-height: 1.2; }
+
+/* reels */
+.reel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 32px; }
+.reel-card { margin: 0; }
+.reel-screen { display: block; aspect-ratio: 16 / 9; background: var(--outline); overflow: hidden; box-shadow: 0 0 0 4px var(--brass), 0 0 0 8px var(--velvet-deep), 0 0 0 11px var(--outline); }
+.reel-screen img, .reel-screen video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.reel-card figcaption { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; font-size: 22px; }
+.reel-card figcaption b { font-family: "Silkscreen", var(--font-display); font-weight: 400; font-size: 14px; color: var(--brass); }
+.reel-soon { font-family: "Silkscreen", var(--font-display); font-size: 10px; color: rgba(244, 230, 208, 0.55); }
+
+/* photos */
+.plain-photos { columns: 2 320px; column-gap: 40px; }
+.plain-photo { break-inside: avoid; margin: 0 0 44px; }
+.plain-photo .photo-frame { display: block; width: 100%; padding: 0; border: 0; cursor: zoom-in; background: var(--paper); box-shadow: 0 0 0 12px var(--paper), 0 0 0 16px #8C6A2A, 0 0 0 20px var(--brass), 0 0 0 23px var(--outline); margin: 23px; width: calc(100% - 46px); }
+.plain-photo img { display: block; width: 100%; height: auto; transition: filter 0.2s ease; }
+.plain-photo .photo-frame:hover img { filter: brightness(1.1); }
+.plain-photo figcaption { display: flex; gap: 10px; align-items: baseline; margin: 8px 23px 0; font-size: 20px; color: var(--spotlight); }
+.plain-photo figcaption b { font-family: "Silkscreen", var(--font-display); font-weight: 400; font-size: 13px; color: var(--paper); }
+
+/* contact over the dawn rooftop */
+.plain-contact { position: relative; overflow: hidden; background: var(--night); }
+.plain-contact::before { content: ""; position: absolute; inset: 0; background: url(assets/scenes/gallery.webp) right bottom / auto 100% no-repeat; image-rendering: pixelated; opacity: 0.9; }
+.plain-contact::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(18, 10, 38, 0.92) 0 40%, rgba(18, 10, 38, 0.2) 75%); }
+.plain-contact .plain-wrap { position: relative; z-index: 1; min-height: 60vh; display: flex; flex-direction: column; justify-content: center; }
+.plain-contact .credits-line { font-size: 28px; }
+.plain-contact .socials { margin-top: 26px; }
+.plain-contact .copyright { margin-top: 40px; }
+
+@media (max-width: 700px) {
+  .plain-sec { padding: 80px 0 90px; }
+  .plain-wrap { padding: 0 20px; }
+  .plain-hero { min-height: 88vh; padding-bottom: 110px; }
+  .plain-hero .game-title { font-size: 34px; }
+  .plain-intro, .plain-about p { font-size: 22px; }
+  .plain-head h2 { font-size: 22px; }
+  .plain-about { grid-template-columns: 1fr; gap: 36px; }
+  .plain-portrait { max-width: 220px; margin: 14px; }
+  .plain-contact::after { background: linear-gradient(rgba(18, 10, 38, 0.9) 0 55%, rgba(18, 10, 38, 0.3)); }
+}
