@@ -12,6 +12,9 @@
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const seen = (() => { try { return sessionStorage.getItem("nb-intro") === "1"; } catch (e) { return false; } })();
   const force = /[?&]intro\b/.test(location.search);
+  // ?intro=3 plays the countdown three times slower (handy for reviewing it)
+  const slow = +(new URLSearchParams(location.search).get("intro")) || 1;
+  if (slow > 1) { ["ready", "set", "go", "logo", "minHold"].forEach((k) => (T[k] *= slow)); el.style.setProperty("--slow", slow); }
 
   let finished = false;
   const finish = () => {
@@ -24,37 +27,6 @@
   };
 
   if (!force && (seen || location.hash)) { finish(); return; }
-
-  // raindrops on the glass: pixel beads that sit, then run down leaving a short trail
-  (function rain() {
-    if (reduce) return;
-    const c = el.querySelector(".pl-rain"), g = c.getContext("2d"), P = 3;       // one "pixel" = 3 css px
-    const size = () => { c.width = Math.ceil(innerWidth / P); c.height = Math.ceil(innerHeight / P); };
-    size(); addEventListener("resize", size);
-    const drops = Array.from({ length: 90 }, () => newDrop(true));
-    function newDrop(anywhere) {
-      return { x: Math.random() * c.width, y: anywhere ? Math.random() * c.height : -4, r: Math.random() < 0.25 ? 2 : 1,
-               v: 0, wait: Math.random() * 120, fast: Math.random() < 0.35 };
-    }
-    const step = () => {
-      if (!el.isConnected || el.classList.contains("dissolving")) return;
-      g.clearRect(0, 0, c.width, c.height);
-      for (const d of drops) {
-        if (d.wait > 0) d.wait--; else d.v = Math.min(d.fast ? 2.2 : 0.9, d.v + 0.05);
-        d.y += d.v;
-        if (d.y > c.height + 4) Object.assign(d, newDrop(false));
-        const trail = Math.min(18, d.v * 9) | 0;
-        g.fillStyle = "rgba(210, 225, 255, 0.10)";
-        g.fillRect(d.x | 0, (d.y - trail) | 0, 1, trail);                        // wet trail
-        g.fillStyle = "rgba(225, 235, 255, 0.55)";
-        g.fillRect(d.x | 0, d.y | 0, d.r, d.r + 1);                               // the bead
-        g.fillStyle = "rgba(255, 255, 255, 0.8)";
-        g.fillRect(d.x | 0, d.y | 0, 1, 1);                                       // its highlight
-      }
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  })();
 
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   scrollTo(0, 0);
