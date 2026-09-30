@@ -2,8 +2,8 @@
    PRELOADER: an arcade cabinet; READY? SET... GO! on its screen as the camera pushes in on every beat,
    then the logo, then a radial pixel reveal of the street
    Runs straight after its markup at the top of <body>, so it covers the page from the first frame.
-   Plays once per browser session (add ?intro to the URL to see it again), is skipped when arriving
-   on a #link (e.g. back from a project page), and any click or key skips ahead.
+   Plays on every load and refresh; skipped when arriving on a #link (e.g. back from a project page)
+   or via the browser's back button. Any click or key skips ahead. ?intro forces it, ?intro=3 = slow-mo.
 ------------------------------------------------------------------- */
 (function () {
   const T = { ready: 250, set: 800, go: 1350, logo: 1900, minHold: 650, maxWait: 6000, dissolve: 700, block: 36, blockTime: 160 };
@@ -17,7 +17,9 @@
   const body = document.body;
   const q = (s) => el.querySelector(s);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const seen = (() => { try { return sessionStorage.getItem("nb-intro") === "1"; } catch (e) { return false; } })();
+  // plays on every load and refresh; skipped when returning via the back button or a #link
+  const nav = (performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {};
+  const returning = nav.type === "back_forward";
   const force = /[?&]intro\b/.test(location.search);
   // ?intro=3 plays the countdown three times slower (handy for reviewing it)
   const slow = +(new URLSearchParams(location.search).get("intro")) || 1;
@@ -29,11 +31,10 @@
     finished = true;
     el.remove();
     body.classList.remove("preloading");
-    try { sessionStorage.setItem("nb-intro", "1"); } catch (e) { /* ignore */ }
     window.dispatchEvent(new Event("preloader:done"));
   };
 
-  if (!force && (seen || location.hash)) { finish(); return; }
+  if (!force && (returning || location.hash)) { finish(); return; }
 
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   scrollTo(0, 0);
