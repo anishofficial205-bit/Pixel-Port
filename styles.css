@@ -158,13 +158,22 @@ body::after {
   box-shadow: 0 10px 30px rgba(5, 3, 10, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   border-radius: 999px;
 }
-.hud-logo {
-  justify-self: start; display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 16px; text-decoration: none; color: var(--paper);
-  font-size: 18px; letter-spacing: 0.06em; line-height: 1;
+/* logo: drawn on a canvas so hover can re-render it as chunky pixels (see pixelLogo in main.js) */
+.hud-logo { justify-self: start; display: block; height: var(--logo-h, 58px); line-height: 0; text-decoration: none; }
+.logo-canvas {
+  height: 100%; width: auto; display: block;
+  filter: drop-shadow(0 0 4px rgba(237, 40, 40, 0.75)) drop-shadow(0 0 14px rgba(237, 40, 40, 0.45));
+  animation: logo-glow 2.8s ease-in-out infinite;
+  transition: transform 0.18s steps(3);
 }
-.logo-dot { width: 7px; height: 7px; background: var(--saffron); border-radius: 50%; box-shadow: 0 0 10px var(--saffron); }
-.hud-logo:hover .logo-name { color: var(--marigold); }
+@keyframes logo-glow {
+  50% { filter: drop-shadow(0 0 6px rgba(255, 70, 60, 0.95)) drop-shadow(0 0 22px rgba(237, 40, 40, 0.7)); }
+}
+.hud-logo:hover .logo-canvas, .hud-logo:focus-visible .logo-canvas {
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 6px rgba(255, 90, 70, 1)) drop-shadow(0 0 26px rgba(255, 40, 40, 0.85));
+  animation: none;
+}
 
 .route { position: relative; padding: 5px; }
 .route ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; position: relative; z-index: 1; }
@@ -632,7 +641,7 @@ body::after {
   body { font-size: 20px; }
   /* phones: logo + skip on top, section links in a bar near the bottom (thumb reach) */
   .hud { top: calc(var(--frame) + 10px); left: calc(var(--frame) + 10px); right: calc(var(--frame) + 10px); grid-template-columns: 1fr 1fr; }
-  .hud-logo { font-size: 15px; padding: 8px 13px; }
+  .hud-logo { --logo-h: 44px; }
   .skip-ride, .hud-back, .hud-station { font-size: 10px; padding: 9px 12px; }
   .route { position: fixed; left: 50%; bottom: calc(var(--frame) + 12px); transform: translateX(-50%); padding: 4px; }
   .route a { font-size: 11px; padding: 9px 9px; }

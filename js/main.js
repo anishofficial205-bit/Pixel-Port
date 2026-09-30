@@ -84,7 +84,6 @@
     $("#site-name").textContent = S.name;
     $("#site-role").textContent = S.role;
     $("#site-intro").textContent = S.intro;
-    $(".hud-logo .logo-name").textContent = S.name;
     $("#mail-link").href = "mailto:" + S.email;
     $("#mail-link").textContent = S.email;
     $("#copyright").textContent = `© ${S.year} ${S.name} · NEON BHARAT GAMES`;
@@ -951,10 +950,52 @@
   addEventListener("resize", () => markSection(lastLoc));
   document.fonts?.ready.then(() => markSection(lastLoc));
 
+  // Nav logo. Normally crisp; on hover it steps down into big pixel blocks (with a little row-shift
+  // glitch while it breaks up), and resolves back to crisp when the pointer leaves.
+  function pixelLogo() {
+    const link = $(".hud-logo"), c = $(".logo-canvas"), img = new Image();
+    const tmp = document.createElement("canvas");
+    let block = 1, timer = null;
+    const draw = (b, glitch) => {
+      const dpr = window.devicePixelRatio || 1, h = link.clientHeight || 58;
+      const w = Math.round(h * img.width / img.height);
+      c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.width = w + "px";
+      const g = c.getContext("2d");
+      g.clearRect(0, 0, c.width, c.height);
+      if (b <= 1) { g.imageSmoothingEnabled = true; g.drawImage(img, 0, 0, c.width, c.height); return; }
+      const bs = b * dpr, tw = Math.max(1, Math.round(c.width / bs)), th = Math.max(1, Math.round(c.height / bs));
+      tmp.width = tw; tmp.height = th;
+      const t = tmp.getContext("2d"); t.clearRect(0, 0, tw, th); t.imageSmoothingEnabled = true; t.drawImage(img, 0, 0, tw, th);
+      g.imageSmoothingEnabled = false;
+      if (!glitch) { g.drawImage(tmp, 0, 0, c.width, c.height); return; }
+      for (let y = 0; y < th; y++) {   // shift a few rows sideways
+        const dx = Math.random() < 0.25 ? (Math.random() < 0.5 ? -1 : 1) * bs : 0;
+        g.drawImage(tmp, 0, y, tw, 1, dx, y * c.height / th, c.width, c.height / th);
+      }
+    };
+    const animate = (steps) => {
+      clearInterval(timer);
+      let i = 0;
+      timer = setInterval(() => {
+        block = steps[i]; draw(block, i < steps.length - 1 && block > 1);
+        if (++i >= steps.length) clearInterval(timer);
+      }, 45);
+    };
+    const into = [2, 4, 6, 5, 3.5], out = [3, 2, 1.5, 1];   // block sizes (css px); hovering holds the last one
+    link.addEventListener("mouseenter", () => !reduceMotion && animate(into));
+    link.addEventListener("mouseleave", () => animate(reduceMotion ? [1] : out));
+    link.addEventListener("focus", () => !reduceMotion && animate(into));
+    link.addEventListener("blur", () => animate([1]));
+    img.onload = () => draw(block);
+    img.src = "assets/brand/logo.png";
+    addEventListener("resize", () => img.complete && draw(block));
+  }
+
   /* ================= BOOT ================= */
   fillContent();
   makeRain();
   galleryTop();
+  pixelLogo();
   roadEdge();
   bindUI();
   const saved = store.get("nb-mode");
