@@ -266,9 +266,10 @@
         setBox(face, vw - pad - fw, top, fw, 0);
         setBox(copy, pad, ty, vw - 2 * pad, vh - ty - pad);
       } else {
-        const fw = Math.min(left[1] - left[0], 300), cw = Math.min(right[1] - right[0], 520);
-        setBox(face, Math.round(left[1] - fw), Math.round((vh - fw / 0.7) / 2), Math.round(fw), 0);
-        setBox(copy, Math.round(right[0]), top, Math.round(cw), vh - top - pad);
+        // both centred on one line (the middle of the screen below the HUD), each in the middle of its side
+        const fw = Math.min(left[1] - left[0], 300), cw = Math.min(right[1] - right[0], 520), cy = Math.round((top - pad + vh) / 2);
+        setBox(face, Math.round((left[0] + left[1]) / 2), cy, Math.round(fw), 0);
+        setBox(copy, Math.round((right[0] + right[1]) / 2), cy, Math.round(cw), vh - top - pad);
       }
     }
 

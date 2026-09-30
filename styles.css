@@ -297,6 +297,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 /* ---------------- 2. drain: about me ---------------- */
 .ride .about-pin { position: fixed; inset: 0; z-index: 20; pointer-events: none; opacity: 0; visibility: hidden; }
 .ride .about-portrait, .ride .about-text { position: absolute; left: var(--x); top: var(--y); width: var(--w); }
+/* side-by-side: --x/--y are each panel's centre */
+.ride:not(.about-stack) .about-portrait, .ride:not(.about-stack) .about-text { transform: translate(-50%, -50%); }
 .about-portrait {
   aspect-ratio: var(--ar); background-repeat: no-repeat; background-color: var(--outline);
   box-shadow: 0 0 0 6px var(--paper), 0 0 0 10px var(--drain-teal), 0 0 0 14px var(--outline), 14px 16px 0 14px rgba(8, 5, 16, 0.55);
