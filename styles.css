@@ -814,49 +814,42 @@ body::after {
 .preloader.dissolving { background: transparent; cursor: default; }
 .preloader.dissolving .pl-bg, .preloader.dissolving::after { display: none; }
 
-/* retro synthwave backdrop: stars, horizon glow, skyline, rolling neon grid */
-.pl-bg { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(#07031A 0%, #140833 48%, #3A0F4A 66%, #120A26 66.2%); }
-.pl-stars {
-  position: absolute; left: 0; top: 0; width: 2px; height: 2px; background: transparent;
-  box-shadow: var(--stars); animation: pl-twinkle 2.4s steps(2) infinite;
+/* rainy window: the city out of focus behind wet glass, neon bokeh, pixel raindrops running down */
+.pl-bg { position: absolute; inset: 0; overflow: hidden; background: #0B0618; }
+.pl-city {
+  position: absolute; inset: -40px; background: url(assets/scenes/street.webp) center 35% / cover no-repeat;
+  filter: blur(14px) brightness(0.55) saturate(1.35); transform: scale(1.08);
+  animation: pl-drift 14s ease-in-out infinite alternate;
 }
-.pl-stars::after { content: ""; position: absolute; width: 2px; height: 2px; box-shadow: var(--stars2); animation: pl-twinkle 1.7s steps(2) infinite reverse; }
-@keyframes pl-twinkle { 50% { opacity: 0.35; } }
-.pl-sun {   /* striped pixel sun sinking into the horizon */
-  position: absolute; left: 50%; top: 66%; width: min(300px, 46vw); aspect-ratio: 1; translate: -50% -60%;
-  clip-path: inset(0 0 40% 0);                     /* sets exactly on the horizon */
-  border-radius: 50%;
-  background: linear-gradient(#FFC21A 0%, #FF9933 35%, #FF3D9A 75%);
-  -webkit-mask: linear-gradient(#000 0 40%, transparent 40% 44%, #000 44% 52%, transparent 52% 57%, #000 57% 64%, transparent 64% 71%, #000 71% 77%, transparent 77% 86%, #000 86% 90%, transparent 90%);
-          mask: linear-gradient(#000 0 40%, transparent 40% 44%, #000 44% 52%, transparent 52% 57%, #000 57% 64%, transparent 64% 71%, #000 71% 77%, transparent 77% 86%, #000 86% 90%, transparent 90%);
-  filter: drop-shadow(0 0 40px rgba(255, 61, 154, 0.6)); opacity: 0.55;
+@keyframes pl-drift { to { transform: scale(1.14) translate(-12px, -6px); } }
+.pl-bokeh i {
+  position: absolute; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle, var(--c) 0 38%, transparent 70%); opacity: 0.5; mix-blend-mode: screen;
+  animation: pl-bokeh var(--d) ease-in-out infinite alternate;
 }
-.pl-skyline {   /* stepped pixel skyline in silhouette on the horizon */
-  position: absolute; left: 0; right: 0; top: 66%; height: 90px; translate: 0 -100%;
-  background: #120A26;
-  clip-path: polygon(0 100%, 0 60%, 4% 60%, 4% 35%, 8% 35%, 8% 55%, 11% 55%, 11% 20%, 13% 20%, 13% 10%, 15% 10%, 15% 45%, 19% 45%, 19% 70%, 23% 70%, 23% 30%, 27% 30%, 27% 50%, 30% 50%, 30% 65%, 34% 65%, 34% 40%, 37% 40%, 37% 75%, 63% 75%, 63% 42%, 66% 42%, 66% 25%, 68% 25%, 68% 5%, 70% 5%, 70% 38%, 74% 38%, 74% 60%, 78% 60%, 78% 28%, 82% 28%, 82% 52%, 86% 52%, 86% 18%, 89% 18%, 89% 58%, 93% 58%, 93% 36%, 97% 36%, 97% 62%, 100% 62%, 100% 100%);
-}
-.pl-skyline::after {   /* lit windows */
-  content: ""; position: absolute; inset: 0;
-  background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(255, 184, 77, 0.55) 9px 11px), repeating-linear-gradient(transparent 0 10px, #120A26 10px 16px);
-  -webkit-mask: linear-gradient(transparent 0 25%, #000 25% 85%, transparent 85%); mask: linear-gradient(transparent 0 25%, #000 25% 85%, transparent 85%);
-  opacity: 0.55;
-}
-.pl-grid {   /* neon floor grid rolling toward you */
-  position: absolute; left: -50%; right: -50%; top: 66%; bottom: -40%;
-  transform-origin: 50% 0; transform: perspective(260px) rotateX(58deg);
+@keyframes pl-bokeh { to { transform: translate(var(--dx), -14px) scale(1.12); opacity: 0.28; } }
+.pl-bokeh i:nth-child(1)  { --x: 8%;  --y: 22%; --s: 120px; --c: #FF3D9A; --d: 6s;  --dx: 10px; }
+.pl-bokeh i:nth-child(2)  { --x: 22%; --y: 60%; --s: 80px;  --c: #FFB84D; --d: 7s;  --dx: -8px; }
+.pl-bokeh i:nth-child(3)  { --x: 35%; --y: 30%; --s: 60px;  --c: #3DF2FF; --d: 5s;  --dx: 6px; }
+.pl-bokeh i:nth-child(4)  { --x: 48%; --y: 70%; --s: 140px; --c: #FF9933; --d: 8s;  --dx: -12px; }
+.pl-bokeh i:nth-child(5)  { --x: 62%; --y: 18%; --s: 90px;  --c: #FFC21A; --d: 6.5s; --dx: 8px; }
+.pl-bokeh i:nth-child(6)  { --x: 74%; --y: 52%; --s: 110px; --c: #FF3D9A; --d: 7.5s; --dx: -6px; }
+.pl-bokeh i:nth-child(7)  { --x: 86%; --y: 28%; --s: 70px;  --c: #3DF2FF; --d: 5.5s; --dx: 10px; }
+.pl-bokeh i:nth-child(8)  { --x: 90%; --y: 74%; --s: 100px; --c: #FFB84D; --d: 6s;  --dx: -8px; }
+.pl-bokeh i:nth-child(9)  { --x: 14%; --y: 82%; --s: 56px;  --c: #3DF2FF; --d: 8.5s; --dx: 6px; }
+.pl-bokeh i:nth-child(10) { --x: 56%; --y: 40%; --s: 44px;  --c: #FF3D9A; --d: 5s;  --dx: -4px; }
+.pl-bokeh i:nth-child(11) { --x: 30%; --y: 8%;  --s: 50px;  --c: #FFC21A; --d: 7s;  --dx: 5px; }
+.pl-bokeh i:nth-child(12) { --x: 68%; --y: 86%; --s: 64px;  --c: #FF9933; --d: 6.5s; --dx: -7px; }
+.pl-rain { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.pl-window {   /* window frame: dark mullion, sill, and a little fog in the corners */
+  position: absolute; inset: 0; pointer-events: none;
   background:
-    repeating-linear-gradient(90deg, rgba(255, 61, 154, 0.75) 0 2px, transparent 2px 60px),
-    repeating-linear-gradient(rgba(61, 242, 255, 0.6) 0 2px, transparent 2px 60px);
-  animation: pl-roll 0.9s linear infinite;
-  -webkit-mask: linear-gradient(transparent, #000 25%); mask: linear-gradient(transparent, #000 25%);
+    linear-gradient(90deg, transparent calc(64% - 7px), #0A0612 calc(64% - 7px) calc(64% + 7px), transparent calc(64% + 7px)),
+    linear-gradient(transparent calc(100% - 26px), #0A0612 calc(100% - 26px)),
+    radial-gradient(ellipse at 0 100%, rgba(200, 210, 230, 0.12), transparent 45%),
+    radial-gradient(ellipse at 100% 0, rgba(200, 210, 230, 0.08), transparent 40%);
+  box-shadow: inset 0 0 0 16px #0A0612, inset 0 0 0 18px rgba(255, 184, 77, 0.12);
 }
-@keyframes pl-roll { to { background-position: 0 0, 0 60px; } }
-.pl-bg::after {   /* horizon line glow */
-  content: ""; position: absolute; left: 0; right: 0; top: 66%; height: 2px;
-  background: #FF3D9A; box-shadow: 0 0 18px 4px rgba(255, 61, 154, 0.7), 0 0 60px 12px rgba(255, 153, 51, 0.25);
-}
-
 .pl-blocks { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; image-rendering: pixelated; }
 .pl-stage { position: relative; z-index: 3; display: grid; place-items: center; gap: 28px; }
 .pl-stage > * { grid-area: 1 / 1; }
