@@ -295,39 +295,36 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .manhole-cover[hidden] { display: none; }
 
 /* ---------------- 2. drain: about me ---------------- */
-.ride .about-rows { left: 0; top: 0; }
-.about-head { display: flex; flex-direction: column; gap: 10px; }
-.about-head h2 { font-size: 24px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(107, 227, 168, 0.5); }
+.ride .about-pin { position: fixed; inset: 0; z-index: 20; pointer-events: none; opacity: 0; visibility: hidden; }
+.ride .about-portrait, .ride .about-text { position: absolute; left: var(--x); top: var(--y); width: var(--w); }
+.about-portrait {
+  aspect-ratio: var(--ar); background-repeat: no-repeat; background-color: var(--outline);
+  box-shadow: 0 0 0 6px var(--paper), 0 0 0 10px var(--drain-teal), 0 0 0 14px var(--outline), 14px 16px 0 14px rgba(8, 5, 16, 0.55);
+}
+.ride .about-text { max-height: var(--h); overflow: hidden; position: absolute; }
+.about-text > * { flex: none; }
+.about-text {
+  display: flex; flex-direction: column; gap: 12px; padding: 18px 20px;
+  background: rgba(14, 9, 28, 0.9); box-shadow: 0 0 0 4px var(--outline), 0 0 0 7px var(--drain-teal);
+}
+.about-text h2 { font-size: 24px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(107, 227, 168, 0.5); }
 .about-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .about-tags li { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--drain-slime); padding: 5px 7px; box-shadow: 0 0 0 3px var(--outline); }
-.ride .about-row { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: 0; }
-.ride .about-row .about-img, .ride .about-row .about-text { position: absolute; top: 0; transform: translateY(-50%); margin: 0; }
-.about-img { margin: 0; aspect-ratio: var(--ar); }
-.about-img img { width: 100%; height: 100%; object-fit: contain; }
-.about-img.sticker img { filter: drop-shadow(6px 8px 0 rgba(10, 6, 20, 0.6)); }
-.about-img.framed { background: var(--outline); box-shadow: 0 0 0 6px var(--paper), 0 0 0 10px var(--drain-teal), 0 0 0 14px var(--outline); }
-.about-img.framed img { object-fit: cover; }
-.about-text { background: rgba(18, 10, 38, 0.92); border-color: var(--drain-teal); }
-.about-text h3 { font-family: var(--font-display); font-size: 12px; line-height: 1.5; color: var(--drain-slime); margin: 0 0 8px; }
-.about-text p { font-size: 22px; line-height: 1.15; }
-.about-text p + p { margin-top: 10px !important; color: var(--spotlight); }
-/* narrow screens: one card per row across the shaft, image alternating sides */
-.about-stack .about-row { display: flex; align-items: center; gap: 12px; transform: translateY(-50%); height: auto !important; }
-.about-stack .ride .about-row, .ride.about-stack .about-row { height: auto; }
-.ride.about-stack .about-row .about-img, .ride.about-stack .about-row .about-text { position: static; transform: none; }
-.about-stack .about-row.img-right { flex-direction: row-reverse; }
-.about-stack .about-img { flex: 0 0 30%; }
-.about-stack .about-text { flex: 1; }
-.about-stack .about-text p { font-size: 18px; }
-.about-stack .about-text { padding: 10px 12px; }
-.about-stack .about-text h3 { font-size: 8px; }
-.static #drain { background: #0E1418; }
-.static .about-rows { display: flex; flex-direction: column; gap: 40px; max-width: 900px; margin: 32px auto 0; }
-.static .about-row { display: flex; align-items: center; gap: 32px; }
-.static .about-row.img-right { flex-direction: row-reverse; }
-.static .about-img { flex: 0 0 min(34%, 260px); }
+.about-copy p { margin: 0 0 10px; font-size: 24px; line-height: 1.12; }
+/* scroll highlight: words start dim, light up in order; the newest word glows */
+.ride .about-copy .w { color: rgba(244, 230, 208, 0.22); transition: color 0.12s steps(2); }
+.about-copy .w.lbl { font-family: var(--font-display); font-size: 10px; letter-spacing: 0; }
+.ride .about-copy .w.on { color: var(--paper); }
+.ride .about-copy .w.lbl.on { color: var(--drain-slime); }
+.ride .about-copy .w.now { color: var(--marigold); text-shadow: 0 0 6px rgba(255, 194, 26, 0.6); }
+/* phones: portrait top-right beside him, text in the lower half */
+.about-stack .about-text { padding: 12px 14px; gap: 8px; }
+.about-stack .about-text h2 { font-size: 16px; }
+.about-stack .about-copy p { font-size: 18px; }
+.static .about-pin { display: flex; gap: 32px; align-items: flex-start; max-width: 960px; margin: 0 auto; }
+.static .about-portrait { flex: 0 0 min(30%, 280px); background-position: 0 0; }
 .static .about-text { flex: 1; }
-.static .about-head { max-width: 900px; margin: 0 auto; }
+.static #drain { background: #0E1418; }
 
 /* ---------------- 3. subway ---------------- */
 /* station name on the blank sign in the art */

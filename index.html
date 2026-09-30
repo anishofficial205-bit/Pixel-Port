@@ -61,11 +61,6 @@
         <!-- 2. THE DRAIN -->
         <section class="scene" id="drain" data-location="drain" aria-labelledby="about-title">
           <img class="bg-img pixel-art" src="assets/scenes/drain.webp" alt="" decoding="async" fetchpriority="low" />
-          <div class="content about-head">
-            <h2 id="about-title">About me</h2>
-            <ul class="about-tags" id="about-tags"></ul>
-          </div>
-          <div class="content about-rows" id="about-rows"></div>
         </section>
 
         <!-- 3. THE SUBWAY -->
@@ -148,6 +143,15 @@
           <canvas class="char-sprite"></canvas>
           <div class="bubble" id="bubble"></div>
         </div>
+      </div>
+    </div>
+    <!-- About me: pinned beside the drain shaft during the fall (moved into #drain when skipping the ride) -->
+    <div class="about-pin">
+      <div class="about-portrait" role="img" aria-label="Portrait of Anish"></div>
+      <div class="about-text">
+        <h2 id="about-title">About me</h2>
+        <ul class="about-tags" id="about-tags"></ul>
+        <div class="about-copy" id="about-copy"></div>
       </div>
     </div>
     <div class="spacer" id="spacer"></div>
