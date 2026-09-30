@@ -228,21 +228,24 @@
   const ADS = { every: 4200, stagger: 1400 };   // ms per ad, delay between boards
   function adBoards() {
     const list = S.featured().length ? S.featured() : S.projects;
-    const pics = list.flatMap((p) => (p.ads || [p.cover]).map((img) => ({ p, img })));
     $$(".bb-ad").forEach((board) => {
-      const portrait = board.dataset.quad === "led";
-      board.innerHTML = pics.map(({ p, img }, i) => `
-        <span class="ad" data-i="${i}">
-          <img class="work-media" src="${S.img(img, portrait ? 768 : 1024)}" alt="" decoding="async" />
-          <span class="ad-cap"><b>${p.title}</b> ${p.meta.category || ""}</span>
-        </span>`).join("");
-      board.setAttribute("aria-label", "Featured project");
+      const tall = board.dataset.quad === "led";
+      const shape = tall ? "tall" : "wide";
+      const pics = list.flatMap((p) => ((p.ads && p.ads[shape]) || [p.cover]).map((img) => ({ p, img })));
+      // every ad fits whole (no cropping) over a pixelated, dimmed copy of the project's cover;
+      // the tall LED is laid out like a poster: title, picture, category
+      board.innerHTML = pics.map(({ p, img }, i) => {
+        const bg = `<span class="ad-bg" style="background-image:url(${S.img(p.cover, 32)})"></span>`;
+        const pic = `<img class="work-media ad-img" src="${S.img(img, tall ? 768 : 1024)}" alt="" decoding="async" />`;
+        return tall
+          ? `<span class="ad ad-poster" data-i="${i}">${bg}<span class="ad-title">${p.title}</span><span class="ad-frame">${pic}</span><span class="ad-cat">${p.meta.category || ""}</span></span>`
+          : `<span class="ad" data-i="${i}">${bg}${pic}<span class="ad-cap"><b>${p.title}</b> ${p.meta.category || ""}</span></span>`;
+      }).join("");
       let i = (+board.dataset.start || 0) % pics.length;
       const show = (first) => {
         const ads = board.querySelectorAll(".ad");
         ads.forEach((a, k) => a.classList.toggle("on", k === i));
-        if (!first) ads[i].classList.add("enter");
-        setTimeout(() => ads[i].classList.remove("enter"), 700);
+        if (!first) { ads[i].classList.add("enter"); setTimeout(() => ads[i].classList.remove("enter"), 700); }
         board.href = `project.html?p=${pics[i].p.id}`;
         board.setAttribute("aria-label", `Featured project: ${pics[i].p.title}`);
       };

@@ -7,6 +7,7 @@ window.SITE = {
   // Framer-hosted image at a sensible size (GIFs are served as-is so they keep animating)
   featured() { return this.projects.filter((p) => p.featured); },
   img(id, size = 2048) {
+    if (id.includes("/")) return id;                       // a local file, e.g. assets/ads/…
     const u = "https://framerusercontent.com/images/" + id;
     return /\.gif$/i.test(id) ? u : u + "?scale-down-to=" + size;
   },
@@ -41,11 +42,14 @@ window.SITE = {
      shape: "wide" (metal frame, ~2:1 window) or "tall" (cyan LED, ~9:17 window).
      cover/hero/img values are Framer image ids; SITE.img() turns them into sized URLs.
      blocks: {h} heading, {p} paragraph, {img,w,h} image, {list:[[title, text]]} feature list.
-     ads (optional): image/GIF ids to show on the street billboards instead of the cover, e.g. ["xyz.gif"]. */
+     ads (optional): what the street billboards show, per board shape: wide (~2.5:1) and tall (~1:2.2).
+       Framer ids or local paths; animated WebP/GIF work. Without it the cover is used. Images are never
+       cropped: they fit whole, over a pixelated copy of the cover. */
   projects: [
     {
       "id": "thrive",
       "featured": true,
+      "ads": {"wide": ["assets/ads/thrive-logo.webp"], "tall": ["dp3u20lqd2b8MqVvTOntq9Bvb54.png"]},
       "title": "Thrive",
       "line": "Line 1",
       "blurb": "Brand identity for eco-friendly desk accessories",
@@ -263,6 +267,7 @@ window.SITE = {
     {
       "id": "krumble",
       "featured": true,
+      "ads": {"wide": ["HsNegKWzgrPy1KGooo5JW61CxJo.png"], "tall": ["HvvrYLL9E86iUDCiPFUmJzYsKpU.png", "Fcppa449wpWVPOvtSgmSMZG1k.png"]},
       "title": "Krumble",
       "line": "Line 2",
       "blurb": "Festive gift packaging for Haldiram’s cookies",
@@ -365,6 +370,7 @@ window.SITE = {
     {
       "id": "parde-ke-peeche",
       "featured": true,
+      "ads": {"wide": ["assets/ads/parde-logo.webp"], "tall": ["EQutebwwanZebgWET9rGUdtuOrY.png"]},
       "title": "Parde Ke Peeche",
       "line": "Line 3",
       "blurb": "A magazine on the craft behind Bollywood",
@@ -456,6 +462,7 @@ window.SITE = {
     {
       "id": "haven",
       "featured": true,
+      "ads": {"wide": ["hbqzZsFb5sUFuO3g55Xm4b7K80.png"], "tall": ["hbqzZsFb5sUFuO3g55Xm4b7K80.png"]},
       "title": "Haven",
       "line": "Line 4",
       "blurb": "A safe space to learn and practise consent",
