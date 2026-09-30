@@ -1077,45 +1077,55 @@
   addEventListener("resize", () => markSection(lastLoc));
   document.fonts?.ready.then(() => markSection(lastLoc));
 
-  // Nav logo. Normally crisp; on hover it steps down into big pixel blocks (with a little row-shift
-  // glitch while it breaks up), and resolves back to crisp when the pointer leaves.
-  function pixelLogo() {
+  // Nav logo glitch. Hovering (or focusing) plays glitch bursts: red/cyan copies split apart, random
+  // horizontal slices tear sideways, the whole mark jitters and now and then flickers. Leaving snaps
+  // it back to clean.
+  const GLITCH = { frameMs: 55, burst: 7, rest: [4, 12], split: 5, slices: [2, 5], tear: 14 };   // css px / frames
+  function glitchLogo() {
     const link = $(".hud-logo"), c = $(".logo-canvas"), img = new Image();
-    const tmp = document.createElement("canvas");
-    let block = 1, timer = null;
-    const draw = (b, glitch) => {
-      const dpr = window.devicePixelRatio || 1, h = link.clientHeight || 58;
-      const w = Math.round(h * img.width / img.height);
-      c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.width = w + "px";
-      const g = c.getContext("2d");
-      g.clearRect(0, 0, c.width, c.height);
-      if (b <= 1) { g.imageSmoothingEnabled = true; g.drawImage(img, 0, 0, c.width, c.height); return; }
-      const bs = b * dpr, tw = Math.max(1, Math.round(c.width / bs)), th = Math.max(1, Math.round(c.height / bs));
-      tmp.width = tw; tmp.height = th;
-      const t = tmp.getContext("2d"); t.clearRect(0, 0, tw, th); t.imageSmoothingEnabled = true; t.drawImage(img, 0, 0, tw, th);
-      g.imageSmoothingEnabled = false;
-      if (!glitch) { g.drawImage(tmp, 0, 0, c.width, c.height); return; }
-      for (let y = 0; y < th; y++) {   // shift a few rows sideways
-        const dx = Math.random() < 0.25 ? (Math.random() < 0.5 ? -1 : 1) * bs : 0;
-        g.drawImage(tmp, 0, y, tw, 1, dx, y * c.height / th, c.width, c.height / th);
+    const tint = (col) => { const t = document.createElement("canvas"); t.width = img.width; t.height = img.height;
+      const g = t.getContext("2d"); g.drawImage(img, 0, 0); g.globalCompositeOperation = "source-in"; g.fillStyle = col; g.fillRect(0, 0, t.width, t.height); return t; };
+    let red, cyan, timer = null, frame = 0, rest = 0;
+    const size = () => {
+      const dpr = window.devicePixelRatio || 1, h = link.clientHeight || 58, w = Math.round(h * img.width / img.height);
+      if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.width = w + "px"; }
+      return dpr;
+    };
+    const clean = () => { size(); const g = c.getContext("2d"); g.clearRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height); };
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const glitch = () => {
+      const dpr = size(), g = c.getContext("2d"), W = c.width, H = c.height, G = GLITCH;
+      g.clearRect(0, 0, W, H);
+      if (Math.random() < 0.12) return;                                   // flicker: a blank frame
+      const d = rnd(1.5, G.split) * dpr, jx = rnd(-2, 2) * dpr, jy = rnd(-1, 1) * dpr;
+      g.globalAlpha = 0.9;
+      g.drawImage(cyan, -d + jx, jy, W, H);
+      g.drawImage(red, d + jx, -jy, W, H);
+      g.globalAlpha = 1;
+      g.drawImage(img, jx, 0, W, H);
+      // tear a few horizontal slices sideways
+      const n = Math.floor(rnd(G.slices[0], G.slices[1] + 1));
+      for (let i = 0; i < n; i++) {
+        const y = rnd(0, H * 0.9), h = rnd(H * 0.04, H * 0.16), dx = rnd(-G.tear, G.tear) * dpr;
+        const band = g.getImageData(0, y, W, h);
+        g.clearRect(0, y, W, h);
+        g.putImageData(band, dx, y);
       }
     };
-    const animate = (steps) => {
-      clearInterval(timer);
-      let i = 0;
-      timer = setInterval(() => {
-        block = steps[i]; draw(block, i < steps.length - 1 && block > 1);
-        if (++i >= steps.length) clearInterval(timer);
-      }, 45);
+    const tick = () => {
+      if (rest > 0) { rest--; if (rest === 0) frame = 0; clean(); return; }
+      glitch();
+      if (++frame >= GLITCH.burst) { rest = Math.floor(rnd(GLITCH.rest[0], GLITCH.rest[1])); clean(); }
     };
-    const into = [2, 4, 6, 5, 3.5], out = [3, 2, 1.5, 1];   // block sizes (css px); hovering holds the last one
-    link.addEventListener("mouseenter", () => !reduceMotion && animate(into));
-    link.addEventListener("mouseleave", () => animate(reduceMotion ? [1] : out));
-    link.addEventListener("focus", () => !reduceMotion && animate(into));
-    link.addEventListener("blur", () => animate([1]));
-    img.onload = () => draw(block);
+    const start = () => { if (reduceMotion || timer) return; frame = 0; rest = 0; timer = setInterval(tick, GLITCH.frameMs); tick(); };
+    const stop = () => { clearInterval(timer); timer = null; clean(); };
+    link.addEventListener("mouseenter", start);
+    link.addEventListener("mouseleave", stop);
+    link.addEventListener("focus", start);
+    link.addEventListener("blur", stop);
+    img.onload = () => { red = tint("#FF2A4A"); cyan = tint("#3DF2FF"); clean(); };
     img.src = "assets/brand/logo.png";
-    addEventListener("resize", () => img.complete && draw(block));
+    addEventListener("resize", () => img.complete && !timer && clean());
   }
 
   /* ================= BOOT ================= */
@@ -1123,7 +1133,7 @@
   makeRain();
   galleryTop();
   watchPlain();
-  pixelLogo();
+  glitchLogo();
   roadEdge();
   bindUI();
   const saved = store.get("nb-mode");
