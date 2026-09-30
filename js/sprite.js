@@ -36,7 +36,7 @@
   const HOLE = { dx: 35, w: 64, h: 16 }; // manhole centre offset from the anchor, in the crouch frames
 
   const img = new Image();
-  img.src = "assets/character/sheet.webp?v=1790755728";
+  img.src = "assets/character/sheet.webp?v=1790756226";
   let ready = false;
   const onReady = [];
   img.onload = () => { ready = true; onReady.forEach((f) => f()); };

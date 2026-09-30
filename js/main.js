@@ -1128,10 +1128,50 @@
     addEventListener("resize", () => img.complete && !timer && clean());
   }
 
+  // "Scroll" cursor over the opening city screen: replaces the pointer on the street (until he drops
+  // into the drain) and on the Skip-the-ride hero, but never over links, buttons or the navbar.
+  // A click scrolls onward. Mouse / trackpad only.
+  function scrollCursor() {
+    if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    const el = $(".scroll-cursor");
+    let x = -200, y = -200, tx = x, ty = y, target = null, raf = 0;
+    const onCity = () => {
+      if (!target || !$("#lightbox").hidden) return false;
+      if (target.closest("a, button, input, .hud, .lightbox")) return false;
+      if (body.classList.contains("ride")) return lastLoc === "street" || lastLoc === "";
+      return !!target.closest(".plain-hero");
+    };
+    const update = () => body.classList.toggle("scroll-cursor-on", onCity());
+    const follow = () => {
+      x += (tx - x) * 0.35; y += (ty - y) * 0.35;
+      el.style.setProperty("--cx", x.toFixed(1) + "px"); el.style.setProperty("--cy", y.toFixed(1) + "px");
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(follow) : 0;
+    };
+    addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      tx = e.clientX; ty = e.clientY; target = e.target;
+      if (!body.classList.contains("scroll-cursor-on")) { x = tx; y = ty; }   // appear right under the pointer
+      update();
+      if (!raf) raf = requestAnimationFrame(follow);
+    }, { passive: true });
+    addEventListener("scroll", update, { passive: true });
+    document.addEventListener("mouseleave", () => body.classList.remove("scroll-cursor-on"));
+    addEventListener("pointerdown", () => body.classList.contains("scroll-cursor-on") && body.classList.add("cursor-press"));
+    addEventListener("pointerup", () => body.classList.remove("cursor-press"));
+    addEventListener("click", (e) => {
+      if (!body.classList.contains("scroll-cursor-on")) return;
+      e.preventDefault();
+      if (body.classList.contains("ride")) scrollBy({ top: innerHeight * 0.8, behavior: reduceMotion ? "auto" : "smooth" });
+      else goTo("drain");                                                  // plain page: to About
+      setTimeout(update, 50);
+    });
+  }
+
   /* ================= BOOT ================= */
   fillContent();
   makeRain();
   galleryTop();
+  scrollCursor();
   watchPlain();
   glitchLogo();
   roadEdge();

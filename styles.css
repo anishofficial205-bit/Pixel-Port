@@ -143,6 +143,24 @@ body::after {
 }
 @media (max-width: 700px) { :root { --frame: 8px; --frame-radius: 16px; } }
 
+/* ---------------- "Scroll" cursor on the opening screen ---------------- */
+.scroll-cursor {
+  position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none;
+  width: 92px; height: 92px; margin: -46px 0 0 -46px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: rgba(255, 153, 51, 0.94); color: var(--night-deep);
+  box-shadow: 0 0 0 2px rgba(26, 14, 31, 0.9), 0 0 24px rgba(255, 153, 51, 0.55);
+  font-family: "Silkscreen", var(--font-display); font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase;
+  opacity: 0; transform: translate3d(var(--cx, -200px), var(--cy, -200px), 0) scale(0.4);
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  will-change: transform;
+}
+.scroll-cursor .px-arrow { margin: 0; width: 12px; height: 8px; animation: cursor-bob 0.9s steps(2) infinite; }
+@keyframes cursor-bob { 50% { transform: translateY(3px); } }
+.scroll-cursor-on { cursor: none; }
+.scroll-cursor-on .scroll-cursor { opacity: 1; transform: translate3d(var(--cx), var(--cy), 0) scale(1); transition: opacity 0.2s ease; }
+.scroll-cursor-on.cursor-press .scroll-cursor { transform: translate3d(var(--cx), var(--cy), 0) scale(0.88); }
+
 /* ---------------- HUD: floating, glassy, clean ---------------- */
 .hud {
   position: fixed; z-index: 50; pointer-events: none;
