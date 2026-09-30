@@ -439,6 +439,12 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .ride .front-row img { display: block; height: auto; }
 .char { transform-origin: 50% 100%; }
 
+/* road -> drain cut-away */
+.road-edge, .road-shadow { display: none; }
+.ride .road-edge, .ride .road-shadow { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); pointer-events: none; }
+.ride .road-edge { z-index: 3; }
+.ride .road-shadow { z-index: 2; background: linear-gradient(rgba(8, 5, 14, 0.85), rgba(8, 5, 14, 0.45) 45%, transparent); }
+
 /* subway -> stairwell seam: a pillar on the join, the subway floor fading out beneath it */
 .seam-pillar, .seam-floor { display: none; }
 .ride .seam-pillar { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: 3; pointer-events: none; }

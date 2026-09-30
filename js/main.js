@@ -41,6 +41,10 @@
   // the join to hide it, and the subway's floor fades into the stairwell's underneath it.
   const SEAM_PILLAR = { x: 5913, w: 64, h: 652 };   // subway art px: just right of the Haven frame, clear of the first step
   const SEAM_FLOOR_BLEND = 56;                      // css px past the join over which the subway floor fades out
+  // Road -> drain: the road gets a cut-away edge (asphalt + gravel, jagged bottom) grown from its own
+  // bottom row, a gap where the shaft walls come up to the road, and a soft shadow on the soil below.
+  const ROAD_EDGE = { depth: 34, asphalt: 12, jag: [3, 9], gap: [640, 990], shadow: 60 };   // street art px
+
   // About me, pinned beside the drain shaft for the whole fall: portrait left, text right
   const ABOUT_SHAFT = [610, 1010];      // shaft brick walls in drain art px (the panels stay outside them)
   const ABOUT_MIN_SIDE = 220;           // narrower than this beside the shaft -> portrait + text stacked over it
@@ -48,7 +52,7 @@
   const ABOUT_TEXT_W = 380;             // max text box width (css px)
   const ABOUT_SCROLL = 4.5;             // viewport heights of scroll for the fall (reading time)
   const ABOUT_FRAME_STEP = 0.3;         // viewport heights of scroll per portrait frame
-  const ABOUT_TEXT_START = 0.05;        // part of the fall where the words start lighting up
+  const ABOUT_TEXT_START = 0.03;        // after the panel appears, this much of the fall before words light up
   const ABOUT_HOLD = 0.03;              // fully lit for this much of the fall before fading
   const ABOUT_FADE = 0.06;              // fade-out length; it ends exactly as his feet reach the subway grate
   const STAIR_GLIDE = 0.6;             // viewport widths before the bottom step over which the camera glides to the stairwell's left edge
@@ -251,6 +255,10 @@
       x: Math.round(mh - DRAIN.hole * ss), y: Math.round(street.h - DRAIN.top * ss),
       w: Math.round(DRAIN.w * ss), h: Math.round(DRAIN.h * ss),
     };
+    // road cut-away edge along the bottom of the street, and its shadow on the soil
+    setBox($(".road-edge"), 0, street.h, street.w, Math.round(ROAD_EDGE.depth * ss));
+    setBox($(".road-shadow"), 0, street.h, street.w, Math.round(ROAD_EDGE.shadow * ss));
+
     // About panel: during the fall the camera sits at camEnd.x, so the room beside the shaft is known.
     // Screen coords: portrait in the gap left of the shaft, text in the gap right of it.
     {
@@ -418,7 +426,9 @@
     // fall past the About rows: steady speed, camera keeps him ~40% down the screen
     // the moment his feet reach the grate in the subway ceiling (the fall is linear in y)
     const aboutEnter = Math.min(1, Math.max(0, (L.drain.y + L.drain.h - sgy) / (sy - sgy)));
-    add({ id: "fall", loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], aboutEnter,
+    // ...and starts once the road has scrolled up to the top ~20% of the screen (camera keeps him at 40%)
+    const aboutStart = Math.min(0.5, Math.max(0, (street.h + vh * 0.2 - sgy) / (sy - sgy)));
+    add({ id: "fall", loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], aboutEnter, aboutStart,
       len: vh * ABOUT_SCROLL,
       bubble: ["Shortcut!", 0.01, 0.07],
       cam: (t, p) => ({ x: camEnd.x, y: Math.min(Math.max(p.y - vh * 0.4, camEnd.y), subCamY) }) });
@@ -630,14 +640,14 @@
     // About panel: visible only during the fall; frame steps and words light up with scroll
     const fallSeg = s.id === "fall";
     // fade in as the fall starts; fade out so it's gone right as he enters the subway
-    const aboutOn = fallSeg ? Math.max(0, Math.min(1, t / 0.04, (s.aboutEnter - t) / ABOUT_FADE)) : 0;
+    const aboutOn = fallSeg ? Math.max(0, Math.min(1, (t - s.aboutStart) / 0.04, (s.aboutEnter - t) / ABOUT_FADE)) : 0;
     aboutPin.style.opacity = aboutOn.toFixed(2);
     aboutPin.style.visibility = aboutOn > 0 ? "visible" : "hidden";
     if (fallSeg) {
       const P = S.about.portrait, fr = Math.floor((cur - s.start) / (L.vh * ABOUT_FRAME_STEP)) % P.frames;
       if (fr !== aboutFrame) { aboutFrame = fr; aboutFace.style.backgroundPosition = `${(fr / (P.frames - 1)) * 100}% 0`; }
       // words finish lighting up, hold briefly, then the panel fades before the grate
-      const a0 = ABOUT_TEXT_START, a1 = s.aboutEnter - ABOUT_FADE - ABOUT_HOLD;
+      const a0 = s.aboutStart + ABOUT_TEXT_START, a1 = s.aboutEnter - ABOUT_FADE - ABOUT_HOLD;
       const u = Math.min(1, Math.max(0, (t - a0) / (a1 - a0)));
       const lit = Math.round(u * aboutWords.length);
       if (lit !== aboutLit) {
@@ -883,10 +893,53 @@
     g.fillText(`scale ${T.s.toFixed(3)} (${(T.h / L.vh).toFixed(2)} vh)  offsetY ${T.y}`, ox, oy - 6);
   }
 
+  // Paint the road's cut face once: each column continues its bottom-row colour, darkening into
+  // asphalt with gravel flecks, ending in a stepped (pixel) jagged edge with a dark outline.
+  function roadEdge() {
+    const img = $("#street .bg-img"), c = $(".road-edge");
+    const draw = () => {
+      const W = img.naturalWidth, H = img.naturalHeight, D = ROAD_EDGE.depth;
+      const src = document.createElement("canvas"); src.width = W; src.height = 3;
+      const sx = src.getContext("2d"); sx.drawImage(img, 0, H - 3, W, 3, 0, 0, W, 3);
+      const row = sx.getImageData(0, 0, W, 3).data;
+      c.width = W; c.height = D;
+      const g = c.getContext("2d"), out = g.createImageData(W, D), px = out.data;
+      let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      const [j0, j1] = ROAD_EDGE.jag, [gL, gR] = ROAD_EDGE.gap;
+      let depth = D - j0, run = 0;
+      for (let x = 0; x < W; x++) {
+        if (run-- <= 0) { depth = D - j0 - Math.floor(rnd() * (j1 - j0 + 1)); run = 2 + Math.floor(rnd() * 5); }
+        if (x >= gL && x <= gR) continue;                              // shaft comes up through here
+        const side = x === gL - 1 || x === gR + 1;                     // cut face beside the shaft
+        const base = [0, 1, 2].map((k) => (row[(2 * W + x) * 4 + k] + row[(W + x) * 4 + k]) / 2);
+        // layers: wet road lip, asphalt with gravel, a dark joint, then a pebbly concrete base
+        const A = ROAD_EDGE.asphalt;
+        for (let y = 0; y < depth + 1; y++) {
+          const i = (y * W + x) * 4, f = rnd();
+          let col;
+          if (y === depth || side) col = [14, 10, 22];                          // outline
+          else if (y < 2) col = base.map((v) => v * (y ? 0.7 : 0.9));           // wet road lip
+          else if (y === 2 || y === A) col = [18, 14, 28];                       // joints
+          else if (y < A) {                                                      // asphalt
+            col = f < 0.14 ? [74, 66, 92] : f < 0.22 ? [26, 22, 36] : [44, 38, 60];
+          } else {                                                               // concrete base, darker toward the soil
+            const k = (y - A) / (depth - A);
+            col = f < 0.12 ? [118, 98, 84] : f < 0.2 ? [52, 40, 38] : [88, 72, 64];
+            col = col.map((v) => v * (1 - 0.35 * k));
+          }
+          px[i] = col[0]; px[i + 1] = col[1]; px[i + 2] = col[2]; px[i + 3] = 255;
+        }
+      }
+      g.putImageData(out, 0, 0);
+    };
+    if (img.complete && img.naturalWidth) draw(); else img.addEventListener("load", draw, { once: true });
+  }
+
   /* ================= BOOT ================= */
   fillContent();
   makeRain();
   galleryTop();
+  roadEdge();
   bindUI();
   const saved = store.get("nb-mode");
   const ride = saved ? saved === "ride" : !reduceMotion;
