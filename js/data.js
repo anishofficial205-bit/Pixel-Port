@@ -25,18 +25,13 @@ window.SITE = {
   ],
 
   /* About me, down the drain: the portrait (left) steps through its frames as you scroll, and the text
-     (right) lights up word by word. Text is from anishah.framer.website/about-me; replace freely. */
+     (right) lights up word by word. Each text entry is a paragraph; an optional label shows in front of it. */
   about: {
     title: "About me",
     tags: ["Branding", "Packaging", "UI/UX", "Editorial Design"],
     portrait: { src: "assets/about/portrait-frames.webp", frames: 3, w: 280, h: 400 },
     text: [
-      { label: "Hi, I'm Anish Shah", text: "20, and a designer who builds with people, finding the story first, then shaping the visuals around it." },
-      { label: "Powered by", text: "Films that shift perspectives, food that fuels joy, and travel that keeps the imagination restless." },
-      { label: "Strength", text: "Translating feelings into design so the work doesn’t just look polished but also lands with meaning." },
-      { label: "Hobby", text: "Turning everyday moments into inspo: a colour on the street, a frame in a movie, a line someone says." },
-      { label: "Guilty for", text: "Overthinking typography, replaying scenes for “research,” and taking too many food photos." },
-      { label: "Vibe", text: "Warm energy, playful thinking, and a brain that quietly connects dots most people overlook." },
+      { text: "I’m Anish Shah, a 20-year-old designer who starts with the story and lets the visuals follow, always building alongside people. I find my inspiration in films that change the way I see the world, food that brings me joy, and travel that keeps my imagination restless. I translate feelings into design, so the work doesn’t just look good but truly means something." },
     ],
   },
 

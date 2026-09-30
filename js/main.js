@@ -116,7 +116,7 @@
     $("#about-title").textContent = A.title;
     $("#about-tags").innerHTML = A.tags.map((t) => `<li>${t}</li>`).join("");
     const words = (str, cls) => str.split(/\s+/).map((w) => `<span class="w${cls ? " " + cls : ""}">${w}</span>`).join(" ");
-    $("#about-copy").innerHTML = A.text.map((t) => `<p>${words(t.label, "lbl")} ${words(t.text)}</p>`).join("");
+    $("#about-copy").innerHTML = A.text.map((t) => `<p>${t.label ? words(t.label, "lbl") + " " : ""}${words(t.text)}</p>`).join("");
     aboutWords = $$("#about-copy .w");
     const P = A.portrait, face = $(".about-portrait");
     face.style.backgroundImage = `url(${P.src})`;

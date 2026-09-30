@@ -310,7 +310,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .about-text h2 { font-size: 24px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(107, 227, 168, 0.5); }
 .about-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .about-tags li { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--drain-slime); padding: 5px 7px; box-shadow: 0 0 0 3px var(--outline); }
-.about-copy p { margin: 0 0 10px; font-size: 24px; line-height: 1.12; }
+.about-copy p { margin: 0 0 10px; font-size: 30px; line-height: 1.12; }
 /* scroll highlight: words start dim, light up in order; the newest word glows */
 .ride .about-copy .w { color: rgba(244, 230, 208, 0.22); transition: color 0.12s steps(2); }
 .about-copy .w.lbl { font-family: var(--font-display); font-size: 10px; letter-spacing: 0; }
@@ -320,7 +320,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 /* phones: portrait top-right beside him, text in the lower half */
 .about-stack .about-text { padding: 12px 14px; gap: 8px; }
 .about-stack .about-text h2 { font-size: 16px; }
-.about-stack .about-copy p { font-size: 18px; }
+.about-stack .about-copy p { font-size: 22px; }
 .static .about-pin { display: flex; gap: 32px; align-items: flex-start; max-width: 960px; margin: 0 auto; }
 .static .about-portrait { flex: 0 0 min(30%, 280px); background-position: 0 0; }
 .static .about-text { flex: 1; }
