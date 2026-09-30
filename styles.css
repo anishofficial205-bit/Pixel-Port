@@ -798,176 +798,101 @@ body::after {
   .plain-contact::after { background: linear-gradient(rgba(18, 10, 38, 0.9) 0 55%, rgba(18, 10, 38, 0.3)); }
 }
 
-/* ================= preloader: READY? SET... GO! ================= */
+/* ================= preloader: arcade cabinet, READY? SET... GO! =================
+   .pl-scene is the arcade art at its own size (1672 x 941); JS scales it to cover the screen and moves
+   the "camera" (zoom toward the CRT) on every beat. Screen, glass, marquee and coin lights are placed in
+   art pixels. */
 .preloading { overflow: hidden; }
-.preloader {
-  position: fixed; inset: 0; z-index: 99;          /* under the screen bezel (100), over everything else */
-  display: grid; place-items: center; cursor: pointer;
-  background: var(--night-deep);
-}
-.preloader::after {                                  /* CRT scanlines + vignette */
+.preloader { position: fixed; inset: 0; z-index: 99; overflow: hidden; cursor: pointer; background: #0B0612; }
+.preloader::after {                                   /* room vignette */
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
-  background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(3, 1, 8, 0.7) 100%);
+  background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(3, 1, 8, 0.6) 100%);
 }
 .preloader.dissolving { background: transparent; cursor: default; }
-.preloader.dissolving .pl-bg, .preloader.dissolving::after { display: none; }
-
-/* arcade cabinet: the countdown plays on its CRT screen, centred in the viewport */
-.preloader {
-  --sw: min(76vw, 880px, calc((100vh - 350px) / 0.58));   /* screen width */
-  --sh: calc(var(--sw) * 0.58);                             /* screen height */
+.preloader.dissolving .pl-scene, .preloader.dissolving::after, .preloader.dissolving .pl-skip { display: none; }
+.pl-scene {
+  position: absolute; left: 0; top: 0; width: 1672px; height: 941px; transform-origin: 0 0;
+  transition: transform 0.9s cubic-bezier(0.22, 0.8, 0.2, 1);
 }
-.pl-bg {
-  position: absolute; inset: 0; overflow: hidden;
-  background:
-    radial-gradient(ellipse 60% 45% at 50% 55%, rgba(255, 61, 154, 0.18), transparent 70%),
-    radial-gradient(ellipse 30% 60% at 12% 60%, rgba(61, 242, 255, 0.08), transparent 70%),
-    radial-gradient(ellipse 30% 60% at 88% 60%, rgba(255, 153, 51, 0.08), transparent 70%),
-    linear-gradient(#08040F, #120A22 70%, #07040C);
+.pl-arcade { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+/* the CRT tube (behind the keyed-out art) */
+.pl-screen {
+  position: absolute; left: 660px; top: 216px; width: 354px; height: 248px; overflow: hidden; border-radius: 30px / 40px;
+  background: radial-gradient(ellipse at 50% 45%, #1C1030 0%, #0D0819 62%, #04020A 100%);
+  animation: crt-on 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both, crt-flicker 0.12s steps(2) 0.8s infinite;
 }
-.arc-bezel {   /* black plastic surround with a bevel */
-  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
-  width: calc(var(--sw) + 56px); height: calc(var(--sh) + 56px); border-radius: 22px;
-  background: linear-gradient(#1D1528, #0C0814);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08), inset 0 -3px 0 rgba(0, 0, 0, 0.6), 0 0 0 3px #05030A,
-              0 0 60px rgba(255, 61, 154, 0.25), 0 30px 60px rgba(0, 0, 0, 0.6);
-}
-.arc-screen {   /* the tube: dark phosphor with a curved-glass vignette */
-  position: absolute; inset: 28px; border-radius: 26px / 34px;
-  background: radial-gradient(ellipse at 50% 45%, #1A1030 0%, #0D0819 60%, #05030A 100%);
-  box-shadow: inset 0 0 50px 14px rgba(0, 0, 0, 0.85), 0 0 24px rgba(61, 242, 255, 0.12);
-  animation: crt-on 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both, crt-flicker 0.12s steps(2) 0.6s infinite;
-}
-@keyframes crt-on {   /* classic power-on: a bright line opens into the picture */
-  0% { transform: scale(0.02, 0.004); filter: brightness(8); }
-  40% { transform: scale(1, 0.006); filter: brightness(6); }
-  100% { transform: scale(1, 1); filter: brightness(1); }
-}
+@keyframes crt-on { 0% { transform: scale(0.02, 0.004); filter: brightness(8); } 40% { transform: scale(1, 0.008); filter: brightness(6); } 100% { transform: none; filter: none; } }
 @keyframes crt-flicker { 50% { opacity: 0.97; } }
-.arc-glass {   /* over the text: scanlines, RGB mask, glare, curved edge shading */
-  position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 4; pointer-events: none;
-  width: var(--sw); height: var(--sh); border-radius: 26px / 34px;
+.pl-glass {   /* scanlines, RGB mask, glare, curved-edge shading over the picture */
+  position: absolute; left: 660px; top: 216px; width: 354px; height: 248px; border-radius: 30px / 40px; pointer-events: none;
   background:
-    linear-gradient(115deg, rgba(255, 255, 255, 0.05) 0 16%, transparent 28%),
-    radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.55) 100%),
-    repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.32) 2px 3px),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.07) 0 16%, transparent 28%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+    repeating-linear-gradient(transparent 0 1px, rgba(0, 0, 0, 0.35) 1px 2px),
     repeating-linear-gradient(90deg, rgba(255, 0, 60, 0.05) 0 1px, rgba(0, 255, 120, 0.04) 1px 2px, rgba(0, 120, 255, 0.05) 2px 3px);
-  animation: crt-on 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  overflow: hidden;
 }
-.arc-glass::after {   /* a slow rolling refresh band */
-  content: ""; position: absolute; left: 0; right: 0; height: 18%; border-radius: inherit;
-  background: linear-gradient(transparent, rgba(255, 255, 255, 0.04), transparent);
-  animation: crt-roll 3.5s linear infinite;
-}
+.pl-glass::after { content: ""; position: absolute; left: 0; right: 0; height: 18%; background: linear-gradient(transparent, rgba(255, 255, 255, 0.05), transparent); animation: crt-roll 3.5s linear infinite; }
 @keyframes crt-roll { from { top: -20%; } to { top: 100%; } }
-.arc-marquee {   /* backlit sign above the screen */
-  position: absolute; left: 50%; top: calc(50% - var(--sh) / 2 - 28px - 18px); translate: -50% -100%;
-  width: calc(var(--sw) + 56px); padding: 12px 10px; border-radius: 10px 10px 4px 4px;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  background: linear-gradient(90deg, #3A0F4A, #7A1350 30%, #FF3D9A 50%, #7A1350 70%, #3A0F4A);
-  box-shadow: 0 0 0 3px #05030A, inset 0 0 0 2px rgba(255, 194, 26, 0.5), 0 0 40px rgba(255, 61, 154, 0.45);
-}
-.arc-marquee b {
-  font-family: var(--font-display); font-weight: 400; font-size: clamp(14px, 2.4vw, 26px); letter-spacing: 0.1em; color: var(--marigold);
-  text-shadow: 3px 3px 0 var(--outline), 0 0 12px rgba(255, 194, 26, 0.8); animation: marquee-hum 3s steps(1) infinite;
-}
-.arc-marquee .hi { font-size: 12px; color: var(--paper); opacity: 0.85; }
-@keyframes marquee-hum { 0%, 91%, 94%, 100% { opacity: 1; } 92%, 95% { opacity: 0.6; } }
-.arc-panel {   /* control deck below the screen */
-  position: absolute; left: 50%; top: calc(50% + var(--sh) / 2 + 28px + 18px); translate: -50% 0;
-  width: calc(var(--sw) + 110px); height: 78px;
-  display: flex; align-items: center; justify-content: space-between; padding: 0 12%;
-  background: linear-gradient(#2A1E3E, #150D24);
-  clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08);
-}
-.arc-stick { position: relative; width: 40px; height: 40px; }
-.arc-stick::before { content: ""; position: absolute; left: 17px; top: 6px; width: 6px; height: 26px; background: #6A6480; }
-.arc-stick::after { content: ""; position: absolute; left: 8px; top: -8px; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FF7A7A, #D0202E 60%, #7A0E18); box-shadow: 0 4px 0 #3A0610; }
-.arc-btns { display: flex; gap: 14px; }
-.arc-btns i { width: 22px; height: 22px; border-radius: 50%; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55); }
-.arc-btns i:nth-child(1) { background: radial-gradient(circle at 35% 35%, #FFE27A, #FFC21A 60%, #B07A00); }
-.arc-btns i:nth-child(2) { background: radial-gradient(circle at 35% 35%, #9AF8FF, #3DF2FF 60%, #107A88); }
-.arc-btns i:nth-child(3) { background: radial-gradient(circle at 35% 35%, #FF9AC8, #FF3D9A 60%, #8A1050); }
-.arc-coin { display: flex; align-items: center; gap: 10px; }
-.arc-coin i { width: 10px; height: 26px; background: #05030A; box-shadow: 0 0 0 3px #3A2E4E, 0 0 10px rgba(255, 59, 59, 0.6); }
-.arc-coin em { font-style: normal; font-family: var(--font-display); font-size: 10px; color: #FF4A4A; text-shadow: 0 0 8px rgba(255, 60, 60, 0.9); animation: blink 0.9s steps(1) infinite; }
-.preloader.dissolving .arc-glass { display: none; }
-/* the countdown lives inside the screen */
-.preloader .pl-stage { width: var(--sw); height: var(--sh); }
-.preloader .pl-lights { transform: translateY(46px); }
-.preloader .pl-bar { transform: translateY(-40px); }
-.preloader .pl-logo { width: min(360px, 62vw, 58%); }
-.arc-hud { position: absolute; font-family: var(--font-display); font-size: 11px; line-height: 1.6; color: #FF4A4A; text-shadow: 0 0 6px rgba(255, 60, 60, 0.7); display: flex; flex-direction: column; }
-.arc-hud b { font-weight: 400; color: var(--paper); text-shadow: 0 0 6px rgba(244, 230, 208, 0.5); }
-.arc-1up { left: 30px; top: 22px; }
-.arc-hi { right: 30px; top: 22px; align-items: flex-end; }
-.arc-credit { right: 30px; bottom: 20px; color: var(--neon-cyan); text-shadow: 0 0 6px rgba(61, 242, 255, 0.7); }
-.arc-1up { animation: blink 1s steps(1) infinite; }
-.preloader .pl-skip { bottom: auto; top: calc(50% + var(--sh) / 2 + 28px + 18px + 78px + 12px); }
-.preloader.flash .pl-bg { animation: none; }
-.preloader.flash .arc-screen { animation: crt-go 0.4s steps(3) 1; }
-@keyframes crt-go { 0% { background: #1F6B3A; } 100% { background: radial-gradient(ellipse at 50% 45%, #1A1030 0%, #0D0819 60%, #05030A 100%); } }
-@media (max-width: 700px) {
-  .preloader { --sw: 84vw; --sh: min(calc(var(--sw) * 1.1), calc(100vh - 330px)); }
-  .arc-panel { height: 60px; padding: 0 8%; width: calc(var(--sw) + 40px); }
-  .arc-btns { gap: 8px; } .arc-btns i { width: 16px; height: 16px; }
-  .arc-coin em { font-size: 8px; }
-  .preloader .pl-skip { top: calc(50% + var(--sh) / 2 + 28px + 18px + 60px + 10px); }
-  .arc-hud { font-size: 8px; } .arc-1up, .arc-hi { top: 16px; } .arc-1up { left: 18px; } .arc-hi, .arc-credit { right: 18px; }
-  .preloader .pl-lights { transform: translateY(52px); }
-}
-.pl-blocks { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; image-rendering: pixelated; }
-.pl-stage { position: relative; z-index: 3; display: grid; place-items: center; gap: 28px; }
+.preloader.flash .pl-screen { animation: crt-go 0.4s steps(3) 1; }
+@keyframes crt-go { 0% { background: #1F6B3A; } 100% { background: #0D0819; } }
+/* on-screen arcade text */
+.arc-hud { position: absolute; z-index: 1; font-family: var(--font-display); font-size: 7px; line-height: 1.6; color: #FF4A4A; text-shadow: 0 0 4px rgba(255, 60, 60, 0.7); display: flex; flex-direction: column; }
+.arc-hud b { font-weight: 400; color: var(--paper); }
+.arc-1up { left: 22px; top: 18px; animation: blink 1s steps(1) infinite; }
+.arc-hi { right: 22px; top: 18px; align-items: flex-end; }
+.arc-credit { right: 22px; bottom: 16px; color: var(--neon-cyan); text-shadow: 0 0 4px rgba(61, 242, 255, 0.7); }
+/* the countdown, sized for the tube */
+.pl-stage { position: absolute; inset: 0; display: grid; place-items: center; }
 .pl-stage > * { grid-area: 1 / 1; }
-.pl-lights { display: flex; gap: 18px; align-self: start; transform: translateY(-120px); }
-.pl-lights i {
-  width: 28px; height: 28px; background: #2A1E3E; box-shadow: 0 0 0 4px var(--outline), inset 0 -4px 0 rgba(0, 0, 0, 0.35);
-  clip-path: polygon(0 4px, 4px 4px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px));
-}
-.pl-lights i.on.pl-red { background: #FF3B3B; filter: drop-shadow(0 0 12px #FF3B3B); }
-.pl-lights i.on.pl-amber { background: var(--marigold); filter: drop-shadow(0 0 12px var(--marigold)); }
-.pl-lights i.on.pl-green { background: #3DFF7A; filter: drop-shadow(0 0 14px #3DFF7A); }
+.pl-lights { display: flex; gap: 8px; align-self: start; margin-top: 30px; }
+.pl-lights i { width: 12px; height: 12px; background: #2A1E3E; box-shadow: 0 0 0 2px var(--outline); }
+.pl-lights i.on.pl-red { background: #FF3B3B; box-shadow: 0 0 0 2px var(--outline), 0 0 8px #FF3B3B; }
+.pl-lights i.on.pl-amber { background: var(--marigold); box-shadow: 0 0 0 2px var(--outline), 0 0 8px var(--marigold); }
+.pl-lights i.on.pl-green { background: #3DFF7A; box-shadow: 0 0 0 2px var(--outline), 0 0 10px #3DFF7A; }
 .pl-word {
-  margin: 0; opacity: 0; font-family: var(--font-display); font-size: 56px; line-height: 1; text-transform: uppercase;
-  color: var(--paper); text-shadow: 5px 5px 0 var(--outline), 0 0 18px rgba(244, 230, 208, 0.35);
-  -webkit-text-stroke: 3px var(--outline); paint-order: stroke fill;
+  margin: 0; opacity: 0; font-family: var(--font-display); font-size: 26px; line-height: 1; text-transform: uppercase; color: var(--paper);
+  text-shadow: 3px 3px 0 var(--outline); -webkit-text-stroke: 2px var(--outline); paint-order: stroke fill;
 }
-.pl-word[data-w="ready"] { color: #FF5A5A; text-shadow: 5px 5px 0 var(--outline), 0 0 20px rgba(255, 59, 59, 0.6); }
-.pl-word[data-w="set"] { color: var(--marigold); text-shadow: 5px 5px 0 var(--outline), 0 0 20px rgba(255, 194, 26, 0.6); }
-.pl-go { font-size: 96px; color: #3DFF7A; text-shadow: 6px 6px 0 var(--outline), 0 0 30px rgba(61, 255, 122, 0.75); }
+.pl-word[data-w="ready"] { color: #FF5A5A; text-shadow: 3px 3px 0 var(--outline), 0 0 12px rgba(255, 59, 59, 0.6); }
+.pl-word[data-w="set"] { color: var(--marigold); text-shadow: 3px 3px 0 var(--outline), 0 0 12px rgba(255, 194, 26, 0.6); }
+.pl-go { font-size: 44px; color: #3DFF7A; text-shadow: 4px 4px 0 var(--outline), 0 0 18px rgba(61, 255, 122, 0.75); }
 .pl-word.show { animation: pl-pop calc(0.8s * var(--slow, 1)) steps(16) both; }
 .pl-go.show { animation: pl-go calc(0.8s * var(--slow, 1)) steps(16) both; }
 .pl-word.gone { animation: none; opacity: 0; }
-@keyframes pl-pop {   /* slam in, hold until the next word, slip away */
+@keyframes pl-pop {
   0% { opacity: 0; transform: scale(2.2); } 12% { opacity: 1; transform: scale(0.92); } 20% { transform: scale(1.04); }
-  28%, 90% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(-10px); }
+  28%, 90% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(-6px); }
 }
 @keyframes pl-go {
   0% { opacity: 0; transform: scale(3); } 15% { opacity: 1; transform: scale(0.9); } 25%, 82% { opacity: 1; transform: scale(1.05); }
   100% { opacity: 0; transform: scale(1.8); }
 }
-.preloader.flash .pl-bg { animation: pl-flash 0.35s steps(3) 1; }
-@keyframes pl-flash { 0% { filter: brightness(2.2) hue-rotate(90deg); } 100% { filter: none; } }
-.pl-logo {
-  width: min(360px, 62vw); height: auto; opacity: 0;
-  filter: drop-shadow(0 0 8px rgba(237, 40, 40, 0.8)) drop-shadow(0 0 28px rgba(237, 40, 40, 0.5));
-}
+.pl-logo { width: 62%; height: auto; opacity: 0; filter: drop-shadow(0 0 4px rgba(237, 40, 40, 0.85)) drop-shadow(0 0 14px rgba(237, 40, 40, 0.5)); }
 .pl-logo.show { animation: pl-logo 0.7s steps(7) both, logo-glow 2.8s ease-in-out 0.7s infinite; }
 @keyframes pl-logo { 0% { opacity: 0; transform: scale(0.3); } 60% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
 .pl-logo.out { animation: pl-logo-out 0.3s steps(3) both; }
 @keyframes pl-logo-out { to { opacity: 0; transform: scale(1.15); } }
-.pl-bar { align-self: end; transform: translateY(110px); width: 180px; height: 8px; background: #2A1E3E; box-shadow: 0 0 0 3px var(--outline); opacity: 0; transition: opacity 0.3s; }
+.pl-bar { align-self: end; margin-bottom: 26px; width: 110px; height: 5px; background: #2A1E3E; box-shadow: 0 0 0 2px var(--outline); opacity: 0; transition: opacity 0.3s; }
 .pl-bar.show { opacity: 1; }
 .pl-bar i { display: block; height: 100%; width: calc(var(--p, 0) * 100%); background: var(--saffron); transition: width 0.2s steps(4); }
-.pl-skip {
-  position: absolute; bottom: calc(var(--frame) + 22px); left: 0; right: 0; margin: 0; text-align: center; z-index: 1;
-  font-family: "Silkscreen", var(--font-display); font-size: 11px; letter-spacing: 0.08em; color: rgba(244, 230, 208, 0.4);
-  z-index: 3;
+/* marquee lettering on the backlit sign, and the coin-door lights */
+.pl-marquee {
+  position: absolute; left: 622px; top: 40px; width: 434px; height: 94px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
 }
-.preloader.dissolving .pl-skip, .preloader.dissolving .pl-stage { display: none; }
-@media (max-width: 700px) {
-  .pl-word { font-size: 34px; } .pl-go { font-size: 60px; }
-  .pl-lights { transform: translateY(-90px); gap: 14px; } .pl-lights i { width: 22px; height: 22px; }
-  .pl-bar { transform: translateY(90px); }
+.pl-marquee b {
+  font-family: var(--font-display); font-weight: 400; font-size: 26px; letter-spacing: 0.08em; color: #FFF3C4;
+  text-shadow: 3px 3px 0 #7A1350, 0 0 10px rgba(255, 243, 196, 0.9), 0 0 24px rgba(255, 61, 154, 0.8);
+  animation: marquee-hum 3s steps(1) infinite;
+}
+.pl-marquee .hi { font-size: 13px; color: #3A0F2E; }
+@keyframes marquee-hum { 0%, 91%, 94%, 100% { opacity: 1; } 92%, 95% { opacity: 0.55; } }
+.pl-coin { position: absolute; top: 686px; width: 10px; height: 44px; background: #FF3B2B; mix-blend-mode: screen; opacity: 0; box-shadow: 0 0 14px 4px rgba(255, 60, 40, 0.7); animation: coin-blink 0.9s steps(1) infinite; }
+.pl-coin.c1 { left: 785px; } .pl-coin.c2 { left: 877px; animation-delay: 0.45s; }
+@keyframes coin-blink { 50% { opacity: 0.55; } }
+.pl-blocks { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; image-rendering: pixelated; }
+.pl-skip {
+  position: absolute; bottom: calc(var(--frame) + 18px); left: 0; right: 0; margin: 0; text-align: center; z-index: 3;
+  font-family: "Silkscreen", var(--font-display); font-size: 11px; letter-spacing: 0.08em; color: rgba(244, 230, 208, 0.45);
 }

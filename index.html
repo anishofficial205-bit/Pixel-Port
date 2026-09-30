@@ -8,37 +8,35 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1790763508" />
+  <link rel="stylesheet" href="styles.css?v=1790764077" />
 </head>
 <body class="ride preloading" data-location="street">
   <!-- preloader: READY? SET... GO! -> logo -> pixel dissolve into the street (js/preloader.js) -->
   <div class="preloader" id="preloader" aria-hidden="true">
-    <div class="pl-bg" aria-hidden="true">
-      <div class="arc-marquee"><span class="hi">नियॉन भारत</span><b>NEON BHARAT</b></div>
-      <div class="arc-bezel"><div class="arc-screen">
+    <!-- one scene in the arcade art's own pixels; the camera zooms it (js/preloader.js) -->
+    <div class="pl-scene">
+      <div class="pl-screen">
         <span class="arc-hud arc-1up">1UP<b>000000</b></span>
         <span class="arc-hud arc-hi">HI-SCORE<b>999999</b></span>
         <span class="arc-hud arc-credit">CREDIT 0</span>
-      </div></div>
-      <div class="arc-panel">
-        <span class="arc-stick"></span>
-        <span class="arc-btns"><i></i><i></i><i></i></span>
-        <span class="arc-coin"><i></i><em>INSERT COIN</em></span>
+        <div class="pl-stage">
+          <div class="pl-lights"><i class="pl-red"></i><i class="pl-amber"></i><i class="pl-green"></i></div>
+          <p class="pl-word" data-w="ready">Ready?</p>
+          <p class="pl-word" data-w="set">Set...</p>
+          <p class="pl-word pl-go" data-w="go">Go!</p>
+          <img class="pl-logo" src="assets/brand/logo.png" alt="" />
+          <div class="pl-bar"><i></i></div>
+        </div>
       </div>
+      <img class="pl-arcade" src="assets/preloader/arcade.webp" alt="" />
+      <div class="pl-glass"></div>
+      <div class="pl-marquee"><b>NEON BHARAT</b><span class="hi">नियॉन भारत</span></div>
+      <i class="pl-coin c1"></i><i class="pl-coin c2"></i>
     </div>
-    <div class="arc-glass" aria-hidden="true"></div>
     <canvas class="pl-blocks"></canvas>
-    <div class="pl-stage">
-      <div class="pl-lights"><i class="pl-red"></i><i class="pl-amber"></i><i class="pl-green"></i></div>
-      <p class="pl-word" data-w="ready">Ready?</p>
-      <p class="pl-word" data-w="set">Set...</p>
-      <p class="pl-word pl-go" data-w="go">Go!</p>
-      <img class="pl-logo" src="assets/brand/logo.png" alt="" />
-      <div class="pl-bar"><i></i></div>
-    </div>
     <p class="pl-skip">Click or press any key to skip</p>
   </div>
-  <script src="js/preloader.js?v=1790763508"></script>
+  <script src="js/preloader.js?v=1790764077"></script>
   <a class="skip-link" href="#subway">Skip to projects</a>
 
   <!-- HUD: menu, metro route map, skip toggle -->
@@ -209,8 +207,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1790763508"></script>
-  <script src="js/sprite.js?v=1790763508"></script>
-  <script src="js/main.js?v=1790763508"></script>
+  <script src="js/data.js?v=1790764077"></script>
+  <script src="js/sprite.js?v=1790764077"></script>
+  <script src="js/main.js?v=1790764077"></script>
 </body>
 </html>
