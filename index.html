@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1790744715" />
+  <link rel="stylesheet" href="styles.css?v=" />
 </head>
 <body class="ride" data-location="street">
   <a class="skip-link" href="#subway">Skip to projects</a>
@@ -20,7 +20,7 @@
       <div class="route-track"><div class="route-fill"></div></div>
       <ol>
         <li><a href="#street" data-stop="street"><span class="dot"></span><span class="lbl">Home</span></a></li>
-        <li><a href="#drain" data-stop="drain"><span class="dot"></span><span class="lbl">Drain</span></a></li>
+        <li><a href="#drain" data-stop="drain"><span class="dot"></span><span class="lbl">About</span></a></li>
         <li><a href="#subway" data-stop="subway"><span class="dot"></span><span class="lbl">Projects</span></a></li>
         <li><a href="#cinema" data-stop="cinema"><span class="dot"></span><span class="lbl">Reels</span></a></li>
         <li><a href="#exhibition" data-stop="exhibition"><span class="dot"></span><span class="lbl">Photos</span></a></li>
@@ -59,8 +59,13 @@
         </section>
 
         <!-- 2. THE DRAIN -->
-        <section class="scene" id="drain" data-location="drain" aria-label="Transition: down the drain">
+        <section class="scene" id="drain" data-location="drain" aria-labelledby="about-title">
           <img class="bg-img pixel-art" src="assets/scenes/drain.webp" alt="" decoding="async" fetchpriority="low" />
+          <div class="content about-head">
+            <h2 id="about-title">About me</h2>
+            <ul class="about-tags" id="about-tags"></ul>
+          </div>
+          <div class="content about-rows" id="about-rows"></div>
         </section>
 
         <!-- 3. THE SUBWAY -->
@@ -165,8 +170,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1790744715"></script>
-  <script src="js/sprite.js?v=1790744715"></script>
-  <script src="js/main.js?v=1790744715"></script>
+  <script src="js/data.js?v="></script>
+  <script src="js/sprite.js?v="></script>
+  <script src="js/main.js?v="></script>
 </body>
 </html>

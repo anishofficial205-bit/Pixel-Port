@@ -24,6 +24,27 @@ window.SITE = {
     { label: "Dribbble", short: "dr", url: "#" },
   ],
 
+  /* About me: panels down the drain shaft, image on one side, text on the other (from anishah.framer.website/about-me).
+     img is a Framer image id; frame: true puts it in a pixel frame (photos), stickers sit on the wall as-is. */
+  about: {
+    title: "About me",
+    tags: ["Branding", "Packaging", "UI/UX", "Editorial Design"],
+    panels: [
+      { img: "E26GpcGdAF28G7YGtQNPYuMrk.gif", w: 280, h: 400, frame: true, label: "Hi, I'm Anish Shah · 20",
+        text: ["A designer who builds with people, finding the story first, then shaping the visuals around it."] },
+      { img: "2Qo3G0b9j4m8AbatuQuyoD0ohE.png", w: 677, h: 369, label: "Powered by",
+        text: ["Films that shift perspectives, food that fuels joy, and travel that keeps the imagination restless."] },
+      { img: "jy4GngdgxrXEiojcXfVPJysr5g8.png", w: 1024, h: 1024, label: "Hobby",
+        text: ["Turning everyday moments into inspo: a colour on the street, a frame in a movie, a line someone says."] },
+      { img: "QoIRERLb6h5Yeqt0HWno1rnr7nA.png", w: 1024, h: 1024, label: "Strength",
+        text: ["Translating feelings into design so the work doesn’t just look polished but also lands with meaning."] },
+      { img: "MUXRGKPw6Qc8x2BvLkqUQYsWvc.png", w: 1280, h: 698, label: "Guilty for",
+        text: ["Overthinking typography, replaying scenes for “research,” and taking too many food photos."] },
+      { img: "irp73pZCih1DJSlmViESVzVN1WA.png", w: 1280, h: 698, label: "Vibe",
+        text: ["Warm energy, playful thinking, and a brain that quietly connects dots most people overlook.", "Also, I like Kit Kat, because every designer needs a break."] },
+    ],
+  },
+
   /* Subway billboards (4), from anishah.framer.website.
      shape: "wide" (metal frame, ~2:1 window) or "tall" (cyan LED, ~9:17 window).
      cover/hero/img values are Framer image ids; SITE.img() turns them into sized URLs.

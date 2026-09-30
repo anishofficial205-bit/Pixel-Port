@@ -41,6 +41,11 @@
   // the join to hide it, and the subway's floor fades into the stairwell's underneath it.
   const SEAM_PILLAR = { x: 5913, w: 64, h: 652 };   // subway art px: just right of the Haven frame, clear of the first step
   const SEAM_FLOOR_BLEND = 56;                      // css px past the join over which the subway floor fades out
+  // About me, down the drain: rows of image | shaft | text, alternating sides
+  const ABOUT_ROWS = [330, 700, 1070, 1440, 1810, 2180];   // row centres in drain art px
+  const ABOUT_SHAFT = [610, 1010];                          // shaft brick walls in drain art px (panels stay outside)
+  const ABOUT_MIN_SIDE = 220;                               // narrower than this beside the shaft -> stacked cards
+  const ABOUT_SCROLL_PER_ROW = 0.75;                        // viewport heights of scroll per row while falling
   const STAIR_GLIDE = 0.6;             // viewport widths before the bottom step over which the camera glides to the stairwell's left edge
   const SUBWAY_TOP_CROP = 40;          // subway art px cropped off its top: the ceiling rows build_subway.py duplicates
 
@@ -105,6 +110,20 @@
       const r = S.reels[i % S.reels.length];
       $("img", el).src = r.poster; $("span", el).textContent = r.title;
     });
+
+    const A = S.about;
+    $("#about-title").textContent = A.title;
+    $("#about-tags").innerHTML = A.tags.map((t) => `<li>${t}</li>`).join("");
+    $("#about-rows").innerHTML = A.panels.map((p, i) => `
+      <div class="about-row ${i % 2 ? "img-right" : "img-left"}">
+        <figure class="about-img ${p.frame ? "framed" : "sticker"}" style="--ar:${p.w / p.h}">
+          <img class="work-media" src="${S.img(p.img, 512)}" alt="${p.label}" decoding="async" fetchpriority="low" />
+        </figure>
+        <div class="about-text dialog">
+          <h3>${p.label}</h3>
+          ${p.text.map((t) => `<p>${t}</p>`).join("")}
+        </div>
+      </div>`).join("");
 
     $("#socials").innerHTML = S.socials.map((s) => `
       <li><a class="social" href="${s.url}" aria-label="${s.label}"><span class="s-icon">${s.short}</span><span>${s.label}</span></a></li>`).join("");
@@ -228,6 +247,35 @@
       x: Math.round(mh - DRAIN.hole * ss), y: Math.round(street.h - DRAIN.top * ss),
       w: Math.round(DRAIN.w * ss), h: Math.round(DRAIN.h * ss),
     };
+    // About rows: the fall's camera sits at camEnd.x, so the room beside the shaft is known up front.
+    // Each row puts its image on one side of the shaft and its text on the other.
+    {
+      const viewL = camEnd.x - drain.x, viewR = viewL + vw;                         // view edges, drain-section px
+      const wallL = ABOUT_SHAFT[0] * ss, wallR = ABOUT_SHAFT[1] * ss, pad = 16;
+      const left = [Math.max(viewL, 0) + pad, wallL - pad], right = [wallR + pad, Math.min(viewR, drain.w) - pad];
+      const stacked = Math.min(left[1] - left[0], right[1] - right[0]) < ABOUT_MIN_SIDE;
+      body.classList.toggle("about-stack", stacked);
+      L.aboutRows = ABOUT_ROWS.map((y) => drain.y + y * ss);
+      $$(".about-row").forEach((row, i) => {
+        const cy = Math.round(ABOUT_ROWS[i] * ss), imgRight = i % 2 === 1;
+        const [img, text] = [row.querySelector(".about-img"), row.querySelector(".about-text")];
+        if (stacked) {   // one card across the view, image alternating sides inside it
+          const w = Math.min(vw - 2 * pad, 560);
+          setBox(row, Math.round(viewL + (vw - w) / 2), cy, w, 0);
+          img.style.cssText = text.style.cssText = "";
+          return;
+        }
+        setBox(row, 0, cy, drain.w, 0);
+        const iz = imgRight ? right : left, tz = imgRight ? left : right;
+        const iw = Math.min(iz[1] - iz[0], 260), tw = Math.min(tz[1] - tz[0], 440);
+        // image hugs the shaft wall, text too, so each row reads across the falling character
+        Object.assign(img.style, { left: (imgRight ? iz[0] : iz[1] - iw) + "px", width: iw + "px" });
+        Object.assign(text.style, { left: (imgRight ? tz[1] - tw : tz[0]) + "px", width: tw + "px" });
+      });
+      // heading sits above the first row, on its text side (row 1 has the image on the left)
+      setBox($(".about-head"), Math.round(stacked ? viewL + pad : right[0]), Math.round(150 * ss), 0, 0);
+    }
+
     // 3. subway: its grate sits right under the drain's grate; the drain covers its top rows.
     // Only the Dabba stretch is shown (up to SUBWAY.end); the stairwell image carries on from there.
     const subway = {
@@ -368,10 +416,11 @@
       cam: (t) => ({ x: lerp(camStart.x, camEnd.x, t), y: camEnd.y }) });
     add({ id: "crouch", loc: "street", pose: "crouch", a: [stand, sgy], b: [stand, sgy], len: 220,
       cam: () => camEnd });
-    // fall: the camera eases with him, so he stays on screen the whole way down
-    add({ loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], len: vh * 1.6, ease: "in",
-      bubble: ["Shortcut!", 0.12, 0.55],
-      cam: (t) => ({ x: camEnd.x, y: lerp(camEnd.y, subCamY, t * t) }) });
+    // fall past the About rows: steady speed, camera keeps him ~40% down the screen
+    add({ id: "fall", loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy],
+      len: Math.max(vh * 1.6, ABOUT_ROWS.length * vh * ABOUT_SCROLL_PER_ROW),
+      bubble: ["Shortcut!", 0.01, 0.07],
+      cam: (t, p) => ({ x: camEnd.x, y: Math.min(Math.max(p.y - vh * 0.4, camEnd.y), subCamY) }) });
     add({ loc: "subway", pose: "land", a: [mh, sy], b: [mh, sy], len: 160, bubble: ["Next stop: Projects!", 0, 1],
       cam: () => ({ x: camEnd.x, y: subCamY }) });
     // --- platform, stairwell and lobby ---
@@ -452,7 +501,7 @@
     const find = (id) => segs.find((s) => s.id === id);
     stops = {
       street: 0,
-      drain: find("crouch").start - 60,
+      drain: (() => { const f = find("fall"); return f.start + Math.round(f.len * ((L.aboutRows[0] - sgy) / (sy - sgy))); })(),
       subway: find("subwalk").start + 2,
       cinema: find("sit").start + 20,
       exhibition: find("gallery").start + Math.max(0, GALLERY.frames[0][0] * exhibition.s - vw * 0.2) / 0.7,
