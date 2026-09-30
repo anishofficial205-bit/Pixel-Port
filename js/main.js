@@ -45,6 +45,11 @@
   // bottom row, a gap where the shaft walls come up to the road, and a soft shadow on the soil below.
   const ROAD_EDGE = { depth: 34, asphalt: 12, jag: [3, 9], gap: [640, 990], shadow: 60 };   // street art px
 
+  // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
+  // that follows the character. The windows are mask holes, so nothing is drawn twice.
+  const STREET_DIM = 0.1;               // strength of the shade
+  const STREET_FOCUS_PAD = 1.35;        // billboard windows, relative to the board's size (takes in frames + lamps)
+
   // About me, pinned beside the drain shaft for the whole fall: portrait left, text right
   const ABOUT_SHAFT = [610, 1010];      // shaft brick walls in drain art px (the panels stay outside them)
   const ABOUT_MIN_SIDE = 220;           // narrower than this beside the shaft -> portrait + text stacked over it
@@ -511,6 +516,19 @@
     const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
     art($(".neon-flicker"), STREET.medical);
     art($(".steam"), STREET.steam);
+    // focus windows: one soft ellipse per billboard, plus the character's (its position is a CSS var)
+    {
+      const dim = $(".street-dim"), holes = Object.values(STREET.quads).map((q) => {
+        const xs = q.map((p) => p[0] * ss), ys = q.map((p) => p[1] * ss);
+        const w = (Math.max(...xs) - Math.min(...xs)) * STREET_FOCUS_PAD, h = (Math.max(...ys) - Math.min(...ys)) * STREET_FOCUS_PAD;
+        const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2 - h * 0.06;
+        return `radial-gradient(${Math.round(w / 2 + 30)}px ${Math.round(h / 2 + 30)}px at ${Math.round(cx)}px ${Math.round(cy)}px, transparent 72%, #000 100%)`;
+      });
+      const cw = Math.round(Sprite.W * L.cs * 0.75), ch = Math.round(Sprite.H * L.cs * 0.9);
+      holes.push(`radial-gradient(${cw}px ${ch}px at var(--hx, -999px) var(--hy, -999px), transparent 55%, #000 100%)`);
+      dim.style.setProperty("--holes", holes.join(","));
+      dim.style.background = `rgba(0, 0, 0, ${STREET_DIM})`;
+    }
     $$("#street .bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
     mapToQuad($(".station-board"), SUBWAY.sign, ss);
     // "View all projects" plate hangs under the station sign
@@ -780,6 +798,11 @@
       }
     }
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
+    if (loc === "street") {   // keep the hero spotlight on him (street coords = world coords)
+      const dim = $(".street-dim");
+      dim.style.setProperty("--hx", Math.round(p.x) + "px");
+      dim.style.setProperty("--hy", Math.round(p.y - h * 0.5) + "px");
+    }
     const scale = (cutSide ? s.scale2 : s.scale) || 1;   // cuts can change his scale on the far side
     const bob = Sprite.bob(anim, n) * L.cs;
     charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale})` : "");
