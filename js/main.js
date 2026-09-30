@@ -88,7 +88,7 @@
     $("#mail-link").textContent = S.email;
     $("#copyright").textContent = `© ${S.year} ${S.name} · NEON BHARAT GAMES`;
 
-    $("#billboards").innerHTML = S.projects.map((p, i) => `
+    $("#billboards").innerHTML = S.featured().map((p, i) => `
       <a class="billboard shape-${p.shape}" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="${frameVars(p.shape)}">
         <span class="bb-window"><img class="work-media" src="${SITE.img(p.cover, 1024)}" alt="${p.title}: ${p.blurb}" decoding="async" /></span>
         <img class="bb-frame pixel-art" src="assets/subway/frame-${p.shape === "tall" ? "tall" : "wide"}.png" alt="" />
@@ -295,7 +295,7 @@
     subImg.style.clipPath = `inset(${subCrop}px 0 0 0)`;
     L.sy = subway.y + Math.round(SUBWAY.floor * ss);                                   // platform feet line
     L.subCamY = Math.min(Math.max(subway.y + subCrop, L.sy - vh * 0.8), subway.y + subway.h - vh);
-    const boards = S.projects.slice(0, SUBWAY.boards.length).map((p, i) => {
+    const boards = S.featured().slice(0, SUBWAY.boards.length).map((p, i) => {
       const f = FRAMES[p.shape === "tall" ? "tall" : "wide"], b = SUBWAY.boards[i];
       return { x: Math.round(b.x * ss), y: Math.round(b.y * ss), iw: Math.round(b.h * f.w / f.h * ss), ih: Math.round(b.h * ss) };
     });
@@ -355,6 +355,8 @@
     art($(".steam"), STREET.steam);
     $$(".bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
     mapToQuad($(".station-board"), SUBWAY.sign, ss);
+    // "View all projects" plate hangs under the station sign
+    setBox($(".all-projects-sign"), Math.round(SUBWAY.sign[0][0] * ss), Math.round((SUBWAY.sign[2][1] + 12) * ss), Math.round((SUBWAY.sign[1][0] - SUBWAY.sign[0][0]) * ss), 0);
     $$(".billboard").forEach((el, i) => {
       const b = boards[i];
       el.hidden = !b;
@@ -700,7 +702,7 @@
   }
 
   function projectStop(id) {
-    const i = S.projects.findIndex((p) => p.id === id);
+    const i = S.featured().findIndex((p) => p.id === id);
     if (i < 0) return null;
     const b = L.boards[i], walk = segs.find((x) => x.id === "subwalk");
     const cx = L.subway.x + b.x + b.iw / 2 - L.vw * 0.1;

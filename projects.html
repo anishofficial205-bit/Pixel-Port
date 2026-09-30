@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>All projects · Neon Bharat</title>
+  <meta name="description" content="Every project by Anish Shah: branding, packaging, UI/UX and editorial design." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=1790752290" />
+  <link rel="stylesheet" href="project.css?v=1790752290" />
+</head>
+<body class="project-page all-page" data-location="subway">
+  <header class="hud">
+    <a class="hud-back glass" href="index.html#subway">&lt; Back to the ride</a>
+    <p class="hud-station glass">All lines</p>
+  </header>
+
+  <main class="carriage">
+    <section class="arrival">
+      <div class="station-board big">
+        <span class="hi">सभी प्रोजेक्ट्स</span>
+        <h1>All projects</h1>
+        <span class="station-sub" id="count"></span>
+      </div>
+      <div class="filters" role="group" aria-label="Filter by category" id="filters"></div>
+    </section>
+
+    <ul class="project-grid" id="grid"></ul>
+  </main>
+
+  <div class="pixel-wipe" aria-hidden="true"></div>
+
+  <script src="js/data.js?v=1790752290"></script>
+  <script>
+    (function () {
+      const S = SITE, $ = (s) => document.querySelector(s);
+      const cats = [...new Set(S.projects.map((p) => p.meta.category).filter(Boolean))];
+      let active = new URLSearchParams(location.search).get("c") || "All";
+      if (active !== "All" && !cats.includes(active)) active = "All";
+
+      $("#filters").innerHTML = ["All", ...cats].map((c) =>
+        `<button class="chip" type="button" data-c="${c}" aria-pressed="${c === active}">${c}</button>`).join("");
+
+      $("#grid").innerHTML = S.projects.map((p) => `
+        <li class="project-card" data-c="${p.meta.category || ""}" style="--band:${p.band}">
+          <a href="project.html?p=${p.id}">
+            <span class="card-frame"><img class="work-media" src="${S.img(p.cover, 1024)}" alt="${p.title}: ${p.blurb}" loading="lazy" decoding="async" /></span>
+            <span class="card-body">
+              <span class="card-meta"><span class="bb-line">${p.line}</span>${p.meta.category || ""} · ${p.meta.year || ""}${p.featured ? '<span class="on-platform">On the platform</span>' : ""}</span>
+              <span class="card-title">${p.title}</span>
+              <span class="card-blurb">${p.blurb}</span>
+            </span>
+          </a>
+        </li>`).join("");
+
+      const apply = () => {
+        let n = 0;
+        document.querySelectorAll(".project-card").forEach((li) => {
+          const show = active === "All" || li.dataset.c === active;
+          li.hidden = !show; if (show) n++;
+        });
+        document.querySelectorAll(".chip").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.c === active)));
+        $("#count").textContent = `${n} project${n === 1 ? "" : "s"}${active === "All" ? "" : " · " + active}`;
+        const u = new URL(location.href);
+        active === "All" ? u.searchParams.delete("c") : u.searchParams.set("c", active);
+        history.replaceState(null, "", u);
+      };
+      $("#filters").addEventListener("click", (e) => {
+        const b = e.target.closest(".chip"); if (!b) return;
+        active = b.dataset.c; apply();
+      });
+      apply();
+    })();
+  </script>
+</body>
+</html>

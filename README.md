@@ -35,6 +35,7 @@ Then open http://localhost:8080.
 | `assets/character/` | `source-sheet.webp` and `climb-source.webp` (original art); `sheet.webp` is packed by `tools/pack_sprite.py`, then `tools/pack_climb.py` appends the stair frames |
 | `styles.css` | Tokens from the style guide plus all UI components |
 | `project.html` / `project.css` | Project detail page ("arriving at the station") |
+| `projects.html` | All projects: every entry in `SITE.projects`, filterable by category. Projects with `featured: true` also get a subway billboard (first 4) |
 
 ## How the scroll works
 

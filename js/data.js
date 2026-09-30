@@ -5,6 +5,7 @@
 ------------------------------------------------------------------- */
 window.SITE = {
   // Framer-hosted image at a sensible size (GIFs are served as-is so they keep animating)
+  featured() { return this.projects.filter((p) => p.featured); },
   img(id, size = 2048) {
     const u = "https://framerusercontent.com/images/" + id;
     return /\.gif$/i.test(id) ? u : u + "?scale-down-to=" + size;
@@ -35,13 +36,15 @@ window.SITE = {
     ],
   },
 
-  /* Subway billboards (4), from anishah.framer.website.
+  /* All projects, from anishah.framer.website. featured: true puts a project on a subway billboard
+     (the first 4 featured ones, in order); every project is listed on projects.html.
      shape: "wide" (metal frame, ~2:1 window) or "tall" (cyan LED, ~9:17 window).
      cover/hero/img values are Framer image ids; SITE.img() turns them into sized URLs.
      blocks: {h} heading, {p} paragraph, {img,w,h} image, {list:[[title, text]]} feature list. */
   projects: [
     {
       "id": "thrive",
+      "featured": true,
       "title": "Thrive",
       "line": "Line 1",
       "blurb": "Brand identity for eco-friendly desk accessories",
@@ -258,6 +261,7 @@ window.SITE = {
     },
     {
       "id": "krumble",
+      "featured": true,
       "title": "Krumble",
       "line": "Line 2",
       "blurb": "Festive gift packaging for Haldiram’s cookies",
@@ -359,6 +363,7 @@ window.SITE = {
     },
     {
       "id": "parde-ke-peeche",
+      "featured": true,
       "title": "Parde Ke Peeche",
       "line": "Line 3",
       "blurb": "A magazine on the craft behind Bollywood",
@@ -449,6 +454,7 @@ window.SITE = {
     },
     {
       "id": "haven",
+      "featured": true,
       "title": "Haven",
       "line": "Line 4",
       "blurb": "A safe space to learn and practise consent",
