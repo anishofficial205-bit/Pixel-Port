@@ -37,6 +37,10 @@
     poster1: [38.6, 42.8, 18.0, 28.0],
     poster2: [65.6, 69.9, 17.8, 28.2],
   };
+  // The subway and stairwell are different paintings, so a slim pillar (tools/build_pillar.py) stands on
+  // the join to hide it, and the subway's floor fades into the stairwell's underneath it.
+  const SEAM_PILLAR = { x: 5913, w: 64, h: 652 };   // subway art px: just right of the Haven frame, clear of the first step
+  const SEAM_FLOOR_BLEND = 56;                      // css px past the join over which the subway floor fades out
   const STAIR_GLIDE = 0.6;             // viewport widths before the bottom step over which the camera glides to the stairwell's left edge
   const SUBWAY_TOP_CROP = 40;          // subway art px cropped off its top: the ceiling rows build_subway.py duplicates
 
@@ -250,6 +254,14 @@
       x: subway.x + subway.w, y: Math.round(STAIRWELL_OFFSET_Y),
       w: Math.round(SA.w * STAIRWELL_SCALE), h: Math.round(SA.h * STAIRWELL_SCALE), s: STAIRWELL_SCALE,
     };
+    // seam cover: pillar from the subway's top down to its base; floor blend below it
+    setBox($(".seam-pillar"), subway.x + Math.round(SEAM_PILLAR.x * ss), subway.y, Math.round(SEAM_PILLAR.w * ss), Math.round(SEAM_PILLAR.h * ss));
+    const blendTop = subway.y + Math.round((SEAM_PILLAR.h - 4) * ss);
+    setBox($(".seam-floor"), stairwell.x, blendTop, SEAM_FLOOR_BLEND, subway.y + subway.h - blendTop);
+    Object.assign($(".seam-floor img").style, {
+      left: subway.x - stairwell.x + "px", top: subway.y - blendTop + "px",
+      width: Math.round(SUBWAY.w * ss) + "px", height: subway.h + "px",
+    });
     stairwell.px = (xp, yp) => [stairwell.x + (xp / 100) * stairwell.w, stairwell.y + (yp / 100) * stairwell.h];
     L.ty = stairwell.px(0, STAIRWELL_PATH.lobby)[1];                   // lobby floor; later scenes share it
     const row = L.ty - L.gy;

@@ -405,6 +405,16 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .ride .front-row img { display: block; height: auto; }
 .char { transform-origin: 50% 100%; }
 
+/* subway -> stairwell seam: a pillar on the join, the subway floor fading out beneath it */
+.seam-pillar, .seam-floor { display: none; }
+.ride .seam-pillar { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: 3; pointer-events: none; }
+.ride .seam-floor {
+  display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h);
+  overflow: hidden; z-index: 2; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, #000, transparent); mask-image: linear-gradient(to right, #000, transparent);
+}
+.seam-floor img { position: absolute; max-width: none; }
+
 /* cuts between cinema views */
 .cut {
   position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: 0;
