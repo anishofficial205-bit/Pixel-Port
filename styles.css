@@ -45,6 +45,11 @@
   --shadow-hard: 4px 4px 0 var(--outline);
   --accent: var(--neon-magenta);
   --key-light: var(--sodium);
+
+  /* screen bezel around the whole site */
+  --frame: 14px;
+  --frame-radius: 26px;
+  --frame-color: #07040C;
 }
 
 [data-location="street"]     { --accent: var(--neon-magenta); --key-light: var(--sodium); }
@@ -128,9 +133,20 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .blink { animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 
+/* ---------------- screen bezel ----------------
+   One fixed overlay: a rounded window whose huge shadow paints the border around it. It never takes
+   clicks, so everything underneath keeps working. */
+body::after {
+  content: ""; position: fixed; inset: var(--frame); z-index: 100; pointer-events: none;
+  border-radius: var(--frame-radius);
+  box-shadow: 0 0 0 calc(var(--frame) + 40px) var(--frame-color), inset 0 0 0 2px rgba(74, 42, 110, 0.55);
+}
+@media (max-width: 700px) { :root { --frame: 8px; --frame-radius: 16px; } }
+
 /* ---------------- HUD ---------------- */
 .hud {
-  position: fixed; left: 0; right: 0; top: 0; z-index: 50;
+  position: fixed; left: var(--frame); right: var(--frame); top: var(--frame); z-index: 50;
+  border-radius: var(--frame-radius) var(--frame-radius) 0 0;
   display: flex; align-items: center; gap: 16px;
   padding: 12px 16px;
   background: rgba(18, 10, 38, 0.82);
@@ -510,8 +526,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 }
 .lb-frame .plaque { margin-top: 36px; }
 .lb-prev, .lb-next { position: fixed; top: 50%; }
-.lb-prev { left: 16px; } .lb-next { right: 16px; }
-.lb-close { position: fixed; top: 16px; right: 16px; }
+.lb-prev { left: calc(var(--frame) + 14px); } .lb-next { right: calc(var(--frame) + 14px); }
+.lb-close { position: fixed; top: calc(var(--frame) + 14px); right: calc(var(--frame) + 14px); }
 .lb-open { overflow: hidden; }
 
 /* ---------------- 6. rooftop ---------------- */
