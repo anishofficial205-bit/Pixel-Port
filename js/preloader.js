@@ -2,8 +2,8 @@
    PRELOADER: an arcade cabinet; READY? SET... GO! on its screen as the camera pushes in on every beat,
    then the logo, then a radial pixel reveal of the street
    Runs straight after its markup at the top of <body>, so it covers the page from the first frame.
-   Plays on every load and refresh; skipped when arriving on a #link (e.g. back from a project page)
-   or via the browser's back button. Any click or key skips ahead. ?intro forces it, ?intro=3 = slow-mo.
+   Plays on every load and refresh; skipped when returning to a billboard from a project page
+   (#project-…) or via the browser's back/forward buttons. Any click or key skips ahead. ?intro forces it, ?intro=3 = slow-mo.
 ------------------------------------------------------------------- */
 (function () {
   const T = { ready: 250, set: 800, go: 1350, logo: 1900, minHold: 650, maxWait: 6000, dissolve: 700, block: 36, blockTime: 160 };
@@ -34,7 +34,10 @@
     window.dispatchEvent(new Event("preloader:done"));
   };
 
-  if (!force && (returning || location.hash)) { finish(); return; }
+  // skip only when coming back to a billboard from a project page, or via back/forward;
+  // a refresh always plays it, whatever section tag (#street, #drain…) the address carries
+  const toBillboard = location.hash.startsWith("#project-");
+  if (!force && nav.type !== "reload" && (returning || toBillboard)) { finish(); return; }
 
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   scrollTo(0, 0);
