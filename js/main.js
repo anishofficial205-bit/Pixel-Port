@@ -46,7 +46,9 @@
   const ABOUT_MIN_SIDE = 220;           // narrower than this beside the shaft -> portrait + text stacked over it
   const ABOUT_SCROLL = 4.5;             // viewport heights of scroll for the fall (reading time)
   const ABOUT_FRAME_STEP = 0.3;         // viewport heights of scroll per portrait frame
-  const ABOUT_TEXT_SPAN = [0.05, 0.85]; // part of the fall over which the words light up
+  const ABOUT_TEXT_START = 0.05;        // part of the fall where the words start lighting up
+  const ABOUT_HOLD = 0.03;              // fully lit for this much of the fall before fading
+  const ABOUT_FADE = 0.06;              // fade-out length; it ends exactly as his feet reach the subway grate
   const STAIR_GLIDE = 0.6;             // viewport widths before the bottom step over which the camera glides to the stairwell's left edge
   const SUBWAY_TOP_CROP = 40;          // subway art px cropped off its top: the ceiling rows build_subway.py duplicates
 
@@ -411,7 +413,9 @@
     add({ id: "crouch", loc: "street", pose: "crouch", a: [stand, sgy], b: [stand, sgy], len: 220,
       cam: () => camEnd });
     // fall past the About rows: steady speed, camera keeps him ~40% down the screen
-    add({ id: "fall", loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy],
+    // the moment his feet reach the grate in the subway ceiling (the fall is linear in y)
+    const aboutEnter = Math.min(1, Math.max(0, (L.drain.y + L.drain.h - sgy) / (sy - sgy)));
+    add({ id: "fall", loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], aboutEnter,
       len: vh * ABOUT_SCROLL,
       bubble: ["Shortcut!", 0.01, 0.07],
       cam: (t, p) => ({ x: camEnd.x, y: Math.min(Math.max(p.y - vh * 0.4, camEnd.y), subCamY) }) });
@@ -622,13 +626,16 @@
     // cuts between cinema views: a stepped velvet fade
     // About panel: visible only during the fall; frame steps and words light up with scroll
     const fallSeg = s.id === "fall";
-    const aboutOn = fallSeg ? Math.min(1, t / 0.04, (1 - t) / 0.05) : 0;
+    // fade in as the fall starts; fade out so it's gone right as he enters the subway
+    const aboutOn = fallSeg ? Math.max(0, Math.min(1, t / 0.04, (s.aboutEnter - t) / ABOUT_FADE)) : 0;
     aboutPin.style.opacity = aboutOn.toFixed(2);
     aboutPin.style.visibility = aboutOn > 0 ? "visible" : "hidden";
     if (fallSeg) {
       const P = S.about.portrait, fr = Math.floor((cur - s.start) / (L.vh * ABOUT_FRAME_STEP)) % P.frames;
       if (fr !== aboutFrame) { aboutFrame = fr; aboutFace.style.backgroundPosition = `${(fr / (P.frames - 1)) * 100}% 0`; }
-      const [a0, a1] = ABOUT_TEXT_SPAN, u = Math.min(1, Math.max(0, (t - a0) / (a1 - a0)));
+      // words finish lighting up, hold briefly, then the panel fades before the grate
+      const a0 = ABOUT_TEXT_START, a1 = s.aboutEnter - ABOUT_FADE - ABOUT_HOLD;
+      const u = Math.min(1, Math.max(0, (t - a0) / (a1 - a0)));
       const lit = Math.round(u * aboutWords.length);
       if (lit !== aboutLit) {
         for (let i = Math.min(lit, aboutLit); i < Math.max(lit, aboutLit); i++) aboutWords[i].classList.toggle("on", i < lit);
