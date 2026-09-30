@@ -84,7 +84,7 @@
     $("#site-name").textContent = S.name;
     $("#site-role").textContent = S.role;
     $("#site-intro").textContent = S.intro;
-    $(".hud-logo").textContent = S.name;
+    $(".hud-logo .logo-name").textContent = S.name;
     $("#mail-link").href = "mailto:" + S.email;
     $("#mail-link").textContent = S.email;
     $("#copyright").textContent = `© ${S.year} ${S.name} · NEON BHARAT GAMES`;
@@ -274,7 +274,7 @@
       if (stacked) {   // phones: portrait top-right beside him, text in the lower half below him
         const fw = Math.round(Math.min(vw * 0.3, 140)), ty = Math.round(vh * 0.52);
         setBox(face, vw - pad - fw, top, fw, 0);
-        setBox(copy, pad, ty, vw - 2 * pad, vh - ty - pad);
+        setBox(copy, pad, ty, vw - 2 * pad, vh - ty - pad - (vw <= 700 ? 60 : 0));   // clear of the bottom nav
       } else {
         // both centred on one line (the middle of the screen below the HUD), each in the middle of its side
         const fw = Math.min(left[1] - left[0], ABOUT_PORTRAIT_W), cw = Math.min(right[1] - right[0], ABOUT_TEXT_W), cy = Math.round((top - pad + vh) / 2);
@@ -605,7 +605,7 @@
     if (loc !== lastLoc) {
       lastLoc = loc;
       body.dataset.location = loc;
-      $$(".route a[data-stop]").forEach((a) => a.classList.toggle("here", a.dataset.stop === loc));
+      markSection(loc);
     }
 
     // draw sprite (frames are cached per location tint)
@@ -934,6 +934,22 @@
     };
     if (img.complete && img.naturalWidth) draw(); else img.addEventListener("load", draw, { once: true });
   }
+
+  // Highlight the current section in the nav; the pill slides to it (hidden on the street / home)
+  function markSection(loc) {
+    let here = null;
+    $$(".route a[data-stop]").forEach((a) => {
+      const on = a.dataset.stop === loc;
+      a.classList.toggle("here", on);
+      on ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current");
+      if (on) here = a;
+    });
+    const pill = $(".route-pill");
+    pill.classList.toggle("on", !!here);
+    if (here) { pill.style.setProperty("--pill-x", here.offsetLeft + 5 + "px"); pill.style.setProperty("--pill-w", here.offsetWidth + "px"); }
+  }
+  addEventListener("resize", () => markSection(lastLoc));
+  document.fonts?.ready.then(() => markSection(lastLoc));
 
   /* ================= BOOT ================= */
   fillContent();
