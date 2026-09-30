@@ -47,7 +47,7 @@
 
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
   // that follows the character. The windows are mask holes, so nothing is drawn twice.
-  const STREET_DIM = 0.1;               // strength of the shade
+  const STREET_DIM = 0.3;               // strength of the shade
   const STREET_FOCUS_PAD = 1.35;        // billboard windows, relative to the board's size (takes in frames + lamps)
 
   // About me, pinned beside the drain shaft for the whole fall: portrait left, text right
