@@ -8,9 +8,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1790757868" />
+  <link rel="stylesheet" href="styles.css?v=1790762302" />
 </head>
-<body class="ride" data-location="street">
+<body class="ride preloading" data-location="street">
+  <!-- preloader: READY? SET... GO! -> logo -> pixel dissolve into the street (js/preloader.js) -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <canvas class="pl-blocks"></canvas>
+    <div class="pl-stage">
+      <div class="pl-lights"><i class="pl-red"></i><i class="pl-amber"></i><i class="pl-green"></i></div>
+      <p class="pl-word" data-w="ready">Ready?</p>
+      <p class="pl-word" data-w="set">Set...</p>
+      <p class="pl-word pl-go" data-w="go">Go!</p>
+      <img class="pl-logo" src="assets/brand/logo.png" alt="" />
+      <div class="pl-bar"><i></i></div>
+    </div>
+    <p class="pl-skip">Click or press any key to skip</p>
+  </div>
+  <script src="js/preloader.js?v=1790762302"></script>
   <a class="skip-link" href="#subway">Skip to projects</a>
 
   <!-- HUD: menu, metro route map, skip toggle -->
@@ -181,8 +195,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1790757868"></script>
-  <script src="js/sprite.js?v=1790757868"></script>
-  <script src="js/main.js?v=1790757868"></script>
+  <script src="js/data.js?v=1790762302"></script>
+  <script src="js/sprite.js?v=1790762302"></script>
+  <script src="js/main.js?v=1790762302"></script>
 </body>
 </html>

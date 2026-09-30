@@ -1171,7 +1171,7 @@
     const el = $(".scroll-cursor");
     let x = -200, y = -200, tx = x, ty = y, target = null, raf = 0;
     const onCity = () => {
-      if (!target || !$("#lightbox").hidden) return false;
+      if (!target || !$("#lightbox").hidden || body.classList.contains("preloading")) return false;
       if (target.closest("a, button, input, .hud, .lightbox")) return false;
       if (body.classList.contains("ride")) return lastLoc === "street" || lastLoc === "";
       return !!target.closest(".plain-hero");
@@ -1190,6 +1190,7 @@
       if (!raf) raf = requestAnimationFrame(follow);
     }, { passive: true });
     addEventListener("scroll", update, { passive: true });
+    addEventListener("preloader:done", update);
     document.addEventListener("mouseleave", () => body.classList.remove("scroll-cursor-on"));
     addEventListener("pointerdown", () => body.classList.contains("scroll-cursor-on") && body.classList.add("cursor-press"));
     addEventListener("pointerup", () => body.classList.remove("cursor-press"));
