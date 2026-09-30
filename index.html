@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1790756492" />
+  <link rel="stylesheet" href="styles.css?v=1790756769" />
 </head>
 <body class="ride" data-location="street">
   <a class="skip-link" href="#subway">Skip to projects</a>
@@ -47,18 +47,12 @@
             <div class="manhole"></div>
             <div class="manhole-cover"></div>
           </div>
-          <!-- content mapped onto the blank billboards in the art -->
-          <div class="content bb-map bb-left" data-quad="left">
-            <h1 class="game-title" id="site-name">ANISH</h1>
-            <p class="bb-role" id="site-role"></p>
-          </div>
-          <div class="content bb-map bb-led" data-quad="led">
-            <p class="led-kicker">HELLO!</p>
-            <p class="led-intro" id="site-intro"></p>
-          </div>
-          <div class="content bb-map bb-mid" data-quad="mid">
-            <p class="press-start">Scroll to start <span class="px-arrow" aria-hidden="true"></span></p>
-          </div>
+          <h1 class="sr-only" id="site-name">Anish Shah</h1>
+          <p class="sr-only" id="site-intro"></p>
+          <!-- the blank billboards in the art become rotating project ads (built in js/main.js) -->
+          <a class="content bb-map bb-ad bb-left" data-quad="left" data-start="0"></a>
+          <a class="content bb-map bb-ad bb-led" data-quad="led" data-start="1"></a>
+          <a class="content bb-map bb-ad bb-mid" data-quad="mid" data-start="2"></a>
         </section>
 
         <!-- 2. THE DRAIN -->
@@ -187,8 +181,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1790756492"></script>
-  <script src="js/sprite.js?v=1790756492"></script>
-  <script src="js/main.js?v=1790756492"></script>
+  <script src="js/data.js?v=1790756769"></script>
+  <script src="js/sprite.js?v=1790756769"></script>
+  <script src="js/main.js?v=1790756769"></script>
 </body>
 </html>

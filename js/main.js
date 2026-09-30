@@ -81,8 +81,7 @@
 
   /* ================= CONTENT ================= */
   function fillContent() {
-    $("#site-name").textContent = S.name;
-    $("#site-role").textContent = S.role;
+    $("#site-name").textContent = `${S.name[0]}${S.name.slice(1).toLowerCase()} Shah, ${S.role}`;
     $("#site-intro").textContent = S.intro;
     $("#mail-link").href = "mailto:" + S.email;
     $("#mail-link").textContent = S.email;
@@ -131,6 +130,7 @@
     face.style.backgroundSize = `${P.frames * 100}% 100%`;
 
     renderPlain();
+    adBoards();
 
     $("#socials").innerHTML = S.socials.map((s) => `
       <li><a class="social" href="${s.url}" aria-label="${s.label}"><span class="s-icon">${s.short}</span><span>${s.label}</span></a></li>`).join("");
@@ -221,6 +221,38 @@
 
   let aboutWords = [], aboutLit = 0, aboutFrame = -1;
 
+  /* ================= STREET BILLBOARDS: rotating project ads =================
+     Every blank board on the street shows project images in turn (the boards are staggered so they never
+     change together), with a small caption; the board links to whatever it's showing. Images come from
+     each project's `ads` list if it has one, else its cover (use GIF ids there for animated ads). */
+  const ADS = { every: 4200, stagger: 1400 };   // ms per ad, delay between boards
+  function adBoards() {
+    const list = S.featured().length ? S.featured() : S.projects;
+    const pics = list.flatMap((p) => (p.ads || [p.cover]).map((img) => ({ p, img })));
+    $$(".bb-ad").forEach((board) => {
+      const portrait = board.dataset.quad === "led";
+      board.innerHTML = pics.map(({ p, img }, i) => `
+        <span class="ad" data-i="${i}">
+          <img class="work-media" src="${S.img(img, portrait ? 768 : 1024)}" alt="" decoding="async" />
+          <span class="ad-cap"><b>${p.title}</b> ${p.meta.category || ""}</span>
+        </span>`).join("");
+      board.setAttribute("aria-label", "Featured project");
+      let i = (+board.dataset.start || 0) % pics.length;
+      const show = (first) => {
+        const ads = board.querySelectorAll(".ad");
+        ads.forEach((a, k) => a.classList.toggle("on", k === i));
+        if (!first) ads[i].classList.add("enter");
+        setTimeout(() => ads[i].classList.remove("enter"), 700);
+        board.href = `project.html?p=${pics[i].p.id}`;
+        board.setAttribute("aria-label", `Featured project: ${pics[i].p.title}`);
+      };
+      show(true);
+      if (reduceMotion || pics.length < 2) return;
+      setTimeout(() => setInterval(() => { i = (i + 1) % pics.length; show(false); }, ADS.every),
+        (+board.dataset.start || 0) * ADS.stagger);
+    });
+  }
+
   /* ================= SKIP THE RIDE =================
      The same content as a clean, conventional page. Section ids are "plain-" + the ride's stop names,
      so the navbar works the same in both modes. */
@@ -244,9 +276,9 @@
         <div class="plain-hero-bg" aria-hidden="true">
           <div class="plain-art">
             <img class="pixel-art" src="assets/scenes/street.webp" alt="" />
-            <div class="bb-map bb-left" data-quad="left"><img class="plain-logo" src="assets/brand/logo.png" alt="" /></div>
-            <div class="bb-map bb-led" data-quad="led"><p class="led-kicker">नमस्ते</p><p class="led-intro">HELLO,<br>STRANGER.</p></div>
-            <div class="bb-map bb-mid" data-quad="mid"><p class="press-start">WELCOME</p></div>
+            <a class="bb-map bb-ad bb-left" data-quad="left" data-start="0" tabindex="-1"></a>
+            <a class="bb-map bb-ad bb-led" data-quad="led" data-start="1" tabindex="-1"></a>
+            <a class="bb-map bb-ad bb-mid" data-quad="mid" data-start="2" tabindex="-1"></a>
           </div>
         </div>
         <div class="plain-wrap plain-hero-in">

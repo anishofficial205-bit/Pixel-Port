@@ -40,7 +40,8 @@ window.SITE = {
      (the first 4 featured ones, in order); every project is listed on projects.html.
      shape: "wide" (metal frame, ~2:1 window) or "tall" (cyan LED, ~9:17 window).
      cover/hero/img values are Framer image ids; SITE.img() turns them into sized URLs.
-     blocks: {h} heading, {p} paragraph, {img,w,h} image, {list:[[title, text]]} feature list. */
+     blocks: {h} heading, {p} paragraph, {img,w,h} image, {list:[[title, text]]} feature list.
+     ads (optional): image/GIF ids to show on the street billboards instead of the cover, e.g. ["xyz.gif"]. */
   projects: [
     {
       "id": "thrive",
