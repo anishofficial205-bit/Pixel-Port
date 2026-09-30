@@ -44,6 +44,8 @@
   // About me, pinned beside the drain shaft for the whole fall: portrait left, text right
   const ABOUT_SHAFT = [610, 1010];      // shaft brick walls in drain art px (the panels stay outside them)
   const ABOUT_MIN_SIDE = 220;           // narrower than this beside the shaft -> portrait + text stacked over it
+  const ABOUT_PORTRAIT_W = 210;         // max portrait width (css px)
+  const ABOUT_TEXT_W = 380;             // max text box width (css px)
   const ABOUT_SCROLL = 4.5;             // viewport heights of scroll for the fall (reading time)
   const ABOUT_FRAME_STEP = 0.3;         // viewport heights of scroll per portrait frame
   const ABOUT_TEXT_START = 0.05;        // part of the fall where the words start lighting up
@@ -267,7 +269,7 @@
         setBox(copy, pad, ty, vw - 2 * pad, vh - ty - pad);
       } else {
         // both centred on one line (the middle of the screen below the HUD), each in the middle of its side
-        const fw = Math.min(left[1] - left[0], 300), cw = Math.min(right[1] - right[0], 520), cy = Math.round((top - pad + vh) / 2);
+        const fw = Math.min(left[1] - left[0], ABOUT_PORTRAIT_W), cw = Math.min(right[1] - right[0], ABOUT_TEXT_W), cy = Math.round((top - pad + vh) / 2);
         setBox(face, Math.round((left[0] + left[1]) / 2), cy, Math.round(fw), 0);
         setBox(copy, Math.round((right[0] + right[1]) / 2), cy, Math.round(cw), vh - top - pad);
       }

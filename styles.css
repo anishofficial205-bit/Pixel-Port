@@ -301,18 +301,18 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .ride:not(.about-stack) .about-portrait, .ride:not(.about-stack) .about-text { transform: translate(-50%, -50%); }
 .about-portrait {
   aspect-ratio: var(--ar); background-repeat: no-repeat; background-color: var(--outline);
-  box-shadow: 0 0 0 6px var(--paper), 0 0 0 10px var(--drain-teal), 0 0 0 14px var(--outline), 14px 16px 0 14px rgba(8, 5, 16, 0.55);
+  box-shadow: 0 0 0 5px var(--paper), 0 0 0 8px var(--drain-teal), 0 0 0 11px var(--outline), 10px 12px 0 11px rgba(8, 5, 16, 0.55);
 }
 .ride .about-text { max-height: var(--h); overflow: hidden; position: absolute; }
 .about-text > * { flex: none; }
 .about-text {
-  display: flex; flex-direction: column; gap: 12px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px; padding: 14px 16px;
   background: rgba(14, 9, 28, 0.9); box-shadow: 0 0 0 4px var(--outline), 0 0 0 7px var(--drain-teal);
 }
-.about-text h2 { font-size: 24px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(107, 227, 168, 0.5); }
+.about-text h2 { font-size: 16px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(107, 227, 168, 0.5); }
 .about-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.about-tags li { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--drain-slime); padding: 5px 7px; box-shadow: 0 0 0 3px var(--outline); }
-.about-copy p { margin: 0 0 10px; font-size: 30px; line-height: 1.12; }
+.about-tags li { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--drain-slime); padding: 3px 5px; box-shadow: 0 0 0 3px var(--outline); }
+.about-copy p { margin: 0; font-size: 21px; line-height: 1.12; }
 /* scroll highlight: words start dim, light up in order; the newest word glows */
 .ride .about-copy .w { color: rgba(244, 230, 208, 0.22); transition: color 0.12s steps(2); }
 .about-copy .w.lbl { font-family: var(--font-display); font-size: 10px; letter-spacing: 0; }
@@ -321,8 +321,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; }
 .ride .about-copy .w.now { color: var(--marigold); text-shadow: 0 0 6px rgba(255, 194, 26, 0.6); }
 /* phones: portrait top-right beside him, text in the lower half */
 .about-stack .about-text { padding: 12px 14px; gap: 8px; }
-.about-stack .about-text h2 { font-size: 16px; }
-.about-stack .about-copy p { font-size: 22px; }
+.about-stack .about-text h2 { font-size: 12px; }
+.about-stack .about-copy p { font-size: 18px; }
 .static .about-pin { display: flex; gap: 32px; align-items: flex-start; max-width: 960px; margin: 0 auto; }
 .static .about-portrait { flex: 0 0 min(30%, 280px); background-position: 0 0; }
 .static .about-text { flex: 1; }
