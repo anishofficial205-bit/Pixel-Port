@@ -805,13 +805,60 @@ body::after {
   display: grid; place-items: center; cursor: pointer;
   background: var(--night-deep);
 }
-.preloader::after {                                  /* faint CRT scanlines */
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, 0.18) 3px 4px);
+.preloader::after {                                  /* CRT scanlines + vignette */
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(5, 2, 12, 0.75) 100%),
+    repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, 0.22) 3px 4px);
 }
 .preloader.dissolving { background: transparent; cursor: default; }
-.pl-blocks { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
-.pl-stage { position: relative; z-index: 1; display: grid; place-items: center; gap: 28px; }
+.preloader.dissolving .pl-bg, .preloader.dissolving::after { display: none; }
+
+/* retro synthwave backdrop: stars, horizon glow, skyline, rolling neon grid */
+.pl-bg { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(#07031A 0%, #140833 48%, #3A0F4A 66%, #120A26 66.2%); }
+.pl-stars {
+  position: absolute; left: 0; top: 0; width: 2px; height: 2px; background: transparent;
+  box-shadow: var(--stars); animation: pl-twinkle 2.4s steps(2) infinite;
+}
+.pl-stars::after { content: ""; position: absolute; width: 2px; height: 2px; box-shadow: var(--stars2); animation: pl-twinkle 1.7s steps(2) infinite reverse; }
+@keyframes pl-twinkle { 50% { opacity: 0.35; } }
+.pl-sun {   /* striped pixel sun sinking into the horizon */
+  position: absolute; left: 50%; top: 66%; width: min(300px, 46vw); aspect-ratio: 1; translate: -50% -60%;
+  clip-path: inset(0 0 40% 0);                     /* sets exactly on the horizon */
+  border-radius: 50%;
+  background: linear-gradient(#FFC21A 0%, #FF9933 35%, #FF3D9A 75%);
+  -webkit-mask: linear-gradient(#000 0 40%, transparent 40% 44%, #000 44% 52%, transparent 52% 57%, #000 57% 64%, transparent 64% 71%, #000 71% 77%, transparent 77% 86%, #000 86% 90%, transparent 90%);
+          mask: linear-gradient(#000 0 40%, transparent 40% 44%, #000 44% 52%, transparent 52% 57%, #000 57% 64%, transparent 64% 71%, #000 71% 77%, transparent 77% 86%, #000 86% 90%, transparent 90%);
+  filter: drop-shadow(0 0 40px rgba(255, 61, 154, 0.6)); opacity: 0.55;
+}
+.pl-skyline {   /* stepped pixel skyline in silhouette on the horizon */
+  position: absolute; left: 0; right: 0; top: 66%; height: 90px; translate: 0 -100%;
+  background: #120A26;
+  clip-path: polygon(0 100%, 0 60%, 4% 60%, 4% 35%, 8% 35%, 8% 55%, 11% 55%, 11% 20%, 13% 20%, 13% 10%, 15% 10%, 15% 45%, 19% 45%, 19% 70%, 23% 70%, 23% 30%, 27% 30%, 27% 50%, 30% 50%, 30% 65%, 34% 65%, 34% 40%, 37% 40%, 37% 75%, 63% 75%, 63% 42%, 66% 42%, 66% 25%, 68% 25%, 68% 5%, 70% 5%, 70% 38%, 74% 38%, 74% 60%, 78% 60%, 78% 28%, 82% 28%, 82% 52%, 86% 52%, 86% 18%, 89% 18%, 89% 58%, 93% 58%, 93% 36%, 97% 36%, 97% 62%, 100% 62%, 100% 100%);
+}
+.pl-skyline::after {   /* lit windows */
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(255, 184, 77, 0.55) 9px 11px), repeating-linear-gradient(transparent 0 10px, #120A26 10px 16px);
+  -webkit-mask: linear-gradient(transparent 0 25%, #000 25% 85%, transparent 85%); mask: linear-gradient(transparent 0 25%, #000 25% 85%, transparent 85%);
+  opacity: 0.55;
+}
+.pl-grid {   /* neon floor grid rolling toward you */
+  position: absolute; left: -50%; right: -50%; top: 66%; bottom: -40%;
+  transform-origin: 50% 0; transform: perspective(260px) rotateX(58deg);
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 61, 154, 0.75) 0 2px, transparent 2px 60px),
+    repeating-linear-gradient(rgba(61, 242, 255, 0.6) 0 2px, transparent 2px 60px);
+  animation: pl-roll 0.9s linear infinite;
+  -webkit-mask: linear-gradient(transparent, #000 25%); mask: linear-gradient(transparent, #000 25%);
+}
+@keyframes pl-roll { to { background-position: 0 0, 0 60px; } }
+.pl-bg::after {   /* horizon line glow */
+  content: ""; position: absolute; left: 0; right: 0; top: 66%; height: 2px;
+  background: #FF3D9A; box-shadow: 0 0 18px 4px rgba(255, 61, 154, 0.7), 0 0 60px 12px rgba(255, 153, 51, 0.25);
+}
+
+.pl-blocks { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; image-rendering: pixelated; }
+.pl-stage { position: relative; z-index: 3; display: grid; place-items: center; gap: 28px; }
 .pl-stage > * { grid-area: 1 / 1; }
 .pl-lights { display: flex; gap: 18px; align-self: start; transform: translateY(-120px); }
 .pl-lights i {
@@ -824,6 +871,7 @@ body::after {
 .pl-word {
   margin: 0; opacity: 0; font-family: var(--font-display); font-size: 56px; line-height: 1; text-transform: uppercase;
   color: var(--paper); text-shadow: 5px 5px 0 var(--outline), 0 0 18px rgba(244, 230, 208, 0.35);
+  -webkit-text-stroke: 3px var(--outline); paint-order: stroke fill;
 }
 .pl-word[data-w="ready"] { color: #FF5A5A; text-shadow: 5px 5px 0 var(--outline), 0 0 20px rgba(255, 59, 59, 0.6); }
 .pl-word[data-w="set"] { color: var(--marigold); text-shadow: 5px 5px 0 var(--outline), 0 0 20px rgba(255, 194, 26, 0.6); }
@@ -839,8 +887,8 @@ body::after {
   0% { opacity: 0; transform: scale(3); } 15% { opacity: 1; transform: scale(0.9); } 25%, 82% { opacity: 1; transform: scale(1.05); }
   100% { opacity: 0; transform: scale(1.8); }
 }
-.preloader.flash { animation: pl-flash 0.35s steps(3) 1; }
-@keyframes pl-flash { 0% { background: #1F4A2E; } 100% { background: var(--night-deep); } }
+.preloader.flash .pl-bg { animation: pl-flash 0.35s steps(3) 1; }
+@keyframes pl-flash { 0% { filter: brightness(2.2) hue-rotate(90deg); } 100% { filter: none; } }
 .pl-logo {
   width: min(360px, 62vw); height: auto; opacity: 0;
   filter: drop-shadow(0 0 8px rgba(237, 40, 40, 0.8)) drop-shadow(0 0 28px rgba(237, 40, 40, 0.5));
@@ -855,6 +903,7 @@ body::after {
 .pl-skip {
   position: absolute; bottom: calc(var(--frame) + 22px); left: 0; right: 0; margin: 0; text-align: center; z-index: 1;
   font-family: "Silkscreen", var(--font-display); font-size: 11px; letter-spacing: 0.08em; color: rgba(244, 230, 208, 0.4);
+  z-index: 3;
 }
 .preloader.dissolving .pl-skip, .preloader.dissolving .pl-stage { display: none; }
 @media (max-width: 700px) {

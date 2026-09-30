@@ -5,7 +5,7 @@
    on a #link (e.g. back from a project page), and any click or key skips ahead.
 ------------------------------------------------------------------- */
 (function () {
-  const T = { ready: 350, set: 1150, go: 1950, logo: 2750, minHold: 900, maxWait: 6000, dissolve: 800, block: 28 };
+  const T = { ready: 350, set: 1150, go: 1950, logo: 2750, minHold: 900, maxWait: 6000, dissolve: 850, block: 40, blockTime: 170 };
   const el = document.getElementById("preloader");
   const body = document.body;
   const q = (s) => el.querySelector(s);
@@ -24,6 +24,13 @@
   };
 
   if (!force && (seen || location.hash)) { finish(); return; }
+
+  // pixel starfield in the sky (two layers that twinkle out of step)
+  const stars = (n) => Array.from({ length: n }, () => {
+    const x = Math.round(Math.random() * innerWidth), y = Math.round(Math.random() * innerHeight * 0.5);
+    return `${x}px ${y}px 0 ${Math.random() < 0.15 ? "#FFC21A" : "rgba(244,230,208,0.85)"}`;
+  }).join(",");
+  el.style.setProperty("--stars", stars(70)); el.style.setProperty("--stars2", stars(50));
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   scrollTo(0, 0);
 
@@ -66,7 +73,9 @@
     Promise.all([ready, new Promise((r) => setTimeout(r, T.minHold))]).then(reveal);
   });
 
-  // pixel dissolve: the screen breaks into blocks that flash and vanish in random order
+  // Organised pixel transition: a grid of blocks covers the screen, then a diagonal wave sweeps from the
+  // top-left corner. Each block flashes saffron as the wave front reaches it and shrinks away in four
+  // steps, so the street appears behind a neat, stepped diagonal edge.
   let revealing = false;
   function reveal() {
     if (revealing || finished) return;
@@ -76,19 +85,24 @@
     setTimeout(() => {
       const c = q(".pl-blocks"), g = c.getContext("2d");
       const W = (c.width = innerWidth), H = (c.height = innerHeight), B = T.block;
-      const cols = Math.ceil(W / B), rows = Math.ceil(H / B), n = cols * rows;
-      g.fillStyle = "#120A26"; g.fillRect(0, 0, W, H);
+      const cols = Math.ceil(W / B), rows = Math.ceil(H / B), span = cols + rows - 2 || 1;
+      g.fillStyle = "#120A26"; g.fillRect(0, 0, W, H);                  // cover first, so nothing flashes through
       el.classList.add("dissolving");
-      const order = [...Array(n).keys()];
-      for (let i = n - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [order[i], order[j]] = [order[j], order[i]]; }
-      const hot = ["#FF9933", "#FF3D9A", "#FFC21A", "#3DF2FF"];
-      let lit = [], idx = 0, t0 = performance.now();
+      const sweep = T.dissolve - T.blockTime, t0 = performance.now();
       const frame = (now) => {
-        lit.forEach((k) => g.clearRect((k % cols) * B, ((k / cols) | 0) * B, B, B));   // last frame's hot blocks go
-        const target = Math.min(n, Math.ceil(((now - t0) / T.dissolve) * n));
-        lit = order.slice(idx, target); idx = target;
-        lit.forEach((k) => { g.fillStyle = hot[k % hot.length]; g.fillRect((k % cols) * B, ((k / cols) | 0) * B, B, B); });
-        if (idx < n || lit.length) requestAnimationFrame(frame); else finish();
+        const t = now - t0;
+        g.clearRect(0, 0, W, H);
+        let alive = 0;
+        for (let r = 0; r < rows; r++) for (let k = 0; k < cols; k++) {
+          const p = (t - ((k + r) / span) * sweep) / T.blockTime;          // this block's own progress
+          if (p >= 1) continue;
+          alive++;
+          const step = p <= 0 ? 0 : Math.min(4, 1 + Math.floor(p * 4));     // 0 = whole, 1-4 = shrinking
+          const size = B * (1 - step / 4.5), off = (B - size) / 2;
+          g.fillStyle = step === 0 ? "#120A26" : step === 1 ? "#FF9933" : step === 2 ? "#FF3D9A" : "#2A0F3E";
+          g.fillRect(k * B + off, r * B + off, size, size);
+        }
+        if (alive) requestAnimationFrame(frame); else finish();
       };
       requestAnimationFrame(frame);
       setTimeout(finish, T.dissolve + 600);   // safety: background tabs pause animation frames
