@@ -6,13 +6,13 @@
    on a #link (e.g. back from a project page), and any click or key skips ahead.
 ------------------------------------------------------------------- */
 (function () {
-  const T = { ready: 450, set: 1300, go: 2150, logo: 3000, minHold: 1000, maxWait: 6000, dissolve: 900, block: 36, blockTime: 200 };
+  const T = { ready: 250, set: 800, go: 1350, logo: 1900, minHold: 650, maxWait: 6000, dissolve: 700, block: 36, blockTime: 160 };
   // Arcade art (assets/preloader/arcade.webp, 1672 x 941): the CRT's centre and height, in art px
   const ART = { w: 1672, h: 941, cabinetW: 600, screen: { cx: 837, cy: 340, h: 248, w: 354 } };
   // camera per beat: [zoom, pull]. zoom 0 = the widest shot (the room, or on phones the whole cabinet),
   // 1 = closest (the CRT fills most of the view but never overflows it). pull = how far the CRT has moved
   // to the middle of the screen.
-  const SHOTS = { start: [0, 0], ready: [0.3, 0.4], set: [0.55, 0.65], go: [0.8, 0.85], logo: [1, 1] };
+  const SHOTS = { start: [0, 0], ready: [0.18, 0.3], set: [0.34, 0.5], go: [0.5, 0.7], logo: [0.6, 0.85] };
   const el = document.getElementById("preloader");
   const body = document.body;
   const q = (s) => el.querySelector(s);
@@ -132,7 +132,7 @@
       };
       requestAnimationFrame(frame);
       setTimeout(finish, T.dissolve + 600);   // safety: background tabs pause animation frames
-    }, 280);
+    }, 200);
   }
 
   // skip: jump straight to the reveal
