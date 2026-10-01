@@ -1,3 +1,9 @@
 .DS_Store
 .claude/
 node_modules/
+# art dropped into the project root for Claude to pick up: the copies the site uses live under assets/
+/*.png
+/*.webp
+/*.jpg
+/*.jpeg
+/*.gif

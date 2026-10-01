@@ -39,19 +39,27 @@
        alias: poses that borrow another pose's frames
        fps:   walk/run cadence, if it differs from the default */
   const SETS = {
-    pixel: { src: "assets/character/sheet.webp?v=1790886999", cw: CW, ch: CH, cols: COLS, anims: ANIMS, bob: BOB, pixel: true },
+    pixel: { src: "assets/character/sheet.webp?v=1790887680", cw: CW, ch: CH, cols: COLS, anims: ANIMS, bob: BOB, pixel: true },
     // hero street (tools/pack_street_sprite.py): walk right 0-7, walk left 8-15, stand 16, wave 17-21, jump 22
     street: {
-      src: "assets/character/street.webp?v=1790886999", cw: 520, ch: 448, cols: 8,
+      src: "assets/character/street.webp?v=1790887680", cw: 520, ch: 448, cols: 8,
       anims: {
         walk: [0, 1, 2, 3, 4, 5, 6, 7], walkL: [8, 9, 10, 11, 12, 13, 14, 15],
         idle: [16], wave: [17, 18, 19, 20, 21, 20], fall: [22],
       },
       left: { walk: "walkL" }, alias: { run: "walk", talk: "wave", point: "wave" }, fps: { walk: 12, run: 18 },
     },
+    // subway to the ticket counter (tools/pack_stairs_sprite.py): onto the stairs, the climb, arriving in the lobby
+    stairs: {
+      src: "assets/character/stairs.webp?v=1790887680", cw: 520, ch: 448, cols: 8,
+      anims: {
+        stepOn: [0, 1, 2, 3], climb: [4, 5, 6, 7, 8, 9, 10, 11], stepOff: [12, 13],
+        gasp: [14], happy: [15], grin: [16],
+      },
+    },
     // the drop down the drain (tools/pack_drain_sprite.py): looks down the manhole, steps off, falls, lands
     drain: {
-      src: "assets/character/drain.webp?v=1790886999", cw: 520, ch: 448, cols: 8,
+      src: "assets/character/drain.webp?v=1790887680", cw: 520, ch: 448, cols: 8,
       anims: {
         peer: [0], stepoff: [1], fallStart: [2, 3, 4, 5], fall: [6, 7, 8, 9, 10, 11, 12, 13], fallEnd: [14],
         land: [15, 16, 17], glasses: [18], smile: [19], idle: [19],
