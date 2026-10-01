@@ -45,6 +45,11 @@
   // bottom row, a gap where the shaft walls come up to the road, and a soft shadow on the soil below.
   const ROAD_EDGE = { depth: 34, asphalt: 12, jag: [3, 9], gap: [640, 990], shadow: 60 };   // street art px
 
+  // Character sheet per location (js/sprite.js SETS); locations without one use the pixel sheet
+  const SPRITE_SET = { street: "street" };
+  // Into the manhole: where he stops (sheet px left of its centre), how high he hops (x his height),
+  // and how far the cover slides clear (x its width)
+  const DROP = { stand: 78, arc: 0.3, slide: 1.12 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
   // that follows the character. The windows are mask holes, so nothing is drawn twice.
   const STREET_DIM = 0.3;               // strength of the shade
@@ -515,8 +520,8 @@
     }
     // place content inside scenes
     const H = Sprite.HOLE, hw = Math.round(H.w * L.cs), hh = Math.round(H.h * L.cs);
-    setBox($(".manhole"), mh - hw / 2, L.sgy - hh + 4, hw, hh);
-    setBox($(".manhole-cover"), mh - hw / 2, L.sgy - hh + 4, hw, hh);
+    setBox($(".manhole"), mh - hw / 2, L.sgy - Math.round(hh / 2), hw, hh);
+    setBox($(".manhole-cover"), mh - hw / 2, L.sgy - Math.round(hh / 2), hw, hh);
     const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
     art($("#street .bb-leaves"), STREET.leaves);
     art($(".steam"), STREET.steam);
@@ -593,7 +598,7 @@
     const add = (s) => { s.start = total; total += Math.max(1, Math.round(s.len)); s.len = Math.max(1, Math.round(s.len)); segs.push(s); };
     total = 0;
 
-    const x0 = Math.round(L.x0), stand = mh - Sprite.HOLE.dx * L.cs;
+    const x0 = Math.round(L.x0), stand = mh - DROP.stand * L.cs;
     const lerp = (a, b, t) => a + (b - a) * t;
     // intro: he waits on the road while the camera tilts from the billboards down to the street
     add({ id: "intro", loc: "street", pose: "walk", a: [x0, sgy], b: [x0, sgy], len: Math.max(160, camEnd.y),
@@ -602,8 +607,13 @@
     add({ loc: "street", pose: "walk", a: [x0, sgy], b: [stand, sgy], len: Math.max(120, stand - x0),
       bubble: ["Chalo, let's go!", 0, 0.3],
       cam: (t) => ({ x: lerp(camStart.x, camEnd.x, t), y: camEnd.y }) });
-    add({ id: "crouch", loc: "street", pose: "crouch", a: [stand, sgy], b: [stand, sgy], len: 220,
-      cam: () => camEnd });
+    // at the manhole: he turns and waves while the cover slides clear, then hops in
+    // (meanwhile the camera settles to where the fall will pick it up, so there's no jump as he drops)
+    const dropCam = { x: camEnd.x, y: Math.min(Math.max(sgy - vh * 0.4, camEnd.y), subCamY) };
+    add({ id: "open", loc: "street", pose: "open", a: [stand, sgy], b: [stand, sgy], len: 200,
+      cam: (t) => ({ x: camEnd.x, y: lerp(camEnd.y, dropCam.y, t * t * (3 - 2 * t)) }) });
+    add({ id: "hop", loc: "street", pose: "hop", a: [stand, sgy], b: [mh, sgy], len: 110,
+      ease: "arc", arc: Sprite.H * L.cs * DROP.arc, cam: () => dropCam });
     // fall past the About rows: steady speed, camera keeps him ~40% down the screen
     // the moment his feet reach the grate in the subway ceiling (the fall is linear in y)
     const aboutEnter = Math.min(1, Math.max(0, (L.drain.y + L.drain.h - sgy) / (sy - sgy)));
@@ -726,7 +736,7 @@
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
   const cutEl = $(".cut");
-  let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
+  let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0, lastSlid = -1;
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -754,6 +764,11 @@
     let anim = "idle", n = tick(260);
     const cutSide = s.ease === "cut" && t >= 0.5;          // past the midpoint of a cut
     const poseNow = cutSide && s.pose2 ? s.pose2 : s.pose;
+    const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
+    const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
+    // his sheet: the location's own, and the street's until he is all the way down the manhole
+    let set = SPRITE_SET[loc] || "pixel";
+    if (s.id === "fall" && p.y - h < L.sgy) set = SPRITE_SET.street;
     switch (poseNow) {
       case "walk":
         if (s.stairs) {
@@ -764,14 +779,18 @@
         } else if (moving) {
           // steady game cadence (8 fps walk, 12 fps run), like the style guide's steps() timing
           anim = running ? "run" : "walk";
-          stepPhase += (dt / 1000) * (running ? 12 : 8);
+          stepPhase += (dt / 1000) * Sprite.fps(set, anim);
           n = Math.floor(stepPhase);
         } else if (hoverLook && s.loc === "subway") anim = "point";
         else if (s.loc === "exhibition") { anim = tick(2400) % 2 ? "gaze" : "look"; n = tick(900); }
-        else if (s.id === "intro" && !saying) { const w = tick(170) % 12; anim = w < 4 ? "wave" : "idle"; n = w < 4 ? w : tick(260); }
+        else if (s.id === "intro" && !saying) {   // a wave, then a pause
+          const wn = Sprite.count(Sprite.resolve(set, "wave", 1).anim, set), k = tick(170) % (wn * 3);
+          anim = k < wn ? "wave" : "idle"; n = k < wn ? k : tick(260);
+        }
         else if (saying) { anim = "talk"; n = tick(220); }
         break;
-      case "crouch": anim = t < 0.1 ? "idle" : "crouch"; n = t < 0.4 ? 0 : t < 0.7 ? 1 : 2; break;
+      case "open": anim = t > 0.3 ? "wave" : "idle"; n = tick(170); break;
+      case "hop": anim = "fall"; n = tick(110); break;
       case "fall": anim = "fall"; n = tick(110); break;
       case "land": anim = t < 0.6 ? "land" : "talk"; n = t < 0.25 ? 0 : t < 0.45 ? 1 : t < 0.6 ? 2 : tick(220); break;
       case "jump": anim = "jump"; n = Math.min(4, Math.floor(t * 5)); break;
@@ -779,10 +798,14 @@
       case "watch": anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = s.face || -1; break;
       case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
     }
-    const flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);   // climb frames are drawn facing their direction
+    let flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);   // climb frames are drawn facing their direction
+    const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown"].includes(anim);
+    // painted sheets have their own left-facing frames instead of being mirrored
+    const use = Sprite.resolve(set, anim, facing);
+    set = use.set; anim = use.anim; flips = flips && use.flip;
+    const painted = Sprite.painted(set);
 
     // location
-    const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
     if (loc !== lastLoc) {
       lastLoc = loc;
       body.dataset.location = loc;
@@ -790,25 +813,24 @@
     }
 
     // draw sprite (frames are cached per location tint)
-    const key = anim + (n % Sprite.count(anim)) + loc;
+    const key = set + anim + (n % Sprite.count(anim, set)) + loc;
     if (key !== lastKey) {
-      const src = Sprite.frame(anim, n, RIM[loc]);
+      const src = Sprite.frame(anim, n, RIM[loc], set);
       if (src) {
         lastKey = key;
         const c = sprite.getContext("2d");
-        c.imageSmoothingEnabled = false;
+        c.imageSmoothingEnabled = painted; c.imageSmoothingQuality = "high";   // pixel art stays crisp
         c.clearRect(0, 0, sprite.width, sprite.height);
         c.drawImage(src, 0, 0, sprite.width, sprite.height);
       }
     }
-    const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
     if (loc === "street") {   // keep the hero spotlight on him (street coords = world coords)
       const dim = $(".street-dim");
       dim.style.setProperty("--hx", Math.round(p.x) + "px");
       dim.style.setProperty("--hy", Math.round(p.y - h * 0.5) + "px");
     }
     const scale = (cutSide ? s.scale2 : s.scale) || 1;   // cuts can change his scale on the far side
-    const bob = Sprite.bob(anim, n) * L.cs;
+    const bob = Sprite.bob(anim, n, set) * L.cs;
     charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale})` : "");
     charEl.style.setProperty("--face", flips ? facing : 1);
 
@@ -816,7 +838,8 @@
     const top = p.y - h, A = L.sgy + 2 - top, B = L.street.h - top;
     sprite.style.webkitMaskImage = sprite.style.maskImage =
       s.pose === "fall" && A < h && B > 0 ? `linear-gradient(#000 0 ${A}px, transparent ${A}px ${B}px, #000 ${B}px)` : "";
-    charEl.classList.toggle("no-shadow", !["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown"].includes(anim));
+    charEl.classList.toggle("no-shadow", !grounded);
+    charEl.classList.toggle("painted", painted);
 
     const z = cam.z || 1;
     world.style.transform = z === 1
@@ -858,9 +881,13 @@
     if (bubble.textContent !== say) bubble.textContent = say;
     bubble.classList.toggle("show", !!say);
 
-    // the crouch frames draw their own cover, so hide ours once he grabs it
-    const cr = segs.find((x) => x.id === "crouch");
-    $(".manhole-cover").hidden = cur > cr.start + cr.len * 0.1;
+    // the manhole cover slides clear while he waits beside it
+    const op = segs.find((x) => x.id === "open");
+    const slid = Math.min(1, Math.max(0, ((cur - op.start) / op.len - 0.1) / 0.5));
+    if (slid !== lastSlid) {
+      lastSlid = slid;
+      $(".manhole-cover").style.transform = `translateX(${(slid * slid * (3 - 2 * slid) * DROP.slide * 100).toFixed(1)}%)`;
+    }
 
 
     // route progress

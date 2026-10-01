@@ -1,8 +1,8 @@
 /* ------------------------------------------------------------------
    CHARACTER SPRITE
-   assets/character/sheet.webp is a packed sheet (tools/pack_sprite.py):
-   uniform cells, feet on the cell bottom, head/torso centred on x.
-   Each location tints the sprite's back edge with its key light.
+   Packed sheets of uniform cells, feet on the cell bottom, head/torso centred on x. The pixel sheet
+   (tools/pack_sprite.py) gets its back edge tinted with each location's key light; painted sheets
+   (one per section, see SETS) carry their own light.
 ------------------------------------------------------------------- */
 (function () {
   const CW = 208, CH = 179, COLS = 10;
@@ -32,29 +32,59 @@
   // vertical bob per cycle frame, in sheet px (negative = up): passing/flight frames rise
   const BOB = { walk: [0, -3, 0, -3], run: [1, -7, 1, -7] };
 
-  // sheet-pixel measurements used to line the scene up with the art
-  const HOLE = { dx: 35, w: 64, h: 16 }; // manhole centre offset from the anchor, in the crouch frames
+  // the manhole he drops into on the street, in sheet px (sized so the painted character fits through it)
+  const HOLE = { w: 110, h: 20 };
 
-  const img = new Image();
-  img.src = "assets/character/sheet.webp?v=1790880783";
-  let ready = false;
-  const onReady = [];
-  img.onload = () => { ready = true; onReady.forEach((f) => f()); };
+  /* Sheets. Every section can have its own, painted for that section's light; where a section (or a
+     pose) has none, the pixel sheet is used. All sheets share the pixel sheet's 208 x 179 cell, at
+     whatever resolution they were packed in (cw x ch), with the feet on the cell bottom.
+       left:  poses that have their own left-facing frames (painted light can't be mirrored)
+       alias: poses that borrow another pose's frames
+       fps:   walk/run cadence, if it differs from the default */
+  const SETS = {
+    pixel: { src: "assets/character/sheet.webp?v=1790883076", cw: CW, ch: CH, cols: COLS, anims: ANIMS, bob: BOB, pixel: true },
+    // hero street (tools/pack_street_sprite.py): walk right 0-7, walk left 8-15, stand 16, wave 17-21, jump 22
+    street: {
+      src: "assets/character/street.webp?v=1790883076", cw: 520, ch: 448, cols: 8,
+      anims: {
+        walk: [0, 1, 2, 3, 4, 5, 6, 7], walkL: [8, 9, 10, 11, 12, 13, 14, 15],
+        idle: [16], wave: [17, 18, 19, 20, 21, 20], fall: [22],
+      },
+      left: { walk: "walkL" }, alias: { run: "walk", talk: "wave" }, fps: { walk: 12, run: 18 },
+    },
+  };
+  const FPS = { walk: 8, run: 12 };
 
   const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const cache = new Map();
+  Object.values(SETS).forEach((S) => {
+    S.img = new Image();
+    S.img.onload = () => { S.ready = true; };
+    S.img.src = S.src;
+  });
 
-  function frame(anim, n, rim) {
-    const list = ANIMS[anim] || ANIMS.idle;
+  // which set and pose to draw: falls back to the pixel sheet when the set doesn't have the pose
+  function resolve(set, anim, facing) {
+    const S = SETS[set];
+    if (!S || S.pixel) return { set: "pixel", anim, flip: true };
+    const a = (S.alias && S.alias[anim]) || anim;
+    if (!S.anims[a]) return { set: "pixel", anim, flip: true };
+    return { set, anim: (facing < 0 && S.left && S.left[a]) || a, flip: false };
+  }
+
+  function frame(anim, n, rim, set) {
+    const S = SETS[set] || SETS.pixel;
+    const list = S.anims[anim] || S.anims.idle;
     const idx = list[((n % list.length) + list.length) % list.length];
-    const key = idx + "|" + rim;
+    if (!S.pixel) rim = "";                       // painted sheets carry their own light
+    const key = (set || "pixel") + "|" + idx + "|" + rim;
     if (cache.has(key)) return cache.get(key);
-    if (!ready) return null;
+    if (!S.ready) return null;
 
     const c = document.createElement("canvas");
-    c.width = CW; c.height = CH;
+    c.width = S.cw; c.height = S.ch;
     const ctx = c.getContext("2d");
-    ctx.drawImage(img, (idx % COLS) * CW, Math.floor(idx / COLS) * CH, CW, CH, 0, 0, CW, CH);
+    ctx.drawImage(S.img, (idx % S.cols) * S.cw, Math.floor(idx / S.cols) * S.ch, S.cw, S.ch, 0, 0, S.cw, S.ch);
 
     if (rim) {
       // rim light: tint the single outermost pixel on the left (back) edge
@@ -76,10 +106,12 @@
     return c;
   }
 
+  const anims = (set) => (SETS[set] || SETS.pixel).anims;
   window.Sprite = {
-    W: CW, H: CH, ANIMS, HOLE, frame,
-    bob: (anim, n) => { const b = BOB[anim]; return b ? b[((n % b.length) + b.length) % b.length] : 0; },
-    count: (anim) => (ANIMS[anim] || ANIMS.idle).length,
-    whenReady: (f) => (ready ? f() : onReady.push(f)),
+    W: CW, H: CH, ANIMS, HOLE, frame, resolve,
+    painted: (set) => !(SETS[set] || SETS.pixel).pixel,
+    fps: (set, anim) => ((SETS[set] || SETS.pixel).fps || FPS)[anim] || FPS[anim],
+    bob: (anim, n, set) => { const b = ((SETS[set] || SETS.pixel).bob || {})[anim]; return b ? b[((n % b.length) + b.length) % b.length] : 0; },
+    count: (anim, set) => (anims(set)[anim] || anims(set).idle).length,
   };
 })();
