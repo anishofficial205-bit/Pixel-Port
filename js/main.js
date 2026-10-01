@@ -44,7 +44,7 @@
     rise: [[0.375, 0], [0.625, 0.55], [0.875, 1]],   // [phase, share of the stride's rise]
   };
   // Character sheet per location (js/sprite.js SETS); locations without one use the pixel sheet
-  const SPRITE_SET = { street: "street", drain: "drain", subway: "street" };
+  const SPRITE_SET = { street: "street", drain: "drain", subway: "street", cinema: "street" };
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
   const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
@@ -172,11 +172,11 @@
   const CINEMA = {
     w: 1672, h: 941,
     front: {
-      screen: [476, 246, 720, 342],      // magenta area, keyed out; the reel plays behind it
-      stage: [380, 640, 920, 64],        // front of the stage: reel controls live here
-      rowTop: 700, rowH: 319,             // foreground seat row (assets/cinema/seat-row.webp)
-      door: 105, exit: 1575, floor: 692,  // left door he enters by, right door he leaves by; the floor between
-      stand: 235,                         // where he stops beside the stage to watch
+      screen: [504, 228, 663, 297],      // the screen, cut out of the art; the reel plays behind it
+      stage: [410, 552, 852, 46],        // the lit stage apron: reel controls live here
+      rowTop: 596,                       // seats from the first row down (assets/cinema/seat-row.webp) are drawn in front of him
+      door: 201, exit: 1463, floor: 612, // left door he enters by, right door he leaves by; his feet, just behind the first row
+      stand: 335,                        // where he stops, left of the stage, to watch
     },
   };
 
@@ -524,7 +524,7 @@
     fbox($(".cinema-content"), F.screen);
     // controls sit on the stage front; on tall narrow screens there's room below the room instead
     const visLeft = Math.min(Math.max(front.ox + 836 * fs - vw / 2, 0), front.w - vw) - front.ox;   // camera's left edge, in art-box px
-    if (front.h - front.oy - fh > 140) setBox($(".reel-bar"), visLeft + 12, fh + 20, vw - 24, front.h - front.oy - fh - 40);
+    if (front.h - front.oy - fh > 140) setBox($(".reel-bar"), visLeft + 12, fh + 10, vw - 24, front.h - front.oy - fh - 20);
     else fbox($(".reel-bar"), F.stage);
     // the seat row sits in front of him, clipped to the bottom of the room
     const rowY = front.y + front.oy + Math.round(F.rowTop * fs);
@@ -777,11 +777,14 @@
       case "land": anim = t < 0.45 ? "land" : t < 0.72 ? "glasses" : "smile"; n = t < 0.14 ? 0 : t < 0.32 ? 1 : 2; break;
       case "jump": anim = "jump"; n = Math.min(4, Math.floor(t * 5)); break;
       case "look": anim = "look"; n = tick(700); break;
-      case "watch": anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = s.face || -1; break;
+      case "watch":
+        if (Sprite.painted(set)) { set = "stairs"; anim = tick(3200) % 4 === 3 ? "grin" : "awe"; n = 0; }   // eyes on the screen, now and then a grin
+        else { anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = s.face || -1; }
+        break;
       case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
     }
     let flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);   // climb frames are drawn facing their direction
-    const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown", "peer", "land", "glasses", "smile", "climb", "gasp", "happy", "grin"].includes(anim);
+    const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown", "peer", "land", "glasses", "smile", "climb", "gasp", "happy", "grin", "awe"].includes(anim);
     // painted sheets have their own left-facing frames instead of being mirrored
     const use = Sprite.resolve(set, anim, facing);
     set = use.set; anim = use.anim; flips = flips && use.flip;

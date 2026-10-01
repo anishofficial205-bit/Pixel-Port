@@ -5,6 +5,7 @@ Sources, painted on a flat dark backdrop (assets/character/src/stairs/):
   climb.png    the stair-climbing cycle                                         (8 frames)
   arrive.png   the last step, a stride onto the lobby floor, then he spots the cinema:
                a gasp, a delighted look back, a grin with his hands in his pockets (5 frames)
+The gasp is packed a second time without its "!" marks: he watches the cinema screen in that pose.
 
     python tools/pack_stairs_sprite.py
 
@@ -21,7 +22,7 @@ SRC = ROOT / "assets/character/src/stairs"
 SHEETS = {"step-on.png": (1, 590, []), "climb.png": (2, 463, []), "arrive.png": (1, 605, [2, 3, 4])}
 
 
-def frames(name):
+def frames(name, marks=True):
     rows, tall, feet = SHEETS[name]
     a = np.array(Image.open(SRC / name).convert("RGB"))
     fg = key(a, 4)                       # a fat brush: his hair is the backdrop's own colour
@@ -36,7 +37,7 @@ def frames(name):
     for f, i in enumerate(figs):
         ys, xs = objs[i]
         # small marks drawn beside him (the "!" dashes) belong to the frame too
-        near = [j for j in range(n) if 60 < size[j] <= 15000
+        near = [j for j in range(n) if marks and 60 < size[j] <= 15000
                 and objs[j][1].start > xs.start - 40 and objs[j][1].stop < xs.stop + 40
                 and objs[j][0].start > ys.start - 40 and objs[j][0].stop < ys.stop + 40]
         labs = [i + 1] + [j + 1 for j in near]
@@ -54,4 +55,6 @@ def frames(name):
 
 
 if __name__ == "__main__":
-    pack(frames("step-on.png") + frames("climb.png") + frames("arrive.png"), ROOT / "assets/character/stairs.webp")
+    # last: the gasp again without its "!" marks (he watches the cinema screen in it)
+    pack(frames("step-on.png") + frames("climb.png") + frames("arrive.png") + [frames("arrive.png", marks=False)[2]],
+         ROOT / "assets/character/stairs.webp")

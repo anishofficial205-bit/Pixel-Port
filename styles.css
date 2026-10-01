@@ -484,7 +484,7 @@ body::after {
 
 /* ---------------- 4. cinema ---------------- */
 .ride #stairwell .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
-.ride #cinema-front { background: #140409; }
+.ride #cinema-front { background: #0D0720; }
 .ride .front-art { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
 .ride .front-art .bg-img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .ride .front-art .content { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
@@ -515,6 +515,7 @@ body::after {
 /* the stage front holds the controls and ticket stubs */
 .reel-bar { display: flex; align-items: center; justify-content: center; align-content: flex-start; gap: 14px; flex-wrap: wrap; }
 .reel-controls { display: flex; gap: 10px; }
+@media (max-width: 700px) { .reel-bar { gap: 8px; } .tickets { gap: 8px; } .ticket { padding: 3px 12px; } }   /* clear of the bottom nav */
 .reel-controls .btn { padding: 8px 10px; }
 .tickets { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .ticket {
