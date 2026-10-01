@@ -37,9 +37,9 @@ def key(a, r, haze=None, T=14):
     lab, _ = nd.label(~nd.binary_dilation(solid, structure=disk(r)))
     edge = np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))
     out = nd.binary_dilation(np.isin(lab, edge[edge > 0]), structure=disk(r + 1)) & ~solid
-    if haze:   # a faint warm glow painted beside him (haze = how strong, how deep), and the dark pockets it closes off
-        soft, pocket = haze
-        glow = ~out & (d < soft) & (dv[..., 0] >= 4) & (dv[..., 0] >= dv[..., 2])
+    if haze:   # a faint warm glow painted beside him (haze = how strong, how deep, how red), and the dark pockets it closes off
+        soft, pocket, red = haze
+        glow = ~out & (d < soft) & (dv[..., 0] >= red) & (dv[..., 0] >= dv[..., 2])
         eaten = nd.binary_dilation(out, iterations=0, mask=out | glow) & ~out
         dark = ~out & ~eaten & (d < T)
         out |= eaten
@@ -87,13 +87,14 @@ def grid(name, cols, rows, r, anchor, haze=None, head=None):
 
 frames = []
 frames += grid("walk-right.png", 4, 2, 4, "head")               # 0-7
-frames += grid("walk-left.png", 4, 2, 4, "head", haze=(50, 6))   # 8-15
-frames += grid("wave.png", 3, 2, 2, "feet", haze=(28, 0), head=(0.27, 0.19))   # 16-21: stand, then the wave
+# (the glow is in front of his mouth; his fringe, just above, is kept out of the haze pass or it flickers)
+frames += grid("walk-left.png", 4, 2, 4, "head", haze=(95, 6, 8), head=(0.165, 0.3))   # 8-15
+frames += grid("wave.png", 3, 2, 2, "feet", haze=(28, 0, 4), head=(0.27, 0.19))   # 16-21: stand, then the wave
 
 # 22: the jump pose from the reference sheet (he drops into the manhole in it)
 ref = np.array(Image.open(SRC / "reference.png").convert("RGB"))
 JUMP = (870, 596, 1110, 883)       # stops above the dust painted on the ground
-f, ax = cut(ref, key(ref, 3, haze=(28, 0)), JUMP, "head", (0.42, 0.17), key(ref, 3))
+f, ax = cut(ref, key(ref, 3, haze=(28, 0, 4)), JUMP, "head", (0.42, 0.17), key(ref, 3))
 k = STAND * 0.97 / f.height
 frames.append((f.resize((round(f.width * k), round(f.height * k)), Image.LANCZOS), round(f.width * k / 2)))
 

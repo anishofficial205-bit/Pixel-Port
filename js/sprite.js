@@ -42,10 +42,10 @@
        alias: poses that borrow another pose's frames
        fps:   walk/run cadence, if it differs from the default */
   const SETS = {
-    pixel: { src: "assets/character/sheet.webp?v=1790883542", cw: CW, ch: CH, cols: COLS, anims: ANIMS, bob: BOB, pixel: true },
+    pixel: { src: "assets/character/sheet.webp?v=1790884162", cw: CW, ch: CH, cols: COLS, anims: ANIMS, bob: BOB, pixel: true },
     // hero street (tools/pack_street_sprite.py): walk right 0-7, walk left 8-15, stand 16, wave 17-21, jump 22
     street: {
-      src: "assets/character/street.webp?v=1790883542", cw: 520, ch: 448, cols: 8,
+      src: "assets/character/street.webp?v=1790884162", cw: 520, ch: 448, cols: 8,
       anims: {
         walk: [0, 1, 2, 3, 4, 5, 6, 7], walkL: [8, 9, 10, 11, 12, 13, 14, 15],
         idle: [16], wave: [17, 18, 19, 20, 21, 20], fall: [22],
