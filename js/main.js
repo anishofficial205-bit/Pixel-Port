@@ -142,19 +142,19 @@
   }
 
   /* ================= STREET ART ================= */
-  // Measured on assets/scenes/street.webp (1672 x 941 art px)
+  // Measured on assets/scenes/street.webp (1672 x 941 art px), built by tools/build_street.py
   const STREET = {
     w: 1672, h: 941,
-    road: 845,           // feet line on the wet road, just behind the divider
-    start: 150,          // where he waits during the intro, outside the general store
-    manhole: 790,        // in the gap between the two road dividers
+    road: 870,           // feet line on the wet road, in front of the striped kerbs
+    start: 200,          // where he waits during the intro, outside the general store
+    manhole: 792,        // middle of the road; the drain's shaft hangs under it (DRAIN.hole)
     quads: {             // blank billboards: TL, TR, BR, BL
-      left: [[400, 128], [705, 180], [705, 303], [400, 245]],
-      led: [[1294, 210], [1416, 182], [1417, 446], [1293, 470]],
-      mid: [[969, 488], [1176, 484], [1177, 554], [969, 563]],
+      left: [[254, 42], [494, 134], [494, 247], [253, 168]],      // rooftop hoarding
+      led: [[1316, 189], [1434, 133], [1433, 428], [1315, 452]],  // tall board on the right
+      mid: [[777, 405], [970, 405], [970, 450], [777, 450]],      // banner on the metro overpass
     },
-    medical: [356, 402, 70, 110],  // MEDICAL STORE neon: x, y, w, h
-    steam: [1103, 640, 62, 72],    // above the chai pot
+    leaves: [1398, 360, 44, 74],   // tree leaves in front of the tall board: x, y, w, h
+    steam: [1464, 566, 52, 58],    // above the chai kettle
   };
 
   // assets/scenes/drain.webp: three stitched frames (manhole from below, shaft, grate into the subway)
@@ -234,16 +234,19 @@
   function adBoards() {
     const list = S.featured().length ? S.featured() : S.projects;
     $$(".bb-ad").forEach((board) => {
-      const tall = board.dataset.quad === "led";
+      const tall = board.dataset.quad === "led", strip = board.dataset.quad === "mid";
       const shape = tall ? "tall" : "wide";
       const pics = list.flatMap((p) => ((p.ads && p.ads[shape]) || [p.cover]).map((img) => ({ p, img })));
       // every ad fits whole (no cropping) over a pixelated, dimmed copy of the project's cover;
-      // the tall LED is laid out like a poster: title, picture, category
+      // the tall board is laid out like a poster (title, picture, category) and the thin overpass
+      // banner as a strip (picture, then title and category beside it)
       board.innerHTML = pics.map(({ p, img }, i) => {
         const bg = `<span class="ad-bg" style="background-image:url(${S.img(p.cover, 32)})"></span>`;
         const pic = `<img class="work-media ad-img" src="${S.img(img, tall ? 768 : 1024)}" alt="" decoding="async" />`;
         return tall
           ? `<span class="ad ad-poster" data-i="${i}">${bg}<span class="ad-title">${p.title}</span><span class="ad-frame">${pic}</span><span class="ad-cat">${p.meta.category || ""}</span></span>`
+          : strip
+          ? `<span class="ad ad-strip" data-i="${i}">${bg}<span class="ad-frame">${pic}</span><span class="ad-text"><span class="ad-title">${p.title}</span><span class="ad-cat">${p.meta.category || ""}</span></span></span>`
           : `<span class="ad" data-i="${i}">${bg}${pic}<span class="ad-cap"><b>${p.title}</b> ${p.meta.category || ""}</span></span>`;
       }).join("");
       let i = (+board.dataset.start || 0) % pics.length;
@@ -283,10 +286,11 @@
       <section class="plain-hero" id="plain-street" data-loc="street" aria-label="Home">
         <div class="plain-hero-bg" aria-hidden="true">
           <div class="plain-art">
-            <img class="pixel-art" src="assets/scenes/street.webp" alt="" />
+            <img src="assets/scenes/street.webp" alt="" />
             <a class="bb-map bb-ad bb-left" data-quad="left" data-start="0" tabindex="-1"></a>
             <a class="bb-map bb-ad bb-led" data-quad="led" data-start="1" tabindex="-1"></a>
             <a class="bb-map bb-ad bb-mid" data-quad="mid" data-start="2" tabindex="-1"></a>
+            <img class="bb-leaves" src="assets/street/leaves.png" alt="" style="left:${STREET.leaves[0]}px;top:${STREET.leaves[1]}px;width:${STREET.leaves[2]}px;height:${STREET.leaves[3]}px" />
           </div>
         </div>
         <div class="plain-wrap plain-hero-in">
@@ -514,7 +518,7 @@
     setBox($(".manhole"), mh - hw / 2, L.sgy - hh + 4, hw, hh);
     setBox($(".manhole-cover"), mh - hw / 2, L.sgy - hh + 4, hw, hh);
     const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
-    art($(".neon-flicker"), STREET.medical);
+    art($("#street .bb-leaves"), STREET.leaves);
     art($(".steam"), STREET.steam);
     // focus windows: one soft ellipse per billboard, plus the character's (its position is a CSS var)
     {
@@ -1016,19 +1020,6 @@
   // older browsers: focusing a link inside a clipped scene can scroll it
   $$(".scene, .viewport").forEach((el) => el.addEventListener("scroll", () => { el.scrollLeft = 0; el.scrollTop = 0; }));
 
-  // pixel rain: one small tile of slanted streaks, scrolled by CSS
-  function makeRain() {
-    const c = document.createElement("canvas");
-    c.width = c.height = 256;
-    const x = c.getContext("2d");
-    for (let i = 0; i < 70; i++) {
-      const px = Math.random() * 256, py = Math.random() * 256, len = 6 + Math.random() * 10;
-      x.fillStyle = `rgba(207, 232, 255, ${0.25 + Math.random() * 0.35})`;
-      for (let k = 0; k < len; k += 2) x.fillRect(Math.round(px - k * 0.19), Math.round(py + k), 1, 2);
-    }
-    body.style.setProperty("--rain", `url(${c.toDataURL()})`);
-  }
-
   // the gallery's top row, stretched upward by CSS to fill the space above the art
   function galleryTop() {
     const img = $("#exhibition .bg-img"), c = $(".gal-top");
@@ -1228,7 +1219,6 @@
 
   /* ================= BOOT ================= */
   fillContent();
-  makeRain();
   galleryTop();
   scrollCursor();
   watchPlain();
