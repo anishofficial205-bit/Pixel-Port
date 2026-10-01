@@ -55,6 +55,7 @@
 [data-location="street"]     { --accent: var(--neon-magenta); --key-light: var(--sodium); }
 [data-location="drain"]      { --accent: var(--drain-slime);  --key-light: var(--drain-teal); }
 [data-location="subway"]     { --accent: var(--neon-cyan);    --key-light: var(--fluoro); }
+.ride[data-location="subway"] { --accent: #FF8A3D; }   /* the ride's subway is lit orange (project pages keep the cyan) */
 [data-location="cinema"]     { --accent: var(--brass);        --key-light: var(--velvet); }
 [data-location="exhibition"] { --accent: var(--brass);        --key-light: var(--spotlight); }
 [data-location="rooftop"]    { --accent: var(--saffron);      --key-light: var(--dawn-orange); }
@@ -429,8 +430,7 @@ body::after {
 .about-stack .about-copy p { font-size: 18px; }
 
 /* ---------------- 3. subway ---------------- */
-/* station name on the blank sign in the art */
-.ride .station-board { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
+/* station board (also heads the project pages) */
 .station-board {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   background: #1E4A8C; color: var(--paper); text-align: center;
@@ -438,16 +438,23 @@ body::after {
 }
 .station-board .hi { font-size: 16px; line-height: 1; }
 .station-board h2 { font-size: 16px; text-shadow: 2px 2px 0 var(--outline); }
-
-/* "View all projects" plate under the station sign */
-.all-projects-sign {
-  display: flex; align-items: center; justify-content: center; gap: 8px; width: var(--w); padding: 7px 10px;
-  font-family: "Silkscreen", var(--font-display); font-size: 12px; color: var(--night-deep); text-decoration: none;
-  background: var(--neon-cyan); box-shadow: 0 0 0 3px var(--outline), 0 0 16px rgba(61, 242, 255, 0.45);
-  transition: background-color 0.2s ease, transform 0.15s steps(2);
+/* in the ride: a sign hung from the subway ceiling, with the "View all projects" plate under it.
+   Both are laid out in art px and scaled with the art. */
+.ride .station-board, .ride .all-projects-sign { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
+.ride .station-board {
+  background: #1A0D38; color: #F7E8C8;
+  box-shadow: 0 0 0 3px #0B0714, inset 0 -5px 0 0 #FF7A2E, 0 0 18px rgba(255, 122, 46, 0.35);
 }
-.all-projects-sign .hi { font-size: 13px; }
-.all-projects-sign:hover { background: var(--paper); transform: translateY(-2px); }
+.ride .station-board .hi { font-size: 15px; color: #FFB067; }
+.ride .station-board h2 { font-size: 15px; text-shadow: 2px 2px 0 #0B0714; }
+.all-projects-sign {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: "Silkscreen", var(--font-display); font-size: 11px; color: #1A0D38; text-decoration: none; white-space: nowrap;
+  background: #FF8A3D; box-shadow: 0 0 0 3px #0B0714, 0 0 16px rgba(255, 122, 46, 0.45);
+  transition: background-color 0.2s ease;
+}
+.all-projects-sign .hi { display: none; }       /* the sign above already says it in Hindi */
+.all-projects-sign:hover, .all-projects-sign:focus-visible { background: #F7E8C8; }
 .billboards { list-style: none; margin: 0; padding: 0; }
 .ride .billboards, .ride .photos { left: 0; top: 0; }
 .billboard {
@@ -455,31 +462,25 @@ body::after {
   display: block; text-decoration: none; color: var(--paper);
 }
 .billboard[hidden] { display: none; }
-/* the project image shows through the frame's window at full quality */
-.bb-window {
-  position: absolute; left: var(--wx); top: var(--wy); width: var(--ww); height: var(--wh);
-  background: var(--outline); overflow: hidden;
-}
-.bb-window img { width: 100%; height: 100%; object-fit: cover; }
-.bb-frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-/* lamps brighten on hover: a warm wash over the top of the picture */
+/* the project fills the blank board in the art: the whole image, over a dimmed mosaic of itself */
+.bb-window { position: absolute; inset: 0; background: #0B0714; overflow: hidden; }
+.bb-window img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+/* the lamps above brighten on hover: a warm wash over the top of the picture */
 .bb-window::after {
-  content: ""; position: absolute; inset: 0 0 60% 0; background: var(--sodium); opacity: 0.06;
-  transition: opacity 0.2s steps(2); pointer-events: none;
+  content: ""; position: absolute; inset: 0 0 55% 0; background: linear-gradient(#FFB067, transparent); opacity: 0.1;
+  transition: opacity 0.2s ease; pointer-events: none;
 }
-.billboard:hover .bb-window::after, .billboard:focus-visible .bb-window::after { opacity: 0.22; }
-.shape-tall:hover .bb-frame { animation: flicker 0.3s steps(1) 1; }
+.billboard:hover .bb-window::after, .billboard:focus-visible .bb-window::after { opacity: 0.32; }
 .billboard:focus-visible { outline-offset: 8px; }
 .bb-sign {
-  position: absolute; left: var(--wx); top: calc(100% + 10px); width: max-content; max-width: 360px; min-width: var(--ww);
+  position: absolute; left: 0; top: calc(100% + 9px); width: max-content; max-width: 100%;
   display: grid; grid-template-columns: auto 1fr; column-gap: 10px; row-gap: 2px; align-items: center;
   background: var(--night); padding: 6px 10px;
   box-shadow: 0 0 0 3px var(--outline); border-top: 6px solid var(--band);
 }
-.shape-tall .bb-sign { left: 50%; transform: translateX(-50%); min-width: 0; }
 .bb-line { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--band); padding: 3px 5px; }
 .bb-title { font-family: var(--font-display); font-size: 8px; line-height: 1.6; }
-.bb-blurb { grid-column: 1 / -1; font-size: 18px; color: var(--tile); line-height: 1.05; }
+.bb-blurb { grid-column: 1 / -1; font-size: 17px; color: #E9D9F7; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------------- 4. cinema ---------------- */
 .ride #stairwell .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
@@ -488,19 +489,8 @@ body::after {
 .ride .front-art .bg-img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .ride .front-art .content { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
 
-/* lobby signage, projected onto the blank boards in the art */
+/* reel posters on the lobby's blank boards */
 .ride #stairwell [data-quad] { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
-.cin-marquee {
-  display: flex; align-items: center; justify-content: center; gap: 18px;
-  background: #3D0818; color: var(--marigold);
-}
-.cin-marquee .hi { font-size: 20px; color: var(--sodium); }
-.mq-main { font-family: var(--font-display); font-size: 24px; text-shadow: 3px 3px 0 var(--outline), 0 0 8px var(--saffron); }
-.cin-sign {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  background: #3D0818; font-family: var(--font-display); font-size: 12px; color: var(--marigold);
-}
-.cin-sign .hi { font-size: 13px; }
 .cin-poster { display: block; background: var(--outline); overflow: hidden; }
 .cin-poster img { width: 100%; height: 100%; object-fit: cover; }
 .cin-poster span {
@@ -548,22 +538,9 @@ body::after {
 .ride .front-row img { display: block; height: auto; }
 .char { transform-origin: 50% 100%; }
 
-/* subway -> stairwell seam: a pillar on the join, the subway floor fading out beneath it */
-.seam-pillar, .seam-floor { display: none; }
-.ride .seam-pillar { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: 3; pointer-events: none; }
-.ride .seam-floor {
-  display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h);
-  overflow: hidden; z-index: 2; pointer-events: none;
-  -webkit-mask-image: linear-gradient(to right, #000, transparent); mask-image: linear-gradient(to right, #000, transparent);
-}
-.seam-floor img { position: absolute; max-width: none; }
-
-/* cuts between cinema views */
-.cut {
-  position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: 0;
-  background: conic-gradient(#2A0612 25%, #3D0818 0 50%, #2A0612 0 75%, #3D0818 0) 0 0 / 8px 8px;
-}
-.static .cut { display: none; }
+/* railings in front of him on the stairs and along the lobby's edge */
+.stair-rails { display: none; }
+.ride .stair-rails { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: 6; pointer-events: none; }
 
 /* ---------------- 5. exhibition ---------------- */
 .gallery-title { display: flex; flex-direction: column; gap: 8px; color: var(--brass); }

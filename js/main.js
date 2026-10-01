@@ -15,37 +15,24 @@
   const spacer = $("#spacer");
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---- stairwell: subway platform, stairs and cinema lobby in one image (assets/scenes/stairwell.webp) ----
-     Everything below is in % of that image unless noted. */
-  const STAIRWELL_ART = { w: 1671, h: 941 };
-  const STAIRWELL_LINE_A = 79.38;      // platform baseboard (floor meets wall)            = subway art y 641
-  const STAIRWELL_LINE_B = 83.63;      // top edge of the yellow safety strip              = subway art y 708
-  const SUBWAY_LINE_A = 641, SUBWAY_LINE_B = 708;   // the same two lines in the subway strip (art px)
-  // his path: platform -> bottom step -> top step -> onto the lobby floor -> the red doors
-  const STAIRWELL_PATH = {
-    platform: 81.85,                   // feet on the platform (subway feet line mapped across the seam)
-    stairBottom: [1.55, 81.85],
-    stairTop: [33.0, 45.5],            // the step noses run in a straight line between these two
-    lobbyStart: [36.5, 40.6],          // short eased blend from the top step onto the lobby floor
-    lobby: 40.6,                       // feet on the lobby floor
-    ticket: 51.4,                      // x of the ticket window (for the bubble)
+  /* ---- stairwell: the stairs up from the platform and the cinema lobby (assets/scenes/stairwell.webp,
+     the subway's last frame; tools/build_subway.py). Art px. ---- */
+  const STAIRWELL = {
+    w: 1672, h: 941,
+    approach: 40,                      // x where he leaves the platform's feet line and heads for the first step
+    stairBottom: [200, 592],           // the middle of the steps, bottom and top
+    stairTop: [528, 318],
+    lobbyStart: [575, 316],            // short eased blend from the top step onto the lobby floor
+    lobby: 316,                        // feet on the lobby's chequered floor
+    scale: 0.86,                       // his size up there (the lobby is drawn smaller than the platform)
+    ticket: 600,                       // x of the ticket booth (for the bubble)
+    door: [1462, 1622],                // red double doors: walking into them cuts to the theater
+    posters: { poster1: [700, 118, 100, 153], poster2: [836, 118, 100, 153] },   // blank posters: x, y, w, h
+    rails: [292, 219, 1380, 359],      // assets/subway/rails.png: the railings drawn in front of him
   };
-  const STAIRWELL_DOOR = { x: [85.5, 96], y: [17.5, 37] };   // red double doors: walking into them cuts to the theater
-  const STAIRWELL_OVERLAYS = {         // [x0, x1, y0, y1]
-    marquee: [36.4, 79.9, 5.5, 12.5],
-    sign: [48.2, 54.9, 17.1, 19.4],
-    poster1: [38.6, 42.8, 18.0, 28.0],
-    poster2: [65.6, 69.9, 17.8, 28.2],
-  };
-  // The subway and stairwell are different paintings, so a slim pillar (tools/build_pillar.py) stands on
-  // the join to hide it, and the subway's floor fades into the stairwell's underneath it.
-  const SEAM_PILLAR = { x: 5913, w: 64, h: 652 };   // subway art px: just right of the Haven frame, clear of the first step
-  const SEAM_FLOOR_BLEND = 56;                      // css px past the join over which the subway floor fades out
-  // Road -> drain: the road gets a cut-away edge (asphalt + gravel, jagged bottom) grown from its own
-  // bottom row, a gap where the shaft walls come up to the road, and a soft shadow on the soil below.
 
   // Character sheet per location (js/sprite.js SETS); locations without one use the pixel sheet
-  const SPRITE_SET = { street: "street", drain: "drain" };
+  const SPRITE_SET = { street: "street", drain: "drain", subway: "street" };
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
   const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
@@ -63,8 +50,6 @@
   const ABOUT_TEXT_START = 0.03;        // after the panel appears, this much of the fall before words light up
   const ABOUT_HOLD = 0.03;              // fully lit for this much of the fall before fading
   const ABOUT_FADE = 0.06;              // fade-out length; it ends exactly as his feet reach the subway grate
-  const STAIR_GLIDE = 0.6;             // viewport widths before the bottom step over which the camera glides to the stairwell's left edge
-  const SUBWAY_TOP_CROP = 40;          // subway art px cropped off its top: the ceiling rows build_subway.py duplicates
 
   const RIM = {
     street: "#FF3D9A", drain: "#6BE3A8", subway: "#E8FBFF",
@@ -76,18 +61,9 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } },
   };
 
-  // billboard frame art (assets/subway/frame-*.png): size and the window the project shows through
-  const FRAMES = {
-    wide: { w: 1108, h: 626, win: [76, 113, 958, 470] },
-    tall: { w: 445, h: 845, win: [38, 96, 369, 689] },
-  };
-  const frameVars = (shape) => {
-    const f = FRAMES[shape === "tall" ? "tall" : "wide"], [x, y, w, h] = f.win;
-    const pc = (v, t) => (v / t * 100).toFixed(3) + "%";
-    return `--ar:${f.w / f.h};--wx:${pc(x, f.w)};--wy:${pc(y, f.h)};--ww:${pc(w, f.w)};--wh:${pc(h, f.h)}`;
-  };
-
   /* ================= CONTENT ================= */
+  // the subway's boards are wide: a project whose cover is tall shows its wide ad picture there instead
+  const boardImg = (p) => (p.shape === "tall" && p.ads && p.ads.wide && p.ads.wide[0]) || p.cover;
   function fillContent() {
     $("#site-name").textContent = `${S.name[0]}${S.name.slice(1).toLowerCase()} Shah, ${S.role}`;
     $("#site-intro").textContent = S.intro;
@@ -96,9 +72,8 @@
     $("#copyright").textContent = `© ${S.year} ${S.name} · NEON BHARAT GAMES`;
 
     $("#billboards").innerHTML = S.featured().map((p, i) => `
-      <a class="billboard shape-${p.shape}" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="${frameVars(p.shape)}">
-        <span class="bb-window"><img class="work-media" src="${SITE.img(p.cover, 1024)}" alt="${p.title}: ${p.blurb}" decoding="async" /></span>
-        <img class="bb-frame pixel-art" src="assets/subway/frame-${p.shape === "tall" ? "tall" : "wide"}.png" alt="" />
+      <a class="billboard" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}">
+        <span class="bb-window"><span class="ad-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1024)}" alt="${p.title}: ${p.blurb}" decoding="async" /></span>
         <span class="bb-sign" style="--band:${p.band}">
           <span class="bb-line">${p.line}</span>
           <span class="bb-title">${p.title}</span>
@@ -171,22 +146,14 @@
     grate: 2023,   // top of the grate into the subway
   };
 
-  // assets/scenes/subway.webp: entry, platform x2, stairs; built by tools/build_subway.py
+  // assets/scenes/subway.webp: landing, billboard wall x2; built by tools/build_subway.py (which prints the boards)
   const SUBWAY = {
-    w: 6544, h: 941,
-    grate: 830,          // ceiling grate + water stream; sits under the drain's grate
-    drainGrate: 830,     // the drain art's x that sits over it (so the subway starts flush with the drain)
-    cut: 150,            // top rows hidden under the drain's bottom edge
-    floor: 680,          // his feet on the platform
-    sign: [[936, 331], [1204, 331], [1204, 409], [936, 409]],   // blank station sign in the entry
-    // billboards on the tiled wall: left, top, frame height (art px)
-    boards: [
-      { x: 2172, y: 215, h: 330 },
-      { x: 3160, y: 190, h: 420 },
-      { x: 3796, y: 215, h: 330 },
-      { x: 5328, y: 215, h: 330 },
-    ],
-    end: 5932,           // the Dabba stretch ends here; the stairwell image takes over (old stairs are not shown)
+    w: 5016, h: 941,
+    cut: 125,            // top rows (its own grate) hidden under the drain's grate
+    floor: 668,          // his feet on the platform
+    sign: [[1032, 138], [1218, 138], [1218, 200], [1032, 200]],   // station sign, hung in the dark of the ceiling
+    // blank billboards on the tiled wall: x, y, w, h
+    boards: [[1872, 311, 492, 205], [2655, 311, 493, 205], [3544, 311, 492, 205], [4327, 311, 493, 205]],
   };
 
   // assets/scenes/cinema-front.webp (1672 x 941): the auditorium's front view
@@ -457,42 +424,26 @@
       }
     }
 
-    // 3. subway: its grate sits right under the drain's grate; the drain covers its top rows.
-    // Only the Dabba stretch is shown (up to SUBWAY.end); the stairwell image carries on from there.
+    // 3. subway: flush under the drain, whose grate covers the subway's own
     const subway = {
-      x: Math.round(drain.x + (SUBWAY.drainGrate - SUBWAY.grate) * ss), y: Math.round(drain.y + drain.h - SUBWAY.cut * ss),
-      w: Math.round(SUBWAY.end * ss), h: Math.round(SUBWAY.h * ss),
+      x: drain.x, y: Math.round(drain.y + drain.h - SUBWAY.cut * ss),
+      w: Math.round(SUBWAY.w * ss), h: Math.round(SUBWAY.h * ss),
     };
-    const subImg = $("#subway .bg-img");
-    subImg.style.width = Math.round(SUBWAY.w * ss) + "px"; subImg.style.height = subway.h + "px";
-    // crop the duplicated ceiling strip, but never so much that the platform view would run out of image
-    const subCrop = Math.max(0, Math.min(Math.round(SUBWAY_TOP_CROP * ss), subway.h - vh));
-    subImg.style.clipPath = `inset(${subCrop}px 0 0 0)`;
     L.sy = subway.y + Math.round(SUBWAY.floor * ss);                                   // platform feet line
-    L.subCamY = Math.min(Math.max(subway.y + subCrop, L.sy - vh * 0.8), subway.y + subway.h - vh);
+    L.subCamY = Math.min(Math.max(subway.y, L.sy - vh * 0.8), subway.y + subway.h - vh);
     const boards = S.featured().slice(0, SUBWAY.boards.length).map((p, i) => {
-      const f = FRAMES[p.shape === "tall" ? "tall" : "wide"], b = SUBWAY.boards[i];
-      return { x: Math.round(b.x * ss), y: Math.round(b.y * ss), iw: Math.round(b.h * f.w / f.h * ss), ih: Math.round(b.h * ss) };
+      const [x, y, w, h] = SUBWAY.boards[i];
+      return { x: Math.round(x * ss), y: Math.round(y * ss), iw: Math.round(w * ss), ih: Math.round(h * ss) };
     });
-    // 4. stairwell. Its scale and vertical offset are solved from two lines both images share (the
-    // baseboard and the top of the yellow strip) so the platform continues exactly across the seam.
-    const SA = STAIRWELL_ART, pctY = (v) => (v / 100) * SA.h;
-    const STAIRWELL_SCALE = ss * (SUBWAY_LINE_B - SUBWAY_LINE_A) / (pctY(STAIRWELL_LINE_B) - pctY(STAIRWELL_LINE_A));
-    const STAIRWELL_OFFSET_Y = subway.y + SUBWAY_LINE_B * ss - pctY(STAIRWELL_LINE_B) * STAIRWELL_SCALE;
-    const stairwell = {
-      x: subway.x + subway.w, y: Math.round(STAIRWELL_OFFSET_Y),
-      w: Math.round(SA.w * STAIRWELL_SCALE), h: Math.round(SA.h * STAIRWELL_SCALE), s: STAIRWELL_SCALE,
-    };
-    // seam cover: pillar from the subway's top down to its base; floor blend below it
-    setBox($(".seam-pillar"), subway.x + Math.round(SEAM_PILLAR.x * ss), subway.y, Math.round(SEAM_PILLAR.w * ss), Math.round(SEAM_PILLAR.h * ss));
-    const blendTop = subway.y + Math.round((SEAM_PILLAR.h - 4) * ss);
-    setBox($(".seam-floor"), stairwell.x, blendTop, SEAM_FLOOR_BLEND, subway.y + subway.h - blendTop);
-    Object.assign($(".seam-floor img").style, {
-      left: subway.x - stairwell.x + "px", top: subway.y - blendTop + "px",
-      width: Math.round(SUBWAY.w * ss) + "px", height: subway.h + "px",
-    });
-    stairwell.px = (xp, yp) => [stairwell.x + (xp / 100) * stairwell.w, stairwell.y + (yp / 100) * stairwell.h];
-    L.ty = stairwell.px(0, STAIRWELL_PATH.lobby)[1];                   // lobby floor; later scenes share it
+    // 4. stairwell: the subway's last frame (the stairs and the cinema lobby above the platform)
+    const SA = STAIRWELL;
+    const stairwell = { x: subway.x + subway.w, y: subway.y, w: Math.round(SA.w * ss), h: Math.round(SA.h * ss), s: ss };
+    {
+      const [x, y, w, h] = SA.rails;
+      setBox($(".stair-rails"), stairwell.x + Math.round(x * ss), stairwell.y + Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
+    }
+    stairwell.px = (x, y) => [stairwell.x + x * ss, stairwell.y + y * ss];
+    L.ty = stairwell.px(0, SA.lobby)[1];                   // lobby floor; later scenes share it
     const row = L.ty - L.gy;
     const C = CINEMA;
     // the auditorium is only reached through a cut, so leave a screen of space around it
@@ -542,16 +493,19 @@
     $$("#street .bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
     mapToQuad($(".station-board"), SUBWAY.sign, ss);
     // "View all projects" plate hangs under the station sign
-    setBox($(".all-projects-sign"), Math.round(SUBWAY.sign[0][0] * ss), Math.round((SUBWAY.sign[2][1] + 12) * ss), Math.round((SUBWAY.sign[1][0] - SUBWAY.sign[0][0]) * ss), 0);
+    {
+      const [[x0], [x1], [, y1]] = SUBWAY.sign, y = y1 + 9;
+      mapToQuad($(".all-projects-sign"), [[x0, y], [x1, y], [x1, y + 26], [x0, y + 26]], ss);
+    }
     $$(".billboard").forEach((el, i) => {
       const b = boards[i];
       el.hidden = !b;
       if (b) setBox(el, b.x, b.y, b.iw, b.ih);
     });
-    // lobby signage, placed in % of the stairwell image
+    // reel posters on the lobby's blank boards
     $$("#stairwell [data-quad]").forEach((el) => {
-      const [x0, x1, y0, y1] = STAIRWELL_OVERLAYS[el.dataset.quad], X = (v) => (v / 100) * SA.w, Y = (v) => (v / 100) * SA.h;
-      mapToQuad(el, [[X(x0), Y(y0)], [X(x1), Y(y0)], [X(x1), Y(y1)], [X(x0), Y(y1)]], STAIRWELL_SCALE);
+      const [x, y, w, h] = SA.posters[el.dataset.quad];
+      mapToQuad(el, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], ss);
     });
     const F = C.front, fbox = (el, [x, y, w, h]) => setBox(el, Math.round(x * fs), Math.round(y * fs), Math.round(w * fs), Math.round(h * fs));
     setBox($(".front-art"), front.ox, front.oy, fw, fh);
@@ -638,11 +592,11 @@
     // lands in a crouch, rises, fixes his glasses, grins (still the drain's sheet)
     add({ loc: "subway", set: "drain", pose: "land", a: [mh, sy], b: [mh, sy], len: 280, bubble: ["Next stop: Projects!", 0.72, 1],
       cam: () => ({ x: camEnd.x, y: subCamY }) });
-    // --- platform, stairwell and lobby ---
-    const T = stairwell, P = STAIRWELL_PATH, smooth = (u) => { u = Math.min(1, Math.max(0, u)); return u * u * (3 - 2 * u); };
-    const clampT = (c) => ({ x: Math.min(Math.max(c.x, T.x), T.x + T.w - vw), y: Math.min(Math.max(c.y, T.y), T.y + T.h - vh) });
-    const bottom = T.px(...P.stairBottom), top = T.px(...P.stairTop), onto = T.px(...P.lobbyStart);
-    const ly = L.ty;
+    // --- platform, stairs and lobby ---
+    const T = stairwell, P = STAIRWELL, smooth = (u) => { u = Math.min(1, Math.max(0, u)); return u * u * (3 - 2 * u); };
+    const clampT = (c) => ({ x: Math.min(c.x, T.x + T.w - vw), y: Math.min(Math.max(c.y, T.y), T.y + T.h - vh) });
+    const leave = T.px(P.approach, 0)[0], bottom = T.px(...P.stairBottom), top = T.px(...P.stairTop), onto = T.px(...P.lobbyStart);
+    const ly = L.ty, up = P.scale;
     // camera Y locks: platform = same framing as the subway; lobby = floor where it sits in the theater
     const C = CINEMA, fs = front.s, F = C.front;
     const frontCam = {
@@ -652,34 +606,28 @@
     const theaterFeetOnScreen = front.y + front.oy + F.floor * fs - frontCam.y;
     const platCamY = subCamY;
     const lobbyCamY = Math.min(Math.max(ly - theaterFeetOnScreen, T.y), T.y + T.h - vh);
-    // Platform walk. The camera follows him (after handing over from the drain framing), and over the
-    // last STAIR_GLIDE viewport widths before the bottom step it eases ahead so that, as he reaches the
-    // step, the view's left edge sits exactly on the stairwell's left edge. Vertical movement only starts
-    // after that, so the Dabba scene (one screen tall) is never on screen while the camera rises.
-    const off = camEnd.x - (mh - vw * 0.4), glide = vw * STAIR_GLIDE;
-    add({ id: "subwalk", loc: "subway", pose: "walk", a: [mh, sy], b: [bottom[0], sy], len: bottom[0] - mh,
-      cam: (t, p) => {
-        const follow = p.x - vw * 0.4 + off * Math.max(0, 1 - (p.x - mh) / (vw * 0.4));
-        const g = smooth((p.x - (bottom[0] - glide)) / glide);
-        return { x: follow + (T.x - follow) * g, y: platCamY };
-      } });
-    // Stairs. X: left edge held on the stairwell's left edge until following him keeps the view inside
-    // the image. Y: follows his height, eased from the platform lock to the lobby lock.
-    const stairCam = (t, p) => clampT({
-      x: Math.max(T.x, p.x - vw * 0.4),
+    // The camera follows him (after handing over from the drain framing) until the art runs out on the
+    // right; its height follows his, eased from the platform lock to the lobby lock as he climbs.
+    const off = camEnd.x - (mh - vw * 0.4);
+    const walkCam = (t, p) => clampT({
+      x: p.x - vw * 0.4 + off * Math.max(0, 1 - (p.x - mh) / (vw * 0.4)),
       y: lerp(platCamY, lobbyCamY, smooth((sy - p.y) / (sy - ly))),
     });
-    add({ loc: "subway", loc2: "cinema", pose: "walk", stairs: true, a: bottom, b: top,
-      len: Math.hypot(top[0] - bottom[0], top[1] - bottom[1]), cam: stairCam });
+    add({ id: "subwalk", loc: "subway", pose: "walk", a: [mh, sy], b: [leave, sy], len: leave - mh, cam: walkCam });
+    // across the platform to the foot of the stairs, then up them between the railings, a little smaller
+    // with every step (the lobby is drawn further away)
+    add({ loc: "subway", pose: "walk", a: [leave, sy], b: bottom, len: Math.hypot(bottom[0] - leave, bottom[1] - sy), cam: walkCam });
+    add({ loc: "subway", loc2: "cinema", set: "street", pose: "walk", stairs: true, a: bottom, b: top, scale: (t) => lerp(1, up, t),
+      len: Math.hypot(top[0] - bottom[0], top[1] - bottom[1]) * 1.15, cam: walkCam });
     // top step onto the lobby floor: feet ease down/up the last few px so they don't pop
-    add({ loc: "cinema", pose: "walk", ease: "smooth", a: top, b: onto, len: Math.max(40, onto[0] - top[0]), cam: stairCam });
-    // across the lobby, past the ticket window and the snacks, to the red doors
-    const door = T.px((STAIRWELL_DOOR.x[0] + STAIRWELL_DOOR.x[1]) / 2, P.lobby);
+    add({ loc: "cinema", set: "street", pose: "walk", ease: "smooth", scale: up, a: top, b: onto, len: Math.max(40, onto[0] - top[0]), cam: walkCam });
+    // across the lobby, past the ticket booth and the popcorn, to the red doors
+    const door = T.px((P.door[0] + P.door[1]) / 2, P.lobby);
     const lobbyCam = (p) => clampT({ x: p.x - vw * 0.4, y: lobbyCamY });
     const tk = (T.px(P.ticket, 0)[0] - onto[0]) / (door[0] - onto[0]);
-    add({ id: "lobby", loc: "cinema", pose: "walk", a: onto, b: door, len: door[0] - onto[0],
-      bubble: ["Ek ticket, please!", tk - 0.07, tk + 0.07], cam: (t, p) => lobbyCam(p) });
-    L.stairwellPath = [[T.x, sy], bottom, top, onto, door];         // for debug mode
+    add({ id: "lobby", loc: "cinema", set: "street", pose: "walk", scale: up, a: onto, b: door, len: door[0] - onto[0],
+      bubble: ["Ek ticket, please!", tk - 0.03, tk + 0.12], cam: (t, p) => lobbyCam(p) });
+    L.stairwellPath = [[leave, sy], bottom, top, onto, door];       // for debug mode
     const tri = (t) => 1 - Math.abs(2 * t - 1);                  // 0 -> 1 -> 0: a cut at the midpoint
     // through the lobby doors: velvet cut into the auditorium, entering by its side door
     const doorCam = lobbyCam({ x: door[0] });
@@ -687,7 +635,7 @@
     // he stops beside the stage, left of the screen and controls (on phones: the left edge of the view)
     const leftArt = (frontCam.x - front.x - front.ox) / fs;
     const enter = [fx(F.door), fy], spot = [fx(Math.max(F.stand, leftArt + 70)), fy], exit = [fx(F.exit), fy];
-    add({ loc: "cinema", pose: "walk", a: door, b: enter, len: 260, ease: "cut",
+    add({ loc: "cinema", set: "street", pose: "walk", scale: up, a: door, b: enter, len: 260, ease: "cut",
       cut: tri, cam: (t) => (t < 0.5 ? doorCam : frontCam) });
     add({ loc: "cinema", pose: "walk", a: enter, b: spot, len: Math.max(160, spot[0] - enter[0]),
       bubble: ["Housefull!", 0.2, 0.9], cam: () => frontCam });
@@ -779,10 +727,11 @@
     const poseNow = cutSide && s.pose2 ? s.pose2 : s.pose;
     const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
-    let set = s.set || SPRITE_SET[loc] || "pixel";         // his sheet: the segment's or the location's own, if any
+    // his sheet: the segment's or the location's own, if any (a cut leaves the segment's sheet behind)
+    let set = (!cutSide && s.set) || SPRITE_SET[loc] || "pixel";
     switch (poseNow) {
       case "walk":
-        if (s.stairs) {
+        if (s.stairs && Sprite.has(set, "climbUp")) {
           // stair cycle: up while scrolling forward, down while scrolling back; holds a frame when still
           anim = facing > 0 ? "climbUp" : "climbDown";
           if (moving) stepPhase += (dt / 1000) * 10;
