@@ -43,20 +43,18 @@
   const SEAM_FLOOR_BLEND = 56;                      // css px past the join over which the subway floor fades out
   // Road -> drain: the road gets a cut-away edge (asphalt + gravel, jagged bottom) grown from its own
   // bottom row, a gap where the shaft walls come up to the road, and a soft shadow on the soil below.
-  const ROAD_EDGE = { depth: 34, asphalt: 12, jag: [3, 9], gap: [640, 990], shadow: 60 };   // street art px
 
   // Character sheet per location (js/sprite.js SETS); locations without one use the pixel sheet
-  const SPRITE_SET = { street: "street" };
-  // Into the manhole: where he stops (sheet px left of its centre), how high he hops (x his height),
-  // and how far the cover slides clear (x its width)
-  const DROP = { stand: 95, arc: 0.3, slide: 1.12 };
+  const SPRITE_SET = { street: "street", drain: "drain" };
+  // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
+  const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
   // that follows the character. The windows are mask holes, so nothing is drawn twice.
   const STREET_DIM = 0.3;               // strength of the shade
   const STREET_FOCUS_PAD = 1.35;        // billboard windows, relative to the board's size (takes in frames + lamps)
 
   // About me, pinned beside the drain shaft for the whole fall: portrait left, text right
-  const ABOUT_SHAFT = [610, 1010];      // shaft brick walls in drain art px (the panels stay outside them)
+  const ABOUT_SHAFT = [597, 1050];      // shaft brick walls in drain art px (the panels stay outside them)
   const ABOUT_MIN_SIDE = 220;           // narrower than this beside the shaft -> portrait + text stacked over it
   const ABOUT_PORTRAIT_W = 210;         // max portrait width (css px)
   const ABOUT_TEXT_W = 380;             // max text box width (css px)
@@ -153,7 +151,6 @@
     road: 870,           // feet line on the wet road, in front of the striped kerbs
     tall: 300,           // how tall he stands on that line, in proportion to the buildings and the stall
     start: 200,          // where he waits during the intro, outside the general store
-    manhole: 792,        // middle of the road; the drain's shaft hangs under it (DRAIN.hole)
     quads: {             // blank billboards: TL, TR, BR, BL
       left: [[254, 42], [494, 134], [494, 247], [253, 168]],      // rooftop hoarding
       led: [[1316, 189], [1434, 133], [1433, 428], [1315, 452]],  // tall board on the right
@@ -163,18 +160,22 @@
     steam: [1464, 566, 52, 58],    // above the chai kettle
   };
 
-  // assets/scenes/drain.webp: three stitched frames (manhole from below, shaft, grate into the subway)
+  // assets/scenes/drain.webp: three painted frames stitched by tools/build_drain.py (which prints these).
+  // It hangs straight under the street: the street's road runs down to the drain's pavement.
   const DRAIN = {
-    w: 1672, h: 2526,
-    hole: 792,   // centre of the manhole opening, lines up with STREET.manhole
-    top: 95,     // soil starts here; everything above sits behind the street's road
+    w: 1672, h: 2095,
+    top: 4,        // rows tucked under the street's bottom edge
+    hole: 835,     // centre of the open manhole and of the clear drop down the shaft
+    stand: 52,     // the pavement beside the manhole: his feet line before he hops in
+    surface: 107,  // where the pavement and road bed end and the soil begins
+    grate: 2023,   // top of the grate into the subway
   };
 
   // assets/scenes/subway.webp: entry, platform x2, stairs; built by tools/build_subway.py
   const SUBWAY = {
     w: 6544, h: 941,
     grate: 830,          // ceiling grate + water stream; sits under the drain's grate
-    drainGrate: 800,     // grate centre in the drain art
+    drainGrate: 830,     // the drain art's x that sits over it (so the subway starts flush with the drain)
     cut: 150,            // top rows hidden under the drain's bottom edge
     floor: 680,          // his feet on the platform
     sign: [[936, 331], [1204, 331], [1204, 409], [936, 409]],   // blank station sign in the entry
@@ -419,20 +420,18 @@
     // on the street he is sized to the art, not the screen (elsewhere he is 20% of the screen height)
     L.hs = (STREET.tall * ss) / (Sprite.STAND * L.cs);
     L.cq = Math.min(3, Math.ceil(L.hs - 0.05));             // extra canvas resolution so he stays sharp scaled up
-    const mh = Math.round(STREET.manhole * ss);             // manhole centre
+    const mh = Math.round(DRAIN.hole * ss);                 // manhole centre (the drain sits flush under the street)
     L.sgy = Math.round(STREET.road * ss);                   // where his feet meet the road
     const camEnd = { x: Math.min(Math.max(0, mh - vw * 0.4), street.w - vw), y: street.h - vh };
     const nameX = (STREET.quads.left[0][0] + STREET.quads.left[1][0]) / 2 * ss;   // centre of the name billboard
     const camStart = { x: Math.min(Math.max(0, nameX - vw / 2), camEnd.x), y: 0 };
-    L.x0 = Math.max(STREET.start * ss, camStart.x + vw * 0.2);                    // he starts in the opening frame
-    // 2. drain: the shaft art hangs under the street, its manhole under the street's manhole
+    L.x0 = Math.max(STREET.start * ss, camStart.x + vw * 0.14);                    // he starts in the opening frame
+    // 2. drain: the cross-section hangs under the street; its pavement and open manhole come first
     const drain = {
-      x: Math.round(mh - DRAIN.hole * ss), y: Math.round(street.h - DRAIN.top * ss),
+      x: 0, y: Math.round(street.h - DRAIN.top * ss),
       w: Math.round(DRAIN.w * ss), h: Math.round(DRAIN.h * ss),
     };
-    // road cut-away edge along the bottom of the street, and its shadow on the soil
-    setBox($(".road-edge"), 0, street.h, street.w, Math.round(ROAD_EDGE.depth * ss));
-    setBox($(".road-shadow"), 0, street.h, street.w, Math.round(ROAD_EDGE.shadow * ss));
+    L.my = drain.y + Math.round(DRAIN.stand * ss);          // his feet line on that pavement
 
     // About panel: during the fall the camera sits at camEnd.x, so the room beside the shaft is known.
     // Screen coords: portrait in the gap left of the shaft, text in the gap right of it.
@@ -523,9 +522,6 @@
       setBox($("#" + id), s.x, s.y, s.w, s.h);
     }
     // place content inside scenes
-    const H = Sprite.HOLE, hw = Math.round(H.w * L.cs * L.hs), hh = Math.round(H.h * L.cs * L.hs);
-    setBox($(".manhole"), mh - hw / 2, L.sgy - Math.round(hh / 2), hw, hh);
-    setBox($(".manhole-cover"), mh - hw / 2, L.sgy - Math.round(hh / 2), hw, hh);
     const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
     art($("#street .bb-leaves"), STREET.leaves);
     art($(".steam"), STREET.steam);
@@ -539,6 +535,7 @@
       });
       const cw = Math.round(Sprite.W * L.cs * L.hs * 0.75), ch = Math.round(Sprite.H * L.cs * L.hs * 0.9);
       holes.push(`radial-gradient(${cw}px ${ch}px at var(--hx, -999px) var(--hy, -999px), transparent 55%, #000 100%)`);
+      holes.push("linear-gradient(#000 80%, transparent)");   // the shade lifts toward the pavement below
       dim.style.setProperty("--holes", holes.join(","));
       dim.style.background = `rgba(0, 0, 0, ${STREET_DIM})`;
     }
@@ -595,47 +592,51 @@
 
   /* ================= PATH ================= */
   function buildPath() {
-    const { vw, vh, gy, sgy, street, mh, camStart, camEnd, drain, subway, stairwell, front, exhibition, rooftop, subCamY } = L;
+    const { vw, vh, gy, sgy, my, street, mh, camStart, camEnd, drain, subway, stairwell, front, exhibition, rooftop, subCamY } = L;
     const sy = L.sy, ty = L.ty, ss = street.s;
     const follow = (x, y) => ({ x: x - vw * 0.4, y: y - gy });
     segs = [];
     const add = (s) => { s.start = total; total += Math.max(1, Math.round(s.len)); s.len = Math.max(1, Math.round(s.len)); segs.push(s); };
     total = 0;
 
-    const x0 = Math.round(L.x0), hs = L.hs, stand = mh - DROP.stand * L.cs * hs;
-    const lerp = (a, b, t) => a + (b - a) * t;
+    const x0 = Math.round(L.x0), hs = L.hs, stand = mh - DROP.stand * ss;
+    const lerp = (a, b, t) => a + (b - a) * t, ease = (t) => t * t * (3 - 2 * t);
     // narrow screens: while he waits beside the manhole the camera sits a little left, so he isn't cut off
     const openX = Math.max(0, Math.min(camEnd.x, stand - Math.min(vw * 0.25, 100)));
+    // ...and low enough that his head and the hop stay clear of the navbar
+    const dropView = Math.min(0.75, Math.max(0.4, (STREET.tall * ss * (1 + DROP.arc)) / vh + 0.12));
+    const dropCam = { x: camEnd.x, y: Math.min(Math.max(my - vh * dropView, camEnd.y), subCamY) };
     // intro: he waits on the road while the camera tilts from the billboards down to the street
     add({ id: "intro", loc: "street", pose: "walk", scale: hs, a: [x0, sgy], b: [x0, sgy], len: Math.max(160, camEnd.y),
       bubble: ["Hi! I'm " + S.name[0] + S.name.slice(1).toLowerCase() + ".", 0.7, 1],
-      cam: (t) => ({ x: camStart.x, y: camEnd.y * (t * t * (3 - 2 * t)) }) });
-    add({ loc: "street", pose: "walk", scale: hs, a: [x0, sgy], b: [stand, sgy], len: Math.max(120, stand - x0),
-      bubble: ["Chalo, let's go!", 0, 0.3],
-      cam: (t) => ({ x: lerp(camStart.x, openX, t), y: camEnd.y }) });
-    // at the manhole: he turns and waves while the cover slides clear, then hops in
-    // (meanwhile the camera settles to where the fall will pick it up, so there's no jump as he drops:
-    // his feet low enough on screen that his head and the hop stay clear of the navbar)
-    const dropView = Math.min(0.75, Math.max(0.4, (STREET.tall * ss * (1 + DROP.arc)) / vh + 0.12));
-    const dropCam = { x: camEnd.x, y: Math.min(Math.max(sgy - vh * dropView, camEnd.y), subCamY) };
-    add({ id: "open", loc: "street", pose: "open", scale: hs, a: [stand, sgy], b: [stand, sgy], len: 200,
-      cam: (t) => ({ x: openX, y: lerp(camEnd.y, dropCam.y, t * t * (3 - 2 * t)) }) });
-    add({ id: "hop", loc: "street", pose: "hop", scale: hs, a: [stand, sgy], b: [mh, sgy], len: 110,
+      cam: (t) => ({ x: camStart.x, y: camEnd.y * ease(t) }) });
+    // along the road, then down across it to the pavement and the open manhole (the camera follows him down)
+    const xa = lerp(x0, stand, 0.45), camX = (p) => lerp(camStart.x, openX, (p.x - x0) / Math.max(1, stand - x0));
+    add({ loc: "street", pose: "walk", scale: hs, a: [x0, sgy], b: [xa, sgy], len: Math.max(60, xa - x0),
+      bubble: ["Chalo, let's go!", 0, 0.7],
+      cam: (t, p) => ({ x: camX(p), y: camEnd.y }) });
+    add({ loc: "street", pose: "walk", scale: hs, a: [xa, sgy], b: [stand, my], len: Math.max(80, Math.hypot(stand - xa, my - sgy)),
+      cam: (t, p) => ({ x: camX(p), y: lerp(camEnd.y, dropCam.y, ease(t)) }) });
+    // he looks down the hole, then steps off, back down to his usual size as he goes
+    add({ id: "open", loc: "street", set: "drain", pose: "open", scale: hs, a: [stand, my], b: [stand, my], len: 130,
+      cam: () => ({ x: openX, y: dropCam.y }) });
+    add({ id: "hop", loc: "street", set: "drain", pose: "hop", scale: (t) => lerp(hs, 1, ease(t)), a: [stand, my], b: [mh, my], len: 150,
       ease: "arc", arc: Sprite.H * L.cs * hs * DROP.arc, cam: (t) => ({ x: lerp(openX, camEnd.x, t), y: dropCam.y }) });
-    // fall past the About rows: steady speed, camera keeps him ~40% down the screen
-    // the moment his feet reach the grate in the subway ceiling (the fall is linear in y)
-    const aboutEnter = Math.min(1, Math.max(0, (L.drain.y + L.drain.h - sgy) / (sy - sgy)));
-    // ...and starts once the road has scrolled up to the top ~20% of the screen (camera keeps him at 40%)
-    const aboutStart = Math.min(0.5, Math.max(0, (street.h + vh * 0.2 - sgy) / (sy - sgy)));
-    add({ id: "fall", loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], aboutEnter, aboutStart,
+    // fall past the About panel: steady speed, camera keeps him ~40% down the screen.
+    // About is gone the moment his feet reach the grate into the subway (the fall is linear in y)...
+    const aboutEnter = Math.min(1, Math.max(0, (drain.y + DRAIN.grate * ss - my) / (sy - my)));
+    // ...and appears once the pavement has scrolled up to the top ~20% of the screen
+    const aboutStart = Math.min(0.5, Math.max(0, (drain.y + DRAIN.surface * ss + vh * 0.2 - my) / (sy - my)));
+    add({ id: "fall", loc: "drain", pose: "fall", a: [mh, my], b: [mh, sy], aboutEnter, aboutStart,
       len: vh * ABOUT_SCROLL,
       bubble: ["Shortcut!", 0.01, 0.07],
       // the camera eases from the drop framing to keeping him ~40% down the screen before About appears
       cam: (t, p) => {
-        const u = Math.min(1, t / Math.max(aboutStart, 0.02)), view = 0.4 + (dropView - 0.4) * (1 - u * u * (3 - 2 * u));
+        const u = Math.min(1, t / Math.max(aboutStart, 0.02)), view = 0.4 + (dropView - 0.4) * (1 - ease(u));
         return { x: camEnd.x, y: Math.min(Math.max(p.y - vh * view, camEnd.y), subCamY) };
       } });
-    add({ loc: "subway", pose: "land", a: [mh, sy], b: [mh, sy], len: 160, bubble: ["Next stop: Projects!", 0, 1],
+    // lands in a crouch, rises, fixes his glasses, grins (still the drain's sheet)
+    add({ loc: "subway", set: "drain", pose: "land", a: [mh, sy], b: [mh, sy], len: 280, bubble: ["Next stop: Projects!", 0.72, 1],
       cam: () => ({ x: camEnd.x, y: subCamY }) });
     // --- platform, stairwell and lobby ---
     const T = stairwell, P = STAIRWELL_PATH, smooth = (u) => { u = Math.min(1, Math.max(0, u)); return u * u * (3 - 2 * u); };
@@ -748,7 +749,7 @@
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
   const cutEl = $(".cut");
-  let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0, lastSlid = -1;
+  let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
   function frame(now) {
     requestAnimationFrame(frame);
@@ -778,10 +779,7 @@
     const poseNow = cutSide && s.pose2 ? s.pose2 : s.pose;
     const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
-    // his sheet: the location's own, and the street's until he is all the way down the manhole
-    // (dropping = still partly above the road, at his street size)
-    const dropping = s.id === "fall" && p.y - h * L.hs < L.sgy;
-    let set = dropping ? SPRITE_SET.street : SPRITE_SET[loc] || "pixel";
+    let set = s.set || SPRITE_SET[loc] || "pixel";         // his sheet: the segment's or the location's own, if any
     switch (poseNow) {
       case "walk":
         if (s.stairs) {
@@ -802,17 +800,17 @@
         }
         else if (saying) { anim = "talk"; n = tick(220); }
         break;
-      case "open": anim = t > 0.3 ? "wave" : "idle"; n = tick(170); break;
-      case "hop": anim = "fall"; n = tick(110); break;
-      case "fall": anim = "fall"; n = tick(110); break;
-      case "land": anim = t < 0.6 ? "land" : "talk"; n = t < 0.25 ? 0 : t < 0.45 ? 1 : t < 0.6 ? 2 : tick(220); break;
+      case "open": anim = "peer"; n = 0; break;
+      case "hop": anim = t < 0.22 ? "stepoff" : "fallStart"; n = t < 0.22 ? 0 : Math.min(3, Math.floor(((t - 0.22) / 0.78) * 4)); break;
+      case "fall": anim = t >= s.aboutEnter ? "fallEnd" : "fall"; n = tick(150); break;   // legs down once he's through the grate
+      case "land": anim = t < 0.45 ? "land" : t < 0.72 ? "glasses" : "smile"; n = t < 0.14 ? 0 : t < 0.32 ? 1 : 2; break;
       case "jump": anim = "jump"; n = Math.min(4, Math.floor(t * 5)); break;
       case "look": anim = "look"; n = tick(700); break;
       case "watch": anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = s.face || -1; break;
       case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
     }
     let flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);   // climb frames are drawn facing their direction
-    const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown"].includes(anim);
+    const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown", "peer", "land", "glasses", "smile"].includes(anim);
     // painted sheets have their own left-facing frames instead of being mirrored
     const use = Sprite.resolve(set, anim, facing);
     set = use.set; anim = use.anim; flips = flips && use.flip;
@@ -842,21 +840,13 @@
       dim.style.setProperty("--hx", Math.round(p.x) + "px");
       dim.style.setProperty("--hy", Math.round(p.y - h * L.hs * 0.5) + "px");
     }
-    const scale = dropping ? L.hs : (cutSide ? s.scale2 : s.scale) || 1;   // cuts can change his scale on the far side
+    const sc = cutSide ? s.scale2 : s.scale;               // cuts can change his scale on the far side
+    const scale = (typeof sc === "function" ? sc(t) : sc) || 1;
     const bob = Sprite.bob(anim, n, set) * L.cs;
-    charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale})` : "");
+    charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
     charEl.style.setProperty("--face", flips ? facing : 1);
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size
 
-    // dropping into the manhole: hide the part of him that's below the street surface (in sprite px).
-    // At street size all of it stays hidden; once he's under, he fades in at his usual size in the shaft.
-    const top = p.y - h * scale, A = (L.sgy + 2 - top) / scale, B = (L.street.h - top) / scale;
-    sprite.style.webkitMaskImage = sprite.style.maskImage =
-      s.pose !== "fall" || A >= h || B <= 0 ? ""
-        : dropping ? `linear-gradient(#000 0 ${A}px, transparent ${A}px)`
-        : `linear-gradient(#000 0 ${A}px, transparent ${A}px ${B}px, #000 ${B}px)`;
-    const fade = s.id === "fall" && !dropping ? Math.min(1, (p.y - L.sgy - h * L.hs) / (h * 0.5)) : 1;
-    sprite.style.opacity = fade < 1 ? Math.max(0, fade).toFixed(2) : "";
     charEl.classList.toggle("no-shadow", !grounded);
     charEl.classList.toggle("painted", painted);
 
@@ -899,14 +889,6 @@
     if (anim === "point") say = "Let's check this out!";
     if (bubble.textContent !== say) bubble.textContent = say;
     bubble.classList.toggle("show", !!say);
-
-    // the manhole cover slides clear while he waits beside it
-    const op = segs.find((x) => x.id === "open");
-    const slid = Math.min(1, Math.max(0, ((cur - op.start) / op.len - 0.1) / 0.5));
-    if (slid !== lastSlid) {
-      lastSlid = slid;
-      $(".manhole-cover").style.transform = `translateX(${(slid * slid * (3 - 2 * slid) * DROP.slide * 100).toFixed(1)}%)`;
-    }
 
 
     // route progress
@@ -1114,48 +1096,6 @@
     g.fillText(`scale ${T.s.toFixed(3)} (${(T.h / L.vh).toFixed(2)} vh)  offsetY ${T.y}`, ox, oy - 6);
   }
 
-  // Paint the road's cut face once: each column continues its bottom-row colour, darkening into
-  // asphalt with gravel flecks, ending in a stepped (pixel) jagged edge with a dark outline.
-  function roadEdge() {
-    const img = $("#street .bg-img"), c = $(".road-edge");
-    const draw = () => {
-      const W = img.naturalWidth, H = img.naturalHeight, D = ROAD_EDGE.depth;
-      const src = document.createElement("canvas"); src.width = W; src.height = 3;
-      const sx = src.getContext("2d"); sx.drawImage(img, 0, H - 3, W, 3, 0, 0, W, 3);
-      const row = sx.getImageData(0, 0, W, 3).data;
-      c.width = W; c.height = D;
-      const g = c.getContext("2d"), out = g.createImageData(W, D), px = out.data;
-      let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-      const [j0, j1] = ROAD_EDGE.jag, [gL, gR] = ROAD_EDGE.gap;
-      let depth = D - j0, run = 0;
-      for (let x = 0; x < W; x++) {
-        if (run-- <= 0) { depth = D - j0 - Math.floor(rnd() * (j1 - j0 + 1)); run = 2 + Math.floor(rnd() * 5); }
-        if (x >= gL && x <= gR) continue;                              // shaft comes up through here
-        const side = x === gL - 1 || x === gR + 1;                     // cut face beside the shaft
-        const base = [0, 1, 2].map((k) => (row[(2 * W + x) * 4 + k] + row[(W + x) * 4 + k]) / 2);
-        // layers: wet road lip, asphalt with gravel, a dark joint, then a pebbly concrete base
-        const A = ROAD_EDGE.asphalt;
-        for (let y = 0; y < depth + 1; y++) {
-          const i = (y * W + x) * 4, f = rnd();
-          let col;
-          if (y === depth || side) col = [14, 10, 22];                          // outline
-          else if (y < 2) col = base.map((v) => v * (y ? 0.7 : 0.9));           // wet road lip
-          else if (y === 2 || y === A) col = [18, 14, 28];                       // joints
-          else if (y < A) {                                                      // asphalt
-            col = f < 0.14 ? [74, 66, 92] : f < 0.22 ? [26, 22, 36] : [44, 38, 60];
-          } else {                                                               // concrete base, darker toward the soil
-            const k = (y - A) / (depth - A);
-            col = f < 0.12 ? [118, 98, 84] : f < 0.2 ? [52, 40, 38] : [88, 72, 64];
-            col = col.map((v) => v * (1 - 0.35 * k));
-          }
-          px[i] = col[0]; px[i + 1] = col[1]; px[i + 2] = col[2]; px[i + 3] = 255;
-        }
-      }
-      g.putImageData(out, 0, 0);
-    };
-    if (img.complete && img.naturalWidth) draw(); else img.addEventListener("load", draw, { once: true });
-  }
-
   // Highlight the current section in the nav; the pill slides to it (hidden on the street / home)
   function markSection(loc) {
     let here = null;
@@ -1269,7 +1209,6 @@
   scrollCursor();
   watchPlain();
   glitchLogo();
-  roadEdge();
   bindUI();
   const saved = store.get("nb-mode");
   const ride = saved ? saved === "ride" : !reduceMotion;

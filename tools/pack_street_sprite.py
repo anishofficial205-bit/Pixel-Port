@@ -85,23 +85,29 @@ def grid(name, cols, rows, r, anchor, haze=None, head=None):
     return [(f.resize((round(f.width * k), round(f.height * k)), Image.LANCZOS), round(ax * k)) for f, ax in frames]
 
 
-frames = []
-frames += grid("walk-right.png", 4, 2, 4, "head")               # 0-7
-# (the glow is in front of his mouth; his fringe, just above, is kept out of the haze pass or it flickers)
-frames += grid("walk-left.png", 4, 2, 4, "head", haze=(95, 6, 8), head=(0.165, 0.3))   # 8-15
-frames += grid("wave.png", 3, 2, 2, "feet", haze=(28, 0, 4), head=(0.27, 0.19))   # 16-21: stand, then the wave
+def pack(frames, dest):
+    rows = -(-len(frames) // COLS)
+    sheet = Image.new("RGBA", (COLS * CW, rows * CH))
+    for i, (f, ax, *top) in enumerate(frames):   # top: y of the crop inside the cell (default: feet on the cell bottom)
+        y = top[0] if top else CH - f.height
+        assert y >= 0 and y + f.height <= CH and ax <= CW // 2 and f.width - ax <= CW // 2, (i, f.size, ax, y)
+        sheet.alpha_composite(f, ((i % COLS) * CW + CW // 2 - ax, (i // COLS) * CH + y))
+    sheet.save(dest, quality=90, method=6)
+    print(len(frames), "frames,", sheet.size, "cell", CW, "x", CH)
 
-# 22: the jump pose from the reference sheet (he drops into the manhole in it)
-ref = np.array(Image.open(SRC / "reference.png").convert("RGB"))
-JUMP = (870, 596, 1110, 883)       # stops above the dust painted on the ground
-f, ax = cut(ref, key(ref, 3, haze=(28, 0, 4)), JUMP, "head", (0.42, 0.17), key(ref, 3))
-k = STAND * 0.97 / f.height
-frames.append((f.resize((round(f.width * k), round(f.height * k)), Image.LANCZOS), round(f.width * k / 2)))
 
-rows = -(-len(frames) // COLS)
-sheet = Image.new("RGBA", (COLS * CW, rows * CH))
-for i, (f, ax) in enumerate(frames):
-    assert f.height <= CH and ax <= CW // 2 and f.width - ax <= CW // 2, (i, f.size, ax)
-    sheet.alpha_composite(f, ((i % COLS) * CW + CW // 2 - ax, (i // COLS) * CH + CH - f.height))
-sheet.save(ROOT / "assets/character/street.webp", quality=90, method=6)
-print(len(frames), "frames,", sheet.size, "cell", CW, "x", CH)
+if __name__ == "__main__":
+    frames = []
+    frames += grid("walk-right.png", 4, 2, 4, "head")               # 0-7
+    # (the glow is in front of his mouth; his fringe, just above, is kept out of the haze pass or it flickers)
+    frames += grid("walk-left.png", 4, 2, 4, "head", haze=(95, 6, 8), head=(0.165, 0.3))   # 8-15
+    frames += grid("wave.png", 3, 2, 2, "feet", haze=(28, 0, 4), head=(0.27, 0.19))   # 16-21: stand, then the wave
+
+    # 22: the jump pose from the reference sheet (he drops into the manhole in it)
+    ref = np.array(Image.open(SRC / "reference.png").convert("RGB"))
+    JUMP = (870, 596, 1110, 883)       # stops above the dust painted on the ground
+    f, ax = cut(ref, key(ref, 3, haze=(28, 0, 4)), JUMP, "head", (0.42, 0.17), key(ref, 3))
+    k = STAND * 0.97 / f.height
+    frames.append((f.resize((round(f.width * k), round(f.height * k)), Image.LANCZOS), round(f.width * k / 2)))
+
+    pack(frames, ROOT / "assets/character/street.webp")

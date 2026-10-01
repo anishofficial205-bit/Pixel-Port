@@ -20,8 +20,8 @@
   --marigold: #FFC21A;
 
   /* locations */
-  --drain-teal: #1F6B63;
-  --drain-slime: #6BE3A8;
+  --drain-teal: #5B3FC4;
+  --drain-slime: #FFA24D;
   --tile: #CFE8E6;
   --tile-shadow: #5E7C8A;
   --fluoro: #E8FBFF;
@@ -293,7 +293,7 @@ body::after {
 
 /* ---------------- 1. street ---------------- */
 .ride #street .bg-img, .ride #drain .bg-img, .ride #subway .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
-/* the street's road sits in front of the top of the drain cross-section */
+/* the street's bottom edge sits in front of the top rows of the drain cross-section */
 .ride #street { z-index: 2; }
 .ride #drain { z-index: 1; }
 .ride #subway { z-index: 0; } /* the drain's grate covers the subway ceiling */
@@ -380,7 +380,7 @@ body::after {
 .bb-ad::after { z-index: 2; }                     /* lamp wash stays on top too */
 .bb-ad:hover .ad.on .ad-img, .bb-ad:focus-visible .ad.on .ad-img { filter: brightness(1.15); }
 
-/* life in the street: steam off the chai kettle, and the manhole he opens */
+/* life in the street: steam off the chai kettle */
 .steam { width: var(--w); height: var(--h); }
 .steam i {
   position: absolute; left: 30%; bottom: 0; width: 38%; aspect-ratio: 1; border-radius: 50%;
@@ -394,10 +394,6 @@ body::after {
   15% { opacity: 0.7; }
   100% { transform: translate(18%, -170%) scale(1.4); opacity: 0; }
 }
-/* the cover is lifted from the street art (assets/street/manhole.png) and drawn at his scale */
-.manhole, .manhole-cover { width: var(--w); height: var(--h); }
-.manhole { background: #0B0714; border-radius: 50%; box-shadow: inset 0 3px 0 0 #2A1030; }
-.manhole-cover { background: url(assets/street/manhole.png) center / 100% 100% no-repeat; filter: drop-shadow(0 1px 0 rgba(11, 7, 20, 0.6)); }
 /* tree leaves in front of the tall board (they belong to the art, so they stay above the ads) */
 .bb-leaves { width: var(--w); height: var(--h); pointer-events: none; }
 .plain-art .bb-leaves { position: absolute; }
@@ -417,7 +413,7 @@ body::after {
   display: flex; flex-direction: column; gap: 10px; padding: 14px 16px;
   background: rgba(14, 9, 28, 0.9); box-shadow: 0 0 0 4px var(--outline), 0 0 0 7px var(--drain-teal);
 }
-.about-text h2 { font-size: 16px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(107, 227, 168, 0.5); }
+.about-text h2 { font-size: 16px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(255, 162, 77, 0.5); }
 .about-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .about-tags li { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--drain-slime); padding: 3px 5px; box-shadow: 0 0 0 3px var(--outline); }
 .about-copy p { margin: 0; font-size: 21px; line-height: 1.12; }
@@ -551,12 +547,6 @@ body::after {
 }
 .ride .front-row img { display: block; height: auto; }
 .char { transform-origin: 50% 100%; }
-
-/* road -> drain cut-away */
-.road-edge, .road-shadow { display: none; }
-.ride .road-edge, .ride .road-shadow { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); pointer-events: none; }
-.ride .road-edge { z-index: 3; }
-.ride .road-shadow { z-index: 2; background: linear-gradient(rgba(8, 5, 14, 0.85), rgba(8, 5, 14, 0.45) 45%, transparent); }
 
 /* subway -> stairwell seam: a pillar on the join, the subway floor fading out beneath it */
 .seam-pillar, .seam-floor { display: none; }
