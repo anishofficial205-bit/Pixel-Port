@@ -31,8 +31,18 @@
     rails: [292, 219, 1380, 359],      // assets/subway/rails.png: the railings drawn in front of him
   };
 
-  // Stairs: frames per second of the climb cycle, and how much of the flight the first / last steps take
-  const CLIMB = { fps: 9, on: 0.1, off: 0.08 };
+  /* Climbing the stairs is driven by scroll, one stride at a time, so his feet land on the steps:
+     reach (front foot in the air) -> plant (it lands a stride up) -> rise (he pushes up on it, the back
+     foot leaves its step) -> push (he's up; the back leg trails). His height holds through reach and
+     plant and comes up through rise and push; he moves forward mostly as he rises.
+     Frames are cells of assets/character/stairs.webp; `last` replaces the final stride's plant and push
+     (the last step, then the stride onto the lobby floor). */
+  const CLIMB = {
+    strides: 7, px: 110,                         // strides in the flight, scroll px per stride
+    first: [1, 3, 2, 5], even: [7, 6, 4, 5], odd: [11, 10, 8, 9], last: [null, 12, null, 13],
+    forward: 0.3,                                // share of a stride's forward travel made during reach + plant
+    rise: [[0.375, 0], [0.625, 0.55], [0.875, 1]],   // [phase, share of the stride's rise]
+  };
   // Character sheet per location (js/sprite.js SETS); locations without one use the pixel sheet
   const SPRITE_SET = { street: "street", drain: "drain", subway: "street" };
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
@@ -620,7 +630,7 @@
     // with every step (the lobby is drawn further away)
     add({ loc: "subway", pose: "walk", a: [leave, sy], b: bottom, len: Math.hypot(bottom[0] - leave, bottom[1] - sy), cam: walkCam });
     add({ id: "stairs", loc: "subway", loc2: "cinema", set: "street", pose: "walk", stairs: true, a: bottom, b: top, scale: (t) => lerp(1, up, t),
-      len: Math.hypot(top[0] - bottom[0], top[1] - bottom[1]) * 1.15, cam: walkCam });
+      len: CLIMB.strides * CLIMB.px, cam: walkCam });
     // top step onto the lobby floor: feet ease down/up the last few px so they don't pop
     add({ loc: "cinema", set: "street", pose: "walk", ease: "smooth", scale: up, a: top, b: onto, len: Math.max(40, onto[0] - top[0]), cam: walkCam });
     // a few steps past the ticket booth he stops and takes the cinema in: a gasp, a delighted look, a grin
@@ -727,7 +737,7 @@
     const moving = now - lastMove < 160;
     const tick = (ms) => Math.floor(now / ms);
     const saying = s.bubble && t >= s.bubble[1] && t <= s.bubble[2];
-    let anim = "idle", n = tick(260);
+    let anim = "idle", n = tick(260), pos = p;             // pos: where he is drawn (the camera follows p)
     const cutSide = s.ease === "cut" && t >= 0.5;          // past the midpoint of a cut
     const poseNow = cutSide && s.pose2 ? s.pose2 : s.pose;
     const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
@@ -737,12 +747,16 @@
     switch (poseNow) {
       case "walk":
         if (s.stairs && facing > 0) {
-          // going up: his foot comes onto the first step, then the climb cycle, then the last step off the top.
-          // The cycle holds its frame when he stops. (Coming back down he just walks: there are no frames for it.)
-          set = "stairs";
-          if (t < CLIMB.on) { anim = "stepOn"; n = Math.min(3, Math.floor((t / CLIMB.on) * 4)); }
-          else if (t > 1 - CLIMB.off) { anim = "stepOff"; n = 0; }
-          else { anim = "climb"; if (moving) stepPhase += (dt / 1000) * CLIMB.fps; n = Math.floor(stepPhase); }
+          // going up: see CLIMB. (Coming back down he just walks: there are no frames for that.)
+          const N = CLIMB.strides, q = Math.min(N - 1e-4, t * N), k = Math.floor(q), u = q - k, ph = Math.floor(u * 4);
+          set = "stairs"; anim = "climb";
+          n = (k === 0 ? CLIMB.first : k % 2 ? CLIMB.odd : CLIMB.even)[ph];
+          if (k === N - 1 && CLIMB.last[ph] != null) n = CLIMB.last[ph];
+          const f = CLIMB.forward, R = CLIMB.rise;
+          const fx = u < 0.5 ? u * 2 * f : f + (u - 0.5) * 2 * (1 - f);
+          let fy = u <= R[0][0] ? 0 : 1;
+          for (let i = 1; i < R.length; i++) if (u > R[i - 1][0] && u <= R[i][0]) fy = R[i - 1][1] + (R[i][1] - R[i - 1][1]) * (u - R[i - 1][0]) / (R[i][0] - R[i - 1][0]);
+          pos = { x: s.a[0] + (s.b[0] - s.a[0]) * (k + fx) / N, y: s.a[1] + (s.b[1] - s.a[1]) * (k + fy) / N };
         } else if (moving) {
           // steady game cadence (8 fps walk, 12 fps run), like the style guide's steps() timing
           anim = running ? "run" : "walk";
@@ -767,7 +781,7 @@
       case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
     }
     let flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);   // climb frames are drawn facing their direction
-    const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown", "peer", "land", "glasses", "smile", "stepOn", "climb", "stepOff", "gasp", "happy", "grin"].includes(anim);
+    const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown", "peer", "land", "glasses", "smile", "climb", "gasp", "happy", "grin"].includes(anim);
     // painted sheets have their own left-facing frames instead of being mirrored
     const use = Sprite.resolve(set, anim, facing);
     set = use.set; anim = use.anim; flips = flips && use.flip;
@@ -800,7 +814,7 @@
     const sc = cutSide ? s.scale2 : s.scale;               // cuts can change his scale on the far side
     const scale = (typeof sc === "function" ? sc(t) : sc) || 1;
     const bob = Sprite.bob(anim, n, set) * L.cs;
-    charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
+    charEl.style.transform = `translate3d(${Math.round(pos.x - w / 2)}px, ${Math.round(pos.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
     charEl.style.setProperty("--face", flips ? facing : 1);
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size
 
