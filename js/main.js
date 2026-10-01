@@ -49,7 +49,7 @@
   const SPRITE_SET = { street: "street" };
   // Into the manhole: where he stops (sheet px left of its centre), how high he hops (x his height),
   // and how far the cover slides clear (x its width)
-  const DROP = { stand: 78, arc: 0.3, slide: 1.12 };
+  const DROP = { stand: 95, arc: 0.3, slide: 1.12 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
   // that follows the character. The windows are mask holes, so nothing is drawn twice.
   const STREET_DIM = 0.3;               // strength of the shade
@@ -151,6 +151,7 @@
   const STREET = {
     w: 1672, h: 941,
     road: 870,           // feet line on the wet road, in front of the striped kerbs
+    tall: 300,           // how tall he stands on that line, in proportion to the buildings and the stall
     start: 200,          // where he waits during the intro, outside the general store
     manhole: 792,        // middle of the road; the drain's shaft hangs under it (DRAIN.hole)
     quads: {             // blank billboards: TL, TR, BR, BL
@@ -415,6 +416,9 @@
     // 1. street: the art covers the screen (wide screens tilt down it, tall ones pan across)
     const ss = Math.max(vw / STREET.w, vh / STREET.h);     // art px -> css px (cover)
     const street = { x: 0, y: 0, w: Math.round(STREET.w * ss), h: Math.round(STREET.h * ss), s: ss };
+    // on the street he is sized to the art, not the screen (elsewhere he is 20% of the screen height)
+    L.hs = (STREET.tall * ss) / (Sprite.STAND * L.cs);
+    L.cq = Math.min(3, Math.ceil(L.hs - 0.05));             // extra canvas resolution so he stays sharp scaled up
     const mh = Math.round(STREET.manhole * ss);             // manhole centre
     L.sgy = Math.round(STREET.road * ss);                   // where his feet meet the road
     const camEnd = { x: Math.min(Math.max(0, mh - vw * 0.4), street.w - vw), y: street.h - vh };
@@ -519,7 +523,7 @@
       setBox($("#" + id), s.x, s.y, s.w, s.h);
     }
     // place content inside scenes
-    const H = Sprite.HOLE, hw = Math.round(H.w * L.cs), hh = Math.round(H.h * L.cs);
+    const H = Sprite.HOLE, hw = Math.round(H.w * L.cs * L.hs), hh = Math.round(H.h * L.cs * L.hs);
     setBox($(".manhole"), mh - hw / 2, L.sgy - Math.round(hh / 2), hw, hh);
     setBox($(".manhole-cover"), mh - hw / 2, L.sgy - Math.round(hh / 2), hw, hh);
     const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
@@ -533,7 +537,7 @@
         const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2 - h * 0.06;
         return `radial-gradient(${Math.round(w / 2 + 30)}px ${Math.round(h / 2 + 30)}px at ${Math.round(cx)}px ${Math.round(cy)}px, transparent 72%, #000 100%)`;
       });
-      const cw = Math.round(Sprite.W * L.cs * 0.75), ch = Math.round(Sprite.H * L.cs * 0.9);
+      const cw = Math.round(Sprite.W * L.cs * L.hs * 0.75), ch = Math.round(Sprite.H * L.cs * L.hs * 0.9);
       holes.push(`radial-gradient(${cw}px ${ch}px at var(--hx, -999px) var(--hy, -999px), transparent 55%, #000 100%)`);
       dim.style.setProperty("--holes", holes.join(","));
       dim.style.background = `rgba(0, 0, 0, ${STREET_DIM})`;
@@ -581,7 +585,7 @@
     const cl = Math.max(kx * gs, endX + 16);
     setBox($(".credits"), Math.round(cl - G.roof.x * gs), Math.round(Math.max(76, exhibition.oy - 40, ky * gs + exhibition.oy - 200)), Math.round(Math.min(kw * gs, endX + vw - cl - 16)));
 
-    sprite.width = Sprite.W * L.ck; sprite.height = Sprite.H * L.ck;
+    sprite.width = Sprite.W * L.ck * L.cq; sprite.height = Sprite.H * L.ck * L.cq;
     charEl.style.setProperty("--w", Math.round(Sprite.W * L.cs) + "px");
     charEl.style.setProperty("--h", Math.round(Sprite.H * L.cs) + "px");
     lastKey = "";
@@ -598,22 +602,26 @@
     const add = (s) => { s.start = total; total += Math.max(1, Math.round(s.len)); s.len = Math.max(1, Math.round(s.len)); segs.push(s); };
     total = 0;
 
-    const x0 = Math.round(L.x0), stand = mh - DROP.stand * L.cs;
+    const x0 = Math.round(L.x0), hs = L.hs, stand = mh - DROP.stand * L.cs * hs;
     const lerp = (a, b, t) => a + (b - a) * t;
+    // narrow screens: while he waits beside the manhole the camera sits a little left, so he isn't cut off
+    const openX = Math.max(0, Math.min(camEnd.x, stand - Math.min(vw * 0.25, 100)));
     // intro: he waits on the road while the camera tilts from the billboards down to the street
-    add({ id: "intro", loc: "street", pose: "walk", a: [x0, sgy], b: [x0, sgy], len: Math.max(160, camEnd.y),
+    add({ id: "intro", loc: "street", pose: "walk", scale: hs, a: [x0, sgy], b: [x0, sgy], len: Math.max(160, camEnd.y),
       bubble: ["Hi! I'm " + S.name[0] + S.name.slice(1).toLowerCase() + ".", 0.7, 1],
       cam: (t) => ({ x: camStart.x, y: camEnd.y * (t * t * (3 - 2 * t)) }) });
-    add({ loc: "street", pose: "walk", a: [x0, sgy], b: [stand, sgy], len: Math.max(120, stand - x0),
+    add({ loc: "street", pose: "walk", scale: hs, a: [x0, sgy], b: [stand, sgy], len: Math.max(120, stand - x0),
       bubble: ["Chalo, let's go!", 0, 0.3],
-      cam: (t) => ({ x: lerp(camStart.x, camEnd.x, t), y: camEnd.y }) });
+      cam: (t) => ({ x: lerp(camStart.x, openX, t), y: camEnd.y }) });
     // at the manhole: he turns and waves while the cover slides clear, then hops in
-    // (meanwhile the camera settles to where the fall will pick it up, so there's no jump as he drops)
-    const dropCam = { x: camEnd.x, y: Math.min(Math.max(sgy - vh * 0.4, camEnd.y), subCamY) };
-    add({ id: "open", loc: "street", pose: "open", a: [stand, sgy], b: [stand, sgy], len: 200,
-      cam: (t) => ({ x: camEnd.x, y: lerp(camEnd.y, dropCam.y, t * t * (3 - 2 * t)) }) });
-    add({ id: "hop", loc: "street", pose: "hop", a: [stand, sgy], b: [mh, sgy], len: 110,
-      ease: "arc", arc: Sprite.H * L.cs * DROP.arc, cam: () => dropCam });
+    // (meanwhile the camera settles to where the fall will pick it up, so there's no jump as he drops:
+    // his feet low enough on screen that his head and the hop stay clear of the navbar)
+    const dropView = Math.min(0.75, Math.max(0.4, (STREET.tall * ss * (1 + DROP.arc)) / vh + 0.12));
+    const dropCam = { x: camEnd.x, y: Math.min(Math.max(sgy - vh * dropView, camEnd.y), subCamY) };
+    add({ id: "open", loc: "street", pose: "open", scale: hs, a: [stand, sgy], b: [stand, sgy], len: 200,
+      cam: (t) => ({ x: openX, y: lerp(camEnd.y, dropCam.y, t * t * (3 - 2 * t)) }) });
+    add({ id: "hop", loc: "street", pose: "hop", scale: hs, a: [stand, sgy], b: [mh, sgy], len: 110,
+      ease: "arc", arc: Sprite.H * L.cs * hs * DROP.arc, cam: (t) => ({ x: lerp(openX, camEnd.x, t), y: dropCam.y }) });
     // fall past the About rows: steady speed, camera keeps him ~40% down the screen
     // the moment his feet reach the grate in the subway ceiling (the fall is linear in y)
     const aboutEnter = Math.min(1, Math.max(0, (L.drain.y + L.drain.h - sgy) / (sy - sgy)));
@@ -622,7 +630,11 @@
     add({ id: "fall", loc: "drain", pose: "fall", a: [mh, sgy], b: [mh, sy], aboutEnter, aboutStart,
       len: vh * ABOUT_SCROLL,
       bubble: ["Shortcut!", 0.01, 0.07],
-      cam: (t, p) => ({ x: camEnd.x, y: Math.min(Math.max(p.y - vh * 0.4, camEnd.y), subCamY) }) });
+      // the camera eases from the drop framing to keeping him ~40% down the screen before About appears
+      cam: (t, p) => {
+        const u = Math.min(1, t / Math.max(aboutStart, 0.02)), view = 0.4 + (dropView - 0.4) * (1 - u * u * (3 - 2 * u));
+        return { x: camEnd.x, y: Math.min(Math.max(p.y - vh * view, camEnd.y), subCamY) };
+      } });
     add({ loc: "subway", pose: "land", a: [mh, sy], b: [mh, sy], len: 160, bubble: ["Next stop: Projects!", 0, 1],
       cam: () => ({ x: camEnd.x, y: subCamY }) });
     // --- platform, stairwell and lobby ---
@@ -767,8 +779,9 @@
     const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
     // his sheet: the location's own, and the street's until he is all the way down the manhole
-    let set = SPRITE_SET[loc] || "pixel";
-    if (s.id === "fall" && p.y - h < L.sgy) set = SPRITE_SET.street;
+    // (dropping = still partly above the road, at his street size)
+    const dropping = s.id === "fall" && p.y - h * L.hs < L.sgy;
+    let set = dropping ? SPRITE_SET.street : SPRITE_SET[loc] || "pixel";
     switch (poseNow) {
       case "walk":
         if (s.stairs) {
@@ -827,17 +840,23 @@
     if (loc === "street") {   // keep the hero spotlight on him (street coords = world coords)
       const dim = $(".street-dim");
       dim.style.setProperty("--hx", Math.round(p.x) + "px");
-      dim.style.setProperty("--hy", Math.round(p.y - h * 0.5) + "px");
+      dim.style.setProperty("--hy", Math.round(p.y - h * L.hs * 0.5) + "px");
     }
-    const scale = (cutSide ? s.scale2 : s.scale) || 1;   // cuts can change his scale on the far side
+    const scale = dropping ? L.hs : (cutSide ? s.scale2 : s.scale) || 1;   // cuts can change his scale on the far side
     const bob = Sprite.bob(anim, n, set) * L.cs;
     charEl.style.transform = `translate3d(${Math.round(p.x - w / 2)}px, ${Math.round(p.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale})` : "");
     charEl.style.setProperty("--face", flips ? facing : 1);
+    charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size
 
-    // dropping into the manhole: hide the part of him that's below the street surface
-    const top = p.y - h, A = L.sgy + 2 - top, B = L.street.h - top;
+    // dropping into the manhole: hide the part of him that's below the street surface (in sprite px).
+    // At street size all of it stays hidden; once he's under, he fades in at his usual size in the shaft.
+    const top = p.y - h * scale, A = (L.sgy + 2 - top) / scale, B = (L.street.h - top) / scale;
     sprite.style.webkitMaskImage = sprite.style.maskImage =
-      s.pose === "fall" && A < h && B > 0 ? `linear-gradient(#000 0 ${A}px, transparent ${A}px ${B}px, #000 ${B}px)` : "";
+      s.pose !== "fall" || A >= h || B <= 0 ? ""
+        : dropping ? `linear-gradient(#000 0 ${A}px, transparent ${A}px)`
+        : `linear-gradient(#000 0 ${A}px, transparent ${A}px ${B}px, #000 ${B}px)`;
+    const fade = s.id === "fall" && !dropping ? Math.min(1, (p.y - L.sgy - h * L.hs) / (h * 0.5)) : 1;
+    sprite.style.opacity = fade < 1 ? Math.max(0, fade).toFixed(2) : "";
     charEl.classList.toggle("no-shadow", !grounded);
     charEl.classList.toggle("painted", painted);
 

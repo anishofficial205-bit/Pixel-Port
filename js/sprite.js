@@ -33,7 +33,7 @@
   const BOB = { walk: [0, -3, 0, -3], run: [1, -7, 1, -7] };
 
   // the manhole he drops into on the street, in sheet px (sized so the painted character fits through it)
-  const HOLE = { w: 110, h: 20 };
+  const HOLE = { w: 104, h: 19 };
 
   /* Sheets. Every section can have its own, painted for that section's light; where a section (or a
      pose) has none, the pixel sheet is used. All sheets share the pixel sheet's 208 x 179 cell, at
@@ -42,10 +42,10 @@
        alias: poses that borrow another pose's frames
        fps:   walk/run cadence, if it differs from the default */
   const SETS = {
-    pixel: { src: "assets/character/sheet.webp?v=1790883076", cw: CW, ch: CH, cols: COLS, anims: ANIMS, bob: BOB, pixel: true },
+    pixel: { src: "assets/character/sheet.webp?v=1790883542", cw: CW, ch: CH, cols: COLS, anims: ANIMS, bob: BOB, pixel: true },
     // hero street (tools/pack_street_sprite.py): walk right 0-7, walk left 8-15, stand 16, wave 17-21, jump 22
     street: {
-      src: "assets/character/street.webp?v=1790883076", cw: 520, ch: 448, cols: 8,
+      src: "assets/character/street.webp?v=1790883542", cw: 520, ch: 448, cols: 8,
       anims: {
         walk: [0, 1, 2, 3, 4, 5, 6, 7], walkL: [8, 9, 10, 11, 12, 13, 14, 15],
         idle: [16], wave: [17, 18, 19, 20, 21, 20], fall: [22],
@@ -108,7 +108,7 @@
 
   const anims = (set) => (SETS[set] || SETS.pixel).anims;
   window.Sprite = {
-    W: CW, H: CH, ANIMS, HOLE, frame, resolve,
+    W: CW, H: CH, STAND: 171, ANIMS, HOLE, frame, resolve,   // STAND = his standing height in a cell
     painted: (set) => !(SETS[set] || SETS.pixel).pixel,
     fps: (set, anim) => ((SETS[set] || SETS.pixel).fps || FPS)[anim] || FPS[anim],
     bob: (anim, n, set) => { const b = ((SETS[set] || SETS.pixel).bob || {})[anim]; return b ? b[((n % b.length) + b.length) % b.length] : 0; },
