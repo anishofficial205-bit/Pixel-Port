@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&family=VT323&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1790889890" />
+  <link rel="stylesheet" href="styles.css?v=1790935356" />
 </head>
 <body class="ride preloading" data-location="street">
   <!-- preloader: READY? SET... GO! -> logo -> pixel dissolve into the street (js/preloader.js) -->
@@ -36,7 +36,7 @@
     <canvas class="pl-blocks"></canvas>
     <p class="pl-skip">Click or press any key to skip</p>
   </div>
-  <script src="js/preloader.js?v=1790889890"></script>
+  <script src="js/preloader.js?v=1790935356"></script>
   <a class="skip-link" href="#subway">Skip to projects</a>
 
   <!-- HUD: menu, metro route map, skip toggle -->
@@ -125,6 +125,15 @@
           </div>
         </section>
 
+        <!-- 5b. THE BACK STAIRS: from the cinema hall up to the gallery -->
+        <section class="scene" id="backstairs" data-location="cinema" aria-label="Stairs up to the gallery">
+          <img class="bg-img" src="assets/scenes/backstairs.webp" alt="" decoding="async" fetchpriority="low" />
+          <!-- on the blank poster by the stairs -->
+          <div class="content back-sign" aria-hidden="true"><i class="up-arrow"></i><b>ART<br />GALLERY</b><span class="hi">प्रदर्शनी</span></div>
+        </section>
+        <!-- its handrails and balustrades, drawn in front of him once he is on the stairs -->
+        <img class="back-rails" src="assets/backstairs/rails.png" alt="" aria-hidden="true" />
+
         <!-- 6. THE EXHIBITION -->
         <section class="scene" id="exhibition" data-location="exhibition" aria-labelledby="gallery-title">
           <div class="content photos" id="photos"></div>
@@ -199,8 +208,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1790889890"></script>
-  <script src="js/sprite.js?v=1790889890"></script>
-  <script src="js/main.js?v=1790889890"></script>
+  <script src="js/data.js?v=1790935356"></script>
+  <script src="js/sprite.js?v=1790935356"></script>
+  <script src="js/main.js?v=1790935356"></script>
 </body>
 </html>

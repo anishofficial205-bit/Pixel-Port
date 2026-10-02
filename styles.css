@@ -539,6 +539,16 @@ body::after {
 .ride .front-row img { display: block; height: auto; }
 .char { transform-origin: 50% 100%; }
 
+/* back stairs (cinema -> gallery) */
+.ride #backstairs .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
+.ride .back-sign { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
+.back-sign { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; color: #2A0F4A; }
+.back-sign b { font-family: var(--font-display); font-weight: 400; font-size: 9px; line-height: 1.7; }
+.back-sign .hi { font-size: 13px; line-height: 1; }
+.up-arrow { width: 26px; height: 24px; background: #D9481F; clip-path: polygon(50% 0, 100% 50%, 68% 50%, 68% 100%, 32% 100%, 32% 50%, 0 50%); }
+.back-rails { display: none; }
+.ride .back-rails { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: 6; pointer-events: none; }
+.ride .back-rails.behind { z-index: 4; }
 /* railings in front of him on the stairs and along the lobby's edge */
 .stair-rails { display: none; }
 .ride .stair-rails { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: 6; pointer-events: none; }

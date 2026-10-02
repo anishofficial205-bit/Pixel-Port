@@ -180,6 +180,19 @@
     },
   };
 
+  // assets/scenes/backstairs.webp (tools/build_backstairs.py): the staircase from the cinema up to the gallery
+  const BACKSTAIRS = {
+    w: 1672, h: 941,
+    door: 235, floor: 845,                       // in by the open door under the landing; his feet on the floor
+    flight1: [[1168, 845], [588, 500]],          // up the first flight, right to left (the middle of the steps)
+    flight2: [[480, 496], [872, 293]],           // he turns on the landing and takes the second flight, left to right
+    exit: 1340, top: 293,                        // along the top landing to the door
+    strides: [9, 5],                             // strides per flight (see CLIMB)
+    scale: [0.9, 0.88],                          // his size on the middle and top landings
+    poster: [368, 121, 88, 158],                 // blank poster on the wall: x, y, w, h
+    rails: [148, 169, 1353, 675],                // assets/backstairs/rails.png: the railings drawn in front of him
+  };
+
   // assets/scenes/gallery.webp (tools/build_gallery.py): entrance, window wall, exit door + the rooftop outside
   const GALLERY = {
     w: 6496, h: 941,
@@ -469,7 +482,15 @@
     // bottom of the screen and its top edge (ceiling, night sky) is stretched up to fill the rest
     const gs = Math.max(vw / 1672, vh / G.h) / G.artScale;
     const artH = Math.round(G.h * gs);
-    const exhibition = { x: front.x + front.w + vw, y: row, w: Math.round(G.w * gs), h: Math.max(vh, artH), s: gs };
+    // 5b. back stairs: one painting covering the screen, reached by a cut
+    const B = BACKSTAIRS, bs = Math.max(vw / B.w, vh / B.h);
+    const backstairs = { x: front.x + front.w + vw, y: front.y, w: Math.round(B.w * bs), h: Math.round(B.h * bs), s: bs };
+    {
+      const [x, y, w, h] = B.rails, [px, py, pw, ph] = B.poster;
+      setBox($(".back-rails"), backstairs.x + Math.round(x * bs), backstairs.y + Math.round(y * bs), Math.round(w * bs), Math.round(h * bs));
+      mapToQuad($(".back-sign"), [[px, py], [px + pw, py], [px + pw, py + ph], [px, py + ph]], bs);
+    }
+    const exhibition = { x: backstairs.x + backstairs.w + vw, y: row, w: Math.round(G.w * gs), h: Math.max(vh, artH), s: gs };
     exhibition.oy = exhibition.h - artH;                                   // art top, inside the section
     L.gty = exhibition.y + exhibition.oy + Math.round(G.floor * gs);
     const rooftop = { x: exhibition.x + Math.round(G.roof.x * gs), y: exhibition.y, w: Math.round((G.w - G.roof.x) * gs), h: exhibition.h };
@@ -478,10 +499,10 @@
     setBox($(".gal-top"), 0, 0, exhibition.w, exhibition.oy + 2);
     const frames = G.frames.map(([x, y, w, h]) => ({ x: Math.round(x * gs), y: exhibition.oy + Math.round(y * gs), w: Math.round(w * gs), h: Math.round(h * gs) }));
 
-    Object.assign(L, { street, mh, camStart, camEnd, drain, subway, stairwell, front, exhibition, rooftop, boards, frames });
+    Object.assign(L, { street, mh, camStart, camEnd, drain, subway, stairwell, front, backstairs, exhibition, rooftop, boards, frames });
 
     // place scenes
-    for (const [id, s] of Object.entries({ street, drain, subway, stairwell, "cinema-front": front, exhibition, rooftop })) {
+    for (const [id, s] of Object.entries({ street, drain, subway, stairwell, "cinema-front": front, backstairs, exhibition, rooftop })) {
       setBox($("#" + id), s.x, s.y, s.w, s.h);
     }
     // place content inside scenes
@@ -558,7 +579,7 @@
 
   /* ================= PATH ================= */
   function buildPath() {
-    const { vw, vh, gy, sgy, my, street, mh, camStart, camEnd, drain, subway, stairwell, front, exhibition, rooftop, subCamY } = L;
+    const { vw, vh, gy, sgy, my, street, mh, camStart, camEnd, drain, subway, stairwell, front, backstairs, exhibition, rooftop, subCamY } = L;
     const sy = L.sy, ty = L.ty, ss = street.s;
     const follow = (x, y) => ({ x: x - vw * 0.4, y: y - gy });
     segs = [];
@@ -662,8 +683,29 @@
     const G = GALLERY, gs = exhibition.s, gty = L.gty, gx = (x) => exhibition.x + x * gs;
     const gIn = [gx(G.enter), gty], gOut = [gx(G.exit), gty];
     const gCam = (x) => ({ x: Math.min(Math.max(x - vw * 0.4, exhibition.x), exhibition.x + exhibition.w - vw), y: exhibition.y });
-    add({ loc: "cinema", loc2: "exhibition", pose: "walk", a: exit, b: gIn, len: 260, ease: "cut",
-      cut: tri, cam: (t) => (t < 0.5 ? frontCam : gCam(gIn[0])) });
+    // --- back stairs, between the hall and the gallery: in by the door under the landing, along the floor
+    // in front of the staircase to its foot, up the first flight (right to left), a turn on the landing,
+    // up the second flight and along the top landing to the door ---
+    {
+      const B = BACKSTAIRS, K = backstairs, bs = K.s, at = (x, y) => [K.x + x * bs, K.y + y * bs];
+      const clamp = (v, a, b) => Math.min(Math.max(v, a), Math.max(a, b));
+      const bCam = (p) => ({ x: clamp(p.x - vw / 2, K.x, K.x + K.w - vw), y: clamp(p.y - vh * 0.62, K.y, K.y + K.h - vh) });
+      const bIn = at(B.door, B.floor), foot = at(...B.flight1[0]), mid = at(...B.flight1[1]);
+      const turn = at(...B.flight2[0]), up2 = at(...B.flight2[1]), bOut = at(B.exit, B.top), [s1, s2] = B.scale;
+      add({ loc: "cinema", pose: "walk", railsBehind: true, a: exit, b: bIn, len: 260, ease: "cut",
+        cut: tri, cam: (t) => (t < 0.5 ? frontCam : bCam({ x: bIn[0], y: bIn[1] })) });
+      add({ id: "backstairs", loc: "cinema", pose: "walk", railsBehind: true, a: bIn, b: foot, len: foot[0] - bIn[0],
+        bubble: ["Gallery's upstairs!", 0.25, 0.6], cam: (t, p) => bCam(p) });
+      add({ loc: "cinema", pose: "walk", stairs: true, strides: B.strides[0], scale: (t) => lerp(1, s1, t), a: foot, b: mid,
+        len: B.strides[0] * CLIMB.px, cam: (t, p) => bCam(p) });
+      add({ loc: "cinema", pose: "walk", scale: s1, a: mid, b: turn, len: Math.max(60, mid[0] - turn[0]), cam: (t, p) => bCam(p) });
+      add({ loc: "cinema", pose: "walk", stairs: true, strides: B.strides[1], scale: (t) => lerp(s1, s2, t), a: turn, b: up2,
+        len: B.strides[1] * CLIMB.px, cam: (t, p) => bCam(p) });
+      add({ loc: "cinema", pose: "walk", scale: s2, a: up2, b: bOut, len: bOut[0] - up2[0], cam: (t, p) => bCam(p) });
+      // through the door at the top: a cut into the gallery
+      add({ loc: "cinema", loc2: "exhibition", pose: "walk", scale: s2, a: bOut, b: gIn, len: 260, ease: "cut",
+        cut: tri, cam: (t) => (t < 0.5 ? bCam({ x: bOut[0], y: bOut[1] }) : gCam(gIn[0])) });
+    }
     add({ id: "gallery", loc: "exhibition", pose: "walk", a: gIn, b: gOut, len: (gOut[0] - gIn[0]) / 0.7, cam: (t, p) => gCam(p.x) });
     // through the door and out into the dawn
     const endCam = { x: exhibition.x + Math.min(Math.max(G.roof.seat * gs - vw * 0.5, 0), exhibition.w - vw), y: exhibition.y };
@@ -711,7 +753,7 @@
   let target = 0, cur = 0, lastX = null, facing = 1, lastMove = 0, lastLoc = "", hoverLook = false;
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
-  const cutEl = $(".cut");
+  const cutEl = $(".cut"), backRails = $(".back-rails");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
   function frame(now) {
@@ -737,7 +779,7 @@
     const moving = now - lastMove < 160;
     const tick = (ms) => Math.floor(now / ms);
     const saying = s.bubble && t >= s.bubble[1] && t <= s.bubble[2];
-    let anim = "idle", n = tick(260), pos = p;             // pos: where he is drawn (the camera follows p)
+    let anim = "idle", n = tick(260), pos = p, mirror = false;   // pos: where he is drawn (the camera follows p)
     const cutSide = s.ease === "cut" && t >= 0.5;          // past the midpoint of a cut
     const poseNow = cutSide && s.pose2 ? s.pose2 : s.pose;
     const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
@@ -746,9 +788,11 @@
     let set = (!cutSide && s.set) || SPRITE_SET[loc] || "pixel";
     switch (poseNow) {
       case "walk":
-        if (s.stairs && facing > 0) {
-          // going up: see CLIMB. (Coming back down he just walks: there are no frames for that.)
-          const N = CLIMB.strides, q = Math.min(N - 1e-4, t * N), k = Math.floor(q), u = q - k, ph = Math.floor(u * 4);
+        if (s.stairs && facing === Math.sign(s.b[0] - s.a[0])) {
+          // going up: see CLIMB. A flight that runs right to left uses the same frames, mirrored.
+          // (Coming back down he just walks: there are no frames for that.)
+          mirror = s.b[0] < s.a[0];
+          const N = s.strides || CLIMB.strides, q = Math.min(N - 1e-4, t * N), k = Math.floor(q), u = q - k, ph = Math.floor(u * 4);
           set = "stairs"; anim = "climb";
           n = (k === 0 ? CLIMB.first : k % 2 ? CLIMB.odd : CLIMB.even)[ph];
           if (k === N - 1 && CLIMB.last[ph] != null) n = CLIMB.last[ph];
@@ -818,7 +862,8 @@
     const scale = (typeof sc === "function" ? sc(t) : sc) || 1;
     const bob = Sprite.bob(anim, n, set) * L.cs;
     charEl.style.transform = `translate3d(${Math.round(pos.x - w / 2)}px, ${Math.round(pos.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
-    charEl.style.setProperty("--face", flips ? facing : 1);
+    charEl.style.setProperty("--face", mirror ? -1 : flips ? facing : 1);
+    backRails.classList.toggle("behind", !!s.railsBehind);   // on the floor he passes in front of the staircase
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size
 
     charEl.classList.toggle("no-shadow", !grounded);
