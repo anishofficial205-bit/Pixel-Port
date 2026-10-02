@@ -20,8 +20,8 @@
   --marigold: #FFC21A;
 
   /* locations */
-  --drain-teal: #5B3FC4;
-  --drain-slime: #FFA24D;
+  --drain-teal: #2C49A8;
+  --drain-slime: #FFB93F;
   --tile: #CFE8E6;
   --tile-shadow: #5E7C8A;
   --fluoro: #E8FBFF;
@@ -55,7 +55,7 @@
 [data-location="street"]     { --accent: var(--neon-magenta); --key-light: var(--sodium); }
 [data-location="drain"]      { --accent: var(--drain-slime);  --key-light: var(--drain-teal); }
 [data-location="subway"]     { --accent: var(--neon-cyan);    --key-light: var(--fluoro); }
-.ride[data-location="subway"] { --accent: #FF8A3D; }   /* the ride's subway is lit orange (project pages keep the cyan) */
+.ride[data-location="subway"] { --accent: #FFC24A; }   /* the ride's subway is lit orange (project pages keep the cyan) */
 [data-location="cinema"]     { --accent: var(--brass);        --key-light: var(--velvet); }
 [data-location="exhibition"] { --accent: var(--brass);        --key-light: var(--spotlight); }
 [data-location="rooftop"]    { --accent: var(--saffron);      --key-light: var(--dawn-orange); }
@@ -294,7 +294,8 @@ body::after {
 
 /* ---------------- 1. street ---------------- */
 .ride #street .bg-img, .ride #drain .bg-img, .ride #subway .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
-/* the street's bottom edge sits in front of the top rows of the drain cross-section */
+/* the street's bottom edge fades out over the top rows of the drain cross-section (its road carries on there) */
+.ride #street .bg-img { -webkit-mask-image: linear-gradient(#000 calc(100% - var(--fade, 0px)), transparent); mask-image: linear-gradient(#000 calc(100% - var(--fade, 0px)), transparent); }
 .ride #street { z-index: 2; }
 .ride #drain { z-index: 1; }
 .ride #subway { z-index: 0; } /* the drain's grate covers the subway ceiling */
@@ -414,7 +415,7 @@ body::after {
   display: flex; flex-direction: column; gap: 10px; padding: 14px 16px;
   background: rgba(14, 9, 28, 0.9); box-shadow: 0 0 0 4px var(--outline), 0 0 0 7px var(--drain-teal);
 }
-.about-text h2 { font-size: 16px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(255, 162, 77, 0.5); }
+.about-text h2 { font-size: 16px; color: var(--drain-slime); text-shadow: 3px 3px 0 var(--outline), 0 0 8px rgba(255, 185, 63, 0.5); }
 .about-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .about-tags li { font-family: var(--font-display); font-size: 8px; color: var(--outline); background: var(--drain-slime); padding: 3px 5px; box-shadow: 0 0 0 3px var(--outline); }
 .about-copy p { margin: 0; font-size: 21px; line-height: 1.12; }
@@ -442,15 +443,15 @@ body::after {
    Both are laid out in art px and scaled with the art. */
 .ride .station-board, .ride .all-projects-sign { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
 .ride .station-board {
-  background: #1A0D38; color: #F7E8C8;
-  box-shadow: 0 0 0 3px #0B0714, inset 0 -5px 0 0 #FF7A2E, 0 0 18px rgba(255, 122, 46, 0.35);
+  background: #101A4A; color: #F7E8C8;
+  box-shadow: 0 0 0 3px #0B0714, inset 0 -5px 0 0 #D8261C, 0 0 18px rgba(255, 185, 63, 0.3);
 }
-.ride .station-board .hi { font-size: 15px; color: #FFB067; }
+.ride .station-board .hi { font-size: 15px; color: #FFC65C; }
 .ride .station-board h2 { font-size: 15px; text-shadow: 2px 2px 0 #0B0714; }
 .all-projects-sign {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: "Silkscreen", var(--font-display); font-size: 11px; color: #1A0D38; text-decoration: none; white-space: nowrap;
-  background: #FF8A3D; box-shadow: 0 0 0 3px #0B0714, 0 0 16px rgba(255, 122, 46, 0.45);
+  font-family: "Silkscreen", var(--font-display); font-size: 11px; color: #140B2E; text-decoration: none; white-space: nowrap;
+  background: #FFC24A; box-shadow: 0 0 0 3px #0B0714, 0 0 16px rgba(255, 185, 63, 0.4);
   transition: background-color 0.2s ease;
 }
 .all-projects-sign .hi { display: none; }       /* the sign above already says it in Hindi */
@@ -484,7 +485,7 @@ body::after {
 
 /* ---------------- 4. cinema ---------------- */
 .ride #stairwell .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
-.ride #cinema-front { background: #0D0720; }
+.ride #cinema-front { background: #0B0612; }
 .ride .front-art { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
 .ride .front-art .bg-img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .ride .front-art .content { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
@@ -541,17 +542,20 @@ body::after {
 
 /* back stairs (cinema -> gallery) */
 .ride #backstairs .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
-.ride .back-sign { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
-.back-sign { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; color: #2A0F4A; }
-.back-sign b { font-family: var(--font-display); font-weight: 400; font-size: 9px; line-height: 1.7; }
-.back-sign .hi { font-size: 13px; line-height: 1; }
-.up-arrow { width: 26px; height: 24px; background: #D9481F; clip-path: polygon(50% 0, 100% 50%, 68% 50%, 68% 100%, 32% 100%, 32% 50%, 0 50%); }
+.ride .back-sign, .ride .back-photo { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
+.back-sign { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #1B1140; }
+.back-sign b { font-family: var(--font-display); font-weight: 400; font-size: 12px; line-height: 1.8; }
+.back-sign .hi { font-size: 18px; line-height: 1; }
+.back-photo { overflow: hidden; background: #0B0714; }
+.back-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.up-arrow { width: 36px; height: 34px; background: #C8281E; clip-path: polygon(50% 0, 100% 50%, 68% 50%, 68% 100%, 32% 100%, 32% 50%, 0 50%); }
 .back-rails { display: none; }
 .ride .back-rails { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: 6; pointer-events: none; }
 .ride .back-rails.behind { z-index: 4; }
 /* railings in front of him on the stairs and along the lobby's edge */
 .stair-rails { display: none; }
 .ride .stair-rails { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); z-index: 6; pointer-events: none; }
+.ride .stair-rails.behind { z-index: 4; }
 
 /* ---------------- 5. exhibition ---------------- */
 .gallery-title { display: flex; flex-direction: column; gap: 8px; color: var(--brass); }

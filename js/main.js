@@ -19,16 +19,16 @@
      the subway's last frame; tools/build_subway.py). Art px. ---- */
   const STAIRWELL = {
     w: 1672, h: 941,
-    approach: 40,                      // x where he leaves the platform's feet line and heads for the first step
-    stairBottom: [200, 592],           // the middle of the steps, bottom and top
-    stairTop: [528, 318],
-    lobbyStart: [575, 316],            // short eased blend from the top step onto the lobby floor
-    lobby: 316,                        // feet on the lobby's chequered floor
+    approach: 800,                     // he walks along the platform past the foot of the stairs to here, then turns to them
+    stairBottom: [690, 612],           // the stairs climb to the left: the middle of the steps, bottom and top
+    stairTop: [362, 350],
+    lobbyStart: [480, 355],            // short eased blend from the top step onto the lobby floor
+    lobby: 355,                        // feet on the lobby's chequered floor
     scale: 0.86,                       // his size up there (the lobby is drawn smaller than the platform)
-    ticket: 668,                       // where he stops, just past the ticket booth, and takes the cinema in
-    door: [1462, 1622],                // red double doors: walking into them cuts to the theater
-    posters: { poster1: [700, 118, 100, 153], poster2: [836, 118, 100, 153] },   // blank posters: x, y, w, h
-    rails: [292, 219, 1380, 359],      // assets/subway/rails.png: the railings drawn in front of him
+    ticket: 610,                       // where he stops, at the ticket booth, and takes the cinema in
+    door: [1500, 1590],                // red double doors: walking into them cuts to the theater
+    posters: { poster1: [777, 160, 90, 129], poster2: [899, 160, 95, 129] },   // blank posters: x, y, w, h
+    rails: [362, 240, 1310, 376],      // assets/subway/rails.png: the railings drawn in front of him
   };
 
   /* Climbing the stairs is driven by scroll, one stride at a time, so his feet land on the steps:
@@ -53,7 +53,7 @@
   const STREET_FOCUS_PAD = 1.35;        // billboard windows, relative to the board's size (takes in frames + lamps)
 
   // About me, pinned beside the drain shaft for the whole fall: portrait left, text right
-  const ABOUT_SHAFT = [597, 1050];      // shaft brick walls in drain art px (the panels stay outside them)
+  const ABOUT_SHAFT = [595, 1052];      // shaft brick walls in drain art px (the panels stay outside them)
   const ABOUT_MIN_SIDE = 220;           // narrower than this beside the shaft -> portrait + text stacked over it
   const ABOUT_PORTRAIT_W = 210;         // max portrait width (css px)
   const ABOUT_TEXT_W = 380;             // max text box width (css px)
@@ -108,6 +108,7 @@
         <figcaption class="plaque"><b>${p.title}</b><span>${p.place} · ${p.year}</span></figcaption>
       </figure>`).join("");
 
+    $$(".back-photo").forEach((el, i) => { const ph = S.photos[i % S.photos.length]; $("img", el).src = ph.src; });
     $$(".cin-poster").forEach((el, i) => {
       const r = S.reels[i % S.reels.length];
       $("img", el).src = r.poster; $("span", el).textContent = r.title;
@@ -150,47 +151,49 @@
   // assets/scenes/drain.webp: three painted frames stitched by tools/build_drain.py (which prints these).
   // It hangs straight under the street: the street's road runs down to the drain's pavement.
   const DRAIN = {
-    w: 1672, h: 2095,
-    top: 4,        // rows tucked under the street's bottom edge
+    w: 1672, h: 2049,
+    top: 60,       // rows of its road tucked under the street's bottom edge, which fades out over them
     hole: 835,     // centre of the open manhole and of the clear drop down the shaft
-    stand: 52,     // the pavement beside the manhole: his feet line before he hops in
-    surface: 107,  // where the pavement and road bed end and the soil begins
-    grate: 2023,   // top of the grate into the subway
+    stand: 106,    // the pavement beside the manhole: his feet line before he hops in
+    surface: 186,  // where the pavement and road bed end and the soil begins
+    grate: 1977,   // top of the grate into the subway
   };
 
   // assets/scenes/subway.webp: landing, billboard wall x2; built by tools/build_subway.py (which prints the boards)
   const SUBWAY = {
     w: 5016, h: 941,
-    cut: 125,            // top rows (its own grate) hidden under the drain's grate
-    floor: 668,          // his feet on the platform
-    sign: [[1032, 138], [1218, 138], [1218, 200], [1032, 200]],   // station sign, hung in the dark of the ceiling
+    cut: 150,            // top rows (its own grate) hidden under the drain's grate
+    floor: 655,          // his feet on the platform
+    sign: [[985, 162], [1165, 162], [1165, 224], [985, 224]],   // station sign, hung in the dark of the ceiling
     // blank billboards on the tiled wall: x, y, w, h
-    boards: [[1872, 311, 492, 205], [2655, 311, 493, 205], [3544, 311, 492, 205], [4327, 311, 493, 205]],
+    boards: [[1935, 346, 473, 190], [2609, 346, 506, 190], [3607, 346, 473, 190], [4281, 346, 506, 190]],
   };
 
   // assets/scenes/cinema-front.webp (1672 x 941): the auditorium's front view
   const CINEMA = {
     w: 1672, h: 941,
     front: {
-      screen: [504, 228, 663, 297],      // the screen, cut out of the art; the reel plays behind it
-      stage: [410, 552, 852, 46],        // the lit stage apron: reel controls live here
-      rowTop: 596,                       // seats from the first row down (assets/cinema/seat-row.webp) are drawn in front of him
-      door: 201, exit: 1463, floor: 612, // left door he enters by, right door he leaves by; his feet, just behind the first row
-      stand: 335,                        // where he stops, left of the stage, to watch
+      screen: [501, 191, 668, 308],      // the screen, cut out of the art; the reel plays behind it
+      stage: [430, 546, 812, 44],        // the stage front: reel controls live here
+      rowTop: 618,                       // seats from the first row down (assets/cinema/seat-row.webp) are drawn in front of him
+      door: 128, exit: 1545, floor: 618, // left door he enters by, right door he leaves by; his feet, just behind the first row
+      stand: 330,                        // where he stops, left of the stage, to watch
     },
   };
 
   // assets/scenes/backstairs.webp (tools/build_backstairs.py): the staircase from the cinema up to the gallery
   const BACKSTAIRS = {
     w: 1672, h: 941,
-    door: 235, floor: 845,                       // in by the open door under the landing; his feet on the floor
-    flight1: [[1168, 845], [588, 500]],          // up the first flight, right to left (the middle of the steps)
-    flight2: [[480, 496], [872, 293]],           // he turns on the landing and takes the second flight, left to right
-    exit: 1340, top: 293,                        // along the top landing to the door
-    strides: [9, 5],                             // strides per flight (see CLIMB)
-    scale: [0.9, 0.88],                          // his size on the middle and top landings
-    poster: [368, 121, 88, 158],                 // blank poster on the wall: x, y, w, h
-    rails: [148, 169, 1353, 675],                // assets/backstairs/rails.png: the railings drawn in front of him
+    door: 400, floor: 830,                       // in by the open door under the landing; his feet on the floor
+    pass: 1125,                                  // along the floor past the newel post to here, then he turns to the stairs
+    flight1: [[1012, 806], [552, 462]],          // up the first flight, right to left (the middle of the steps)
+    flight2: [[745, 490], [1040, 368]],          // behind its balustrade to the second flight, then up it, left to right
+    exit: 1390, top: 364,                        // along the top landing to the door
+    strides: [8, 3],                             // strides per flight (see CLIMB)
+    scale: 1.15,                                 // the room is drawn a little larger than the others
+    poster: [355, 111, 135, 213],                // big blank frame on the wall: x, y, w, h
+    frames: [[806, 260, 45, 63], [886, 218, 45, 63], [967, 178, 45, 62], [1047, 132, 45, 63]],   // small ones up the stairs
+    rails: [178, 211, 1411, 609],                // assets/backstairs/rails.png: the railings drawn in front of him
   };
 
   // assets/scenes/gallery.webp (tools/build_gallery.py): entrance, window wall, exit door + the rooftop outside
@@ -424,6 +427,7 @@
       w: Math.round(DRAIN.w * ss), h: Math.round(DRAIN.h * ss),
     };
     L.my = drain.y + Math.round(DRAIN.stand * ss);          // his feet line on that pavement
+    $("#street .bg-img").style.setProperty("--fade", Math.round(DRAIN.top * ss) + "px");
 
     // About panel: during the fall the camera sits at camEnd.x, so the room beside the shaft is known.
     // Screen coords: portrait in the gap left of the shaft, text in the gap right of it.
@@ -488,7 +492,9 @@
     {
       const [x, y, w, h] = B.rails, [px, py, pw, ph] = B.poster;
       setBox($(".back-rails"), backstairs.x + Math.round(x * bs), backstairs.y + Math.round(y * bs), Math.round(w * bs), Math.round(h * bs));
-      mapToQuad($(".back-sign"), [[px, py], [px + pw, py], [px + pw, py + ph], [px, py + ph]], bs);
+      const quad = (el, [x, y, w, h]) => mapToQuad(el, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], bs);
+      quad($(".back-sign"), B.poster);
+      $$(".back-photo").forEach((el, i) => quad(el, B.frames[i]));
     }
     const exhibition = { x: backstairs.x + backstairs.w + vw, y: row, w: Math.round(G.w * gs), h: Math.max(vh, artH), s: gs };
     exhibition.oy = exhibition.h - artH;                                   // art top, inside the section
@@ -646,15 +652,15 @@
       x: p.x - vw * 0.4 + off * Math.max(0, 1 - (p.x - mh) / (vw * 0.4)),
       y: lerp(platCamY, lobbyCamY, smooth((sy - p.y) / (sy - ly))),
     });
-    add({ id: "subwalk", loc: "subway", pose: "walk", a: [mh, sy], b: [leave, sy], len: leave - mh, cam: walkCam });
-    // across the platform to the foot of the stairs, then up them between the railings, a little smaller
-    // with every step (the lobby is drawn further away)
-    add({ loc: "subway", pose: "walk", a: [leave, sy], b: bottom, len: Math.hypot(bottom[0] - leave, bottom[1] - sy), cam: walkCam });
+    add({ id: "subwalk", loc: "subway", pose: "walk", railsBehind: true, a: [mh, sy], b: [leave, sy], len: leave - mh, cam: walkCam });
+    // past the foot of the stairs, back across the platform to the first step, then up them (they climb
+    // to the left) between the railings, a little smaller with every step (the lobby is drawn further away)
+    add({ loc: "subway", pose: "walk", railsBehind: true, a: [leave, sy], b: bottom, len: Math.hypot(bottom[0] - leave, bottom[1] - sy), cam: walkCam });
     add({ id: "stairs", loc: "subway", loc2: "cinema", set: "street", pose: "walk", stairs: true, a: bottom, b: top, scale: (t) => lerp(1, up, t),
       len: CLIMB.strides * CLIMB.px, cam: walkCam });
-    // top step onto the lobby floor: feet ease down/up the last few px so they don't pop
+    // he turns at the top and steps onto the lobby floor: feet ease down the last few px so they don't pop
     add({ loc: "cinema", set: "street", pose: "walk", ease: "smooth", scale: up, a: top, b: onto, len: Math.max(40, onto[0] - top[0]), cam: walkCam });
-    // a few steps past the ticket booth he stops and takes the cinema in: a gasp, a delighted look, a grin
+    // at the ticket booth he stops and takes the cinema in: a gasp, a delighted look, a grin
     const door = T.px((P.door[0] + P.door[1]) / 2, P.lobby), tkt = T.px(P.ticket, P.lobby);
     const lobbyCam = (p) => clampT({ x: p.x - vw * 0.4, y: lobbyCamY });
     add({ loc: "cinema", set: "street", pose: "walk", scale: up, a: onto, b: tkt, len: Math.max(40, tkt[0] - onto[0]), cam: walkCam });
@@ -684,26 +690,25 @@
     const gIn = [gx(G.enter), gty], gOut = [gx(G.exit), gty];
     const gCam = (x) => ({ x: Math.min(Math.max(x - vw * 0.4, exhibition.x), exhibition.x + exhibition.w - vw), y: exhibition.y });
     // --- back stairs, between the hall and the gallery: in by the door under the landing, along the floor
-    // in front of the staircase to its foot, up the first flight (right to left), a turn on the landing,
-    // up the second flight and along the top landing to the door ---
+    // past the staircase to its foot, up the first flight (right to left), behind the balustrade to the
+    // second flight, up it and along the top landing to the door ---
     {
-      const B = BACKSTAIRS, K = backstairs, bs = K.s, at = (x, y) => [K.x + x * bs, K.y + y * bs];
+      const B = BACKSTAIRS, K = backstairs, bs = K.s, at = (x, y) => [K.x + x * bs, K.y + y * bs], k = B.scale;
       const clamp = (v, a, b) => Math.min(Math.max(v, a), Math.max(a, b));
       const bCam = (p) => ({ x: clamp(p.x - vw / 2, K.x, K.x + K.w - vw), y: clamp(p.y - vh * 0.62, K.y, K.y + K.h - vh) });
-      const bIn = at(B.door, B.floor), foot = at(...B.flight1[0]), mid = at(...B.flight1[1]);
-      const turn = at(...B.flight2[0]), up2 = at(...B.flight2[1]), bOut = at(B.exit, B.top), [s1, s2] = B.scale;
-      add({ loc: "cinema", pose: "walk", railsBehind: true, a: exit, b: bIn, len: 260, ease: "cut",
+      const bIn = at(B.door, B.floor), pass = at(B.pass, B.floor), foot = at(...B.flight1[0]), mid = at(...B.flight1[1]);
+      const turn = at(...B.flight2[0]), up2 = at(...B.flight2[1]), bOut = at(B.exit, B.top);
+      const leg = (a, b, more) => add({ loc: "cinema", pose: "walk", scale: k, a, b, len: Math.max(40, Math.hypot(b[0] - a[0], b[1] - a[1])), cam: (t, p) => bCam(p), ...more });
+      add({ loc: "cinema", pose: "walk", railsBehind: true, scale2: k, a: exit, b: bIn, len: 260, ease: "cut",
         cut: tri, cam: (t) => (t < 0.5 ? frontCam : bCam({ x: bIn[0], y: bIn[1] })) });
-      add({ id: "backstairs", loc: "cinema", pose: "walk", railsBehind: true, a: bIn, b: foot, len: foot[0] - bIn[0],
-        bubble: ["Gallery's upstairs!", 0.25, 0.6], cam: (t, p) => bCam(p) });
-      add({ loc: "cinema", pose: "walk", stairs: true, strides: B.strides[0], scale: (t) => lerp(1, s1, t), a: foot, b: mid,
-        len: B.strides[0] * CLIMB.px, cam: (t, p) => bCam(p) });
-      add({ loc: "cinema", pose: "walk", scale: s1, a: mid, b: turn, len: Math.max(60, mid[0] - turn[0]), cam: (t, p) => bCam(p) });
-      add({ loc: "cinema", pose: "walk", stairs: true, strides: B.strides[1], scale: (t) => lerp(s1, s2, t), a: turn, b: up2,
-        len: B.strides[1] * CLIMB.px, cam: (t, p) => bCam(p) });
-      add({ loc: "cinema", pose: "walk", scale: s2, a: up2, b: bOut, len: bOut[0] - up2[0], cam: (t, p) => bCam(p) });
+      leg(bIn, pass, { id: "backstairs", railsBehind: true, bubble: ["Gallery's upstairs!", 0.25, 0.6] });
+      leg(pass, foot, { railsBehind: true });
+      leg(foot, mid, { stairs: true, strides: B.strides[0], len: B.strides[0] * CLIMB.px });
+      leg(mid, turn);
+      leg(turn, up2, { stairs: true, strides: B.strides[1], len: B.strides[1] * CLIMB.px });
+      leg(up2, bOut);
       // through the door at the top: a cut into the gallery
-      add({ loc: "cinema", loc2: "exhibition", pose: "walk", scale: s2, a: bOut, b: gIn, len: 260, ease: "cut",
+      add({ loc: "cinema", loc2: "exhibition", pose: "walk", scale: k, a: bOut, b: gIn, len: 260, ease: "cut",
         cut: tri, cam: (t) => (t < 0.5 ? bCam({ x: bOut[0], y: bOut[1] }) : gCam(gIn[0])) });
     }
     add({ id: "gallery", loc: "exhibition", pose: "walk", a: gIn, b: gOut, len: (gOut[0] - gIn[0]) / 0.7, cam: (t, p) => gCam(p.x) });
@@ -753,7 +758,7 @@
   let target = 0, cur = 0, lastX = null, facing = 1, lastMove = 0, lastLoc = "", hoverLook = false;
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
-  const cutEl = $(".cut"), backRails = $(".back-rails");
+  const cutEl = $(".cut"), backRails = $(".back-rails"), stairRails = $(".stair-rails");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
   function frame(now) {
@@ -864,6 +869,7 @@
     charEl.style.transform = `translate3d(${Math.round(pos.x - w / 2)}px, ${Math.round(pos.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
     charEl.style.setProperty("--face", mirror ? -1 : flips ? facing : 1);
     backRails.classList.toggle("behind", !!s.railsBehind);   // on the floor he passes in front of the staircase
+    stairRails.classList.toggle("behind", !!s.railsBehind);
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size
 
     charEl.classList.toggle("no-shadow", !grounded);

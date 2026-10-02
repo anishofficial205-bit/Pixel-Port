@@ -12,7 +12,7 @@ from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "assets/street/src/street-source.webp"
-MANHOLE = dict(cx=874, cy=865, rx=117, ry=18)   # the painted manhole, source px
+MANHOLE = dict(cx=877, cy=865, rx=119, ry=22)   # the painted manhole, source px
 LEAVES = (1398, 360, 1442, 434)                 # box around the leaves on the tall board's corner
 CREAM = np.array([247, 232, 200.0])
 
