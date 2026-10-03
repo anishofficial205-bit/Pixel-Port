@@ -186,9 +186,9 @@
     exit: 1390, top: 364,                        // along the top landing to the door
     strides: [8, 3],                             // strides per flight (see CLIMB)
     scale: 1.15,                                 // the room is drawn a little larger than the others
-    poster: [355, 111, 135, 213],                // big blank frame on the wall: x, y, w, h
-    frames: [[806, 260, 45, 63], [886, 218, 45, 63], [967, 178, 45, 62], [1047, 132, 45, 63]],   // small ones up the stairs
-    rails: [178, 211, 1411, 609],                // assets/backstairs/rails.png: the railings drawn in front of him
+    poster: [353, 113, 139, 214],                // big blank frame on the wall: x, y, w, h
+    frames: [[806, 261, 46, 64], [887, 219, 45, 63], [967, 179, 46, 66], [1048, 133, 50, 73]],   // small ones up the stairs
+    rails: [178, 211, 1384, 609],                // assets/backstairs/rails.png: the railings drawn in front of him
   };
 
   // assets/scenes/gallery.webp: three paintings side by side (tools/build_gallery.py prints these numbers)

@@ -37,9 +37,11 @@ mask &= ~box(736, 538, 808, 652)                      # ...but not the cat sitti
 f2 = (xx >= 706) & (xx <= 1058)
 mask |= f2 & metal & (yy >= RAIL2(xx) - 8) & (yy < NOSE2(xx) - 6)
 # middle landing balustrade, top landing balustrade (the door behind it is lit warm too: there only the rails count)
-mask |= box(206, 350, 528, 462) & metal
-top = box(1096, 244, 1590, 364) & metal
-top &= ~box(1322, 244, 1458, 364) | box(0, 246, W, 258) | box(0, 272, W, 280) | box(0, 352, W, 364)
+# (below the handrail only brass counts, so the red door and the plant pots behind stay behind)
+brass = metal & (g > 95)
+mask |= box(206, 346, 528, 362) & metal | box(206, 362, 528, 462) & brass
+top = box(1096, 244, 1590, 260) & metal | box(1096, 260, 1590, 364) & brass
+top &= ~box(1322, 260, 1458, 364) | box(0, 272, W, 280) | box(0, 352, W, 364)
 mask |= top
 mask = nd.binary_closing(mask, iterations=1)
 lab, n = nd.label(mask)                               # drop specks (lamp glow on the wall)
