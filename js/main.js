@@ -861,7 +861,8 @@
     }
     const sc = cutSide ? s.scale2 : s.scale;               // cuts can change his scale on the far side
     const scale = (typeof sc === "function" ? sc(t) : sc) || 1;
-    charEl.style.transform = `translate3d(${Math.round(pos.x - w / 2)}px, ${Math.round(pos.y - h)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
+    const bob = Sprite.bob(anim, n) * L.cs * scale;        // the walk's rise and fall
+    charEl.style.transform = `translate3d(${Math.round(pos.x - w / 2)}px, ${Math.round(pos.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
     charEl.style.setProperty("--face", mirror ? -1 : flips ? facing : 1);
     backRails.classList.toggle("behind", !!s.railsBehind);   // on the floor he passes in front of the staircase
     stairRails.classList.toggle("behind", !!s.railsBehind);

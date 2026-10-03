@@ -9,26 +9,31 @@
 
   const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
   const SETS = {
-    // the walk (stand, 12-frame cycle, stand) and the character sheet's poses
+    // the walk and the character sheet's poses. The 14 painted walk frames (cells 0-13) are mostly the
+    // same wide stride, so played in order the legs never close and the walk just shimmers. The cycle
+    // below picks the frames that make two readable steps: stride, back leg lifting, legs passing,
+    // reaching out again; then the same with the other arm forward.
     main: {
-      src: "assets/character/main.webp?v=1791024532", cols: 8,
+      src: "assets/character/main.webp?v=1791026800", cols: 8,
       anims: {
-        idle: [0], walk: range(1, 12),
+        idle: [0], walk: [3, 6, 1, 2, 8, 9, 13, 10],
         front: [14], front34: [15], back: [16], relaxed: [17], stride: [18], wave: [19], cheer: [20], sit: [21],
       },
     },
     // the drop down the drain: looks down the manhole, steps off, falls, lands, fixes his glasses, grins
     drain: {
-      src: "assets/character/drain.webp?v=1791024532", cols: 8,
+      src: "assets/character/drain.webp?v=1791026800", cols: 8,
       anims: {
         peer: [0, 1, 2], stepoff: [3, 4, 5], fallStart: range(6, 11), fall: range(12, 23), fallEnd: [24, 25],
         land: range(26, 31), smile: [32], glasses: [33], stand: [34], grin: [35],
       },
     },
     // stairs: climbing (0-7) and coming down (8-15); picked by cell, see CLIMB in js/main.js
-    stairs: { src: "assets/character/stairs.webp?v=1791024532", cols: 8, anims: { climb: range(0, 7), descend: range(8, 15) } },
+    stairs: { src: "assets/character/stairs.webp?v=1791026800", cols: 8, anims: { climb: range(0, 7), descend: range(8, 15) } },
   };
-  const FPS = { walk: 13, run: 20 };     // walk-cycle frames per second
+  const FPS = { walk: 9, run: 13 };      // walk-cycle frames per second (run = scrolling fast)
+  // he rises a little as his legs pass under him: lift per cycle frame, in box units (negative = up)
+  const BOB = { walk: [0, -1.5, -3.5, -1.5, 0, -1.5, -3.5, -1.5] };
   const ALIAS = { run: "walk" };
 
   const where = {};                      // anim -> its set
@@ -59,5 +64,6 @@
     W, H, STAND, frame,
     count: (anim) => { const a = lookup(anim); return where[a].anims[a].length; },
     fps: (anim) => FPS[anim] || FPS.walk,
+    bob: (anim, n) => { const b = BOB[lookup(anim)]; return b ? b[((n % b.length) + b.length) % b.length] : 0; },
   };
 })();
