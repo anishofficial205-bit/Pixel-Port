@@ -10,19 +10,19 @@
 
 .arrival { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end; justify-content: space-between; }
 .station-board.big { border-top: 8px solid var(--band); display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px 24px; }
-.station-board.big h1 { font-size: 32px; line-height: 1.2; text-shadow: 3px 3px 0 var(--outline); }
+.station-board.big h1 { font-size: 52px; line-height: 1.05; text-shadow: 3px 3px 0 var(--outline); }
 .station-board.big .bb-line { --band: inherit; background: var(--band); }
 
 .meta { margin: 0; display: flex; gap: 24px; flex-wrap: wrap; }
 .meta div { background: var(--night); padding: 8px 12px; box-shadow: 0 0 0 4px var(--outline); }
-.meta dt { font-family: var(--font-display); font-size: 8px; color: var(--neon-cyan); margin-bottom: 4px; }
+.meta dt { font-family: var(--font-label); font-weight: 700; font-size: 12px; color: var(--neon-cyan); margin-bottom: 4px; }
 .meta dd { margin: 0; }
 
 .hero-frame, .case-img { margin: 0; background: var(--outline); box-shadow: 0 0 0 4px #8C96A0, 0 0 0 8px #3E5460, 0 0 0 12px var(--outline); }
 .hero-frame img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
 .case-img img { width: 100%; height: 100%; object-fit: cover; }
 
-.lead { margin: 0; max-width: 60ch; font-size: 30px; line-height: 1.15; color: var(--paper); text-shadow: 2px 2px 0 var(--outline); }
+.lead { margin: 0; max-width: 60ch; font-size: 21px; line-height: 1.5; color: var(--paper); text-shadow: 2px 2px 0 var(--outline); }
 
 /* rows of work images: every image in a row shares one height */
 .gallery-row { display: flex; gap: 28px; }
@@ -30,16 +30,16 @@
 
 .features { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .features li { display: flex; flex-direction: column; gap: 6px; background: var(--night-mid); padding: 10px 12px; box-shadow: 0 0 0 3px var(--outline); }
-.features b { font-family: var(--font-display); font-size: 8px; line-height: 1.6; color: var(--neon-cyan); font-weight: 400; }
-.source-link { margin-right: auto; font-family: var(--font-body); font-size: 20px; color: var(--neon-cyan); }
+.features b { font-family: var(--font-label); font-weight: 700; font-size: 12px; line-height: 1.6; color: var(--neon-cyan); }
+.source-link { margin-right: auto; font-family: var(--font-body); font-size: 15px; color: var(--neon-cyan); }
 
 .case { display: flex; flex-direction: column; gap: 48px; }
 .case .dialog { max-width: 70ch; }
-.case .dialog h2 { font-size: 16px; color: var(--saffron); margin-bottom: 12px; }
-.case .dialog p { line-height: 1.3; }
+.case .dialog h2 { font-size: 26px; color: var(--saffron); margin-bottom: 12px; }
+.case .dialog p { line-height: 1.6; }
 .case .dialog p + p { margin-top: 14px; }
 
-.next-station { display: flex; align-items: center; gap: 16px; justify-content: flex-end; flex-wrap: wrap; font-family: var(--font-display); font-size: 8px; color: var(--sodium); }
+.next-station { display: flex; align-items: center; gap: 16px; justify-content: flex-end; flex-wrap: wrap; font-family: var(--font-label); font-weight: 700; font-size: 12px; color: var(--sodium); }
 
 /* blocky dissolve on arrival */
 .pixel-wipe {
@@ -50,8 +50,8 @@
 @keyframes wipe { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
 
 @media (max-width: 700px) {
-  .station-board.big h1 { font-size: 16px; }
-  .lead { font-size: 24px; }
+  .station-board.big h1 { font-size: 32px; }
+  .lead { font-size: 18px; }
   .gallery-row { flex-direction: column; gap: 24px; }
 }
 
@@ -60,7 +60,7 @@
 .all-page .station-board.big .hi { font-size: 18px; }
 .filters { display: flex; flex-wrap: wrap; gap: 10px; }
 .chip {
-  font-family: "Silkscreen", var(--font-display); font-size: 12px; line-height: 1; letter-spacing: 0.04em;
+  font-family: var(--font-label); font-weight: 700; text-transform: uppercase; font-size: 12px; line-height: 1; letter-spacing: 0.04em;
   padding: 10px 14px; border-radius: 999px; cursor: pointer; color: var(--paper);
   background: rgba(14, 9, 28, 0.7); border: 1px solid rgba(244, 230, 208, 0.14);
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
