@@ -1,5 +1,6 @@
 """Build the hero street from the illustrated source (assets/street/src/street-source.webp).
 
+The metro on the overpass is lifted out as its own image so it can move (see step 2).
 The source has a manhole painted in the middle of the road, but the manhole he drops into belongs to
 the drain art's pavement (tools/build_drain.py), so it is painted out of the road here. The leaves that
 overlap the tall billboard are cut out (assets/street/leaves.png) so they stay in front of the project ads.
@@ -36,9 +37,64 @@ for x in np.unique(xx[mask]):
         sy = top - 1 - rng.integers(0, 9) if rng.random() > t else bot + 1 + rng.integers(0, 9)
         sx = min(W - 1, max(0, x + rng.integers(-1, 2)))
         out[y, x] = a[min(H - 1, sy), sx]
-Image.fromarray(out.astype(np.uint8)).save(ROOT / "assets/scenes/street.webp", quality=93, method=6)
 
-# 2. leaves in front of the tall billboard: everything darker than the board, un-mixed from its cream
+# 2. the metro on the overpass moves, so it is lifted out of the painting:
+#    - assets/street/train.png: a three-car train built from the painted front car (tail = the front car
+#      mirrored, middle = its body without the nose)
+#    - the sky and the overpass railing are painted in where it stood
+#    - assets/street/posts.png: the two lamp posts that stand in front of it
+from scipy import ndimage as nd
+TX0, TX1, TY0, TY1 = 608, 1111, 342, 382     # the painted train: from the building's edge to its nose; roof to floor
+CAR = (768, 1110)                            # the front car, starting at the gap between cars
+BODY = 278                                   # ...and how much of it is plain body (before the nose)
+POSTS = (665, 966)                           # lamp posts in front of the train (x of each pole)
+RAIL = (1114, 1144, 364)                     # one period of the railing right of the nose (x from, to; top row)
+
+car = a[TY0:TY1, CAR[0]:CAR[1]].copy()
+px = POSTS[1] - CAR[0]                       # the post (and its box) crossing the front car: plain body over it,
+plain = a[TY0:TY1, 1010:1021]                # taken from between two windows further along
+car[:, px - 10:px + 12] = np.concatenate([plain, plain[:, ::-1]], 1)
+r, g, b = car[..., 0], car[..., 1], car[..., 2]
+lab, _ = nd.label((b > 130) & (g > 82) & (r < 70))                      # sky, reached from the crop's top right corner
+alpha = (lab != lab[0, -1]).astype(float)
+alpha[:, -8:] *= (r[:, -8:] > 150)                                       # a sliver of railing beside the nose
+alpha = nd.gaussian_filter(alpha, 0.6)
+front = np.dstack([car, alpha * 255])
+train = np.concatenate([front[:, ::-1], front[:, :BODY], front], 1)
+Image.fromarray(np.clip(train, 0, 255).astype(np.uint8)).save(ROOT / "assets/street/train.png", optimize=True)
+
+# sky where the train stood: grain from clear sky higher up, block by block, tinted to the sky just above
+tint = np.median(a[333:340, :], 0)
+tint[:TX0 + 36] = tint[TX0 + 36]                                        # (not the building's dark edge)
+tint = nd.uniform_filter1d(tint, 60, axis=0)
+for y in range(TY0 - 2, TY1, 10):
+    for x in range(TX0, TX1, 10):
+        h, w = min(10, TY1 - y), min(10, TX1 - x)
+        sx, sy = rng.integers(700, 930), rng.integers(268, 290)
+        blk = a[sy:sy + h, sx:sx + w]
+        out[y:y + h, x:x + w] = (blk - blk.mean((0, 1))) * 0.3 + tint[x:x + w].mean(0)   # the sky is smoother down here
+rx0, rx1, ry = RAIL                                                      # the railing carries on behind it
+tile = a[ry:TY1, rx0:rx1]
+for x in range(rx0 - (rx1 - rx0), TX0 - (rx1 - rx0), -(rx1 - rx0)):
+    x0 = max(x, TX0)
+    out[ry:TY1, x0:x + (rx1 - rx0)] = tile[:, x0 - x:]
+Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(ROOT / "assets/scenes/street.webp", quality=93, method=6)
+
+# the lamp posts, continued down from their cross-section just above the train
+PX0, PX1 = POSTS[0] - 9, POSTS[1] + 7
+posts = np.zeros((TY1 + 1 - (TY0 - 1), PX1 - PX0, 4))
+for cx in POSTS:
+    sec = a[326:338, cx - 5:cx + 6].mean(0)
+    sky = np.median(a[326:338, cx - 12:cx - 6].reshape(-1, 3), 0)
+    al = np.clip((sky.sum() - sec.sum(-1)) / (sky.sum() - 40), 0, 1)
+    posts[:, cx - 5 - PX0:cx + 6 - PX0, :3] = [14, 10, 24]
+    posts[:, cx - 5 - PX0:cx + 6 - PX0, 3] = np.clip(al * 1.4, 0, 1) * 255
+bx = POSTS[0] - PX0                                                      # the left post's junction box
+posts[357 - TY0 + 1:374 - TY0 + 1, bx - 5:bx + 4] = [14, 10, 24, 255]
+Image.fromarray(posts.astype(np.uint8)).save(ROOT / "assets/street/posts.png", optimize=True)
+print("train", train.shape[1], "x", train.shape[0], "| track x", TX0, "y", TY0, "| posts box", [PX0, TY0 - 1, PX1 - PX0, posts.shape[0]])
+
+# 3. leaves in front of the tall billboard: everything darker than the board, un-mixed from its cream
 bx0, by0, bx1, by1 = LEAVES
 reg = a[by0:by1, bx0:bx1]
 lum = reg @ np.array([0.299, 0.587, 0.114])

@@ -142,6 +142,9 @@
       mid: [[777, 405], [970, 405], [970, 450], [777, 450]],      // banner on the metro overpass
     },
     leaves: [1398, 360, 44, 74],   // tree leaves in front of the tall board: x, y, w, h
+    // the metro on the overpass (tools/build_street.py): the stretch of track between the buildings
+    // (x, y, w, h), the train's length, where its nose rests when it isn't moving, the lamp posts in front
+    train: { track: [608, 342, 572, 40], len: 962, rest: 501, posts: [656, 341, 317, 42] },
     steam: [1464, 566, 52, 58],    // above the chai kettle
   };
 
@@ -293,6 +296,8 @@
         <div class="plain-hero-bg" aria-hidden="true">
           <div class="plain-art">
             <img src="assets/scenes/street.webp" alt="" />
+            ${((T) => `<div class="train-track" style="--x:${T.track[0]}px;--y:${T.track[1]}px;--w:${T.track[2]}px;--h:${T.track[3]}px;--len:${T.len}px;--rest:${T.rest - T.len}px"><img src="assets/street/train.png" alt="" /></div>
+            <img class="train-posts" src="assets/street/posts.png" alt="" style="--x:${T.posts[0]}px;--y:${T.posts[1]}px;--w:${T.posts[2]}px;--h:${T.posts[3]}px" />`)(STREET.train)}
             <a class="bb-map bb-ad bb-left" data-quad="left" data-start="0" tabindex="-1"></a>
             <a class="bb-map bb-ad bb-led" data-quad="led" data-start="1" tabindex="-1"></a>
             <a class="bb-map bb-ad bb-mid" data-quad="mid" data-start="2" tabindex="-1"></a>
@@ -514,6 +519,10 @@
     // place content inside scenes
     const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
     art($("#street .bb-leaves"), STREET.leaves);
+    art($("#street .train-track"), STREET.train.track);
+    art($("#street .train-posts"), STREET.train.posts);
+    $("#street .train-track").style.setProperty("--len", Math.round(STREET.train.len * ss) + "px");
+    $("#street .train-track").style.setProperty("--rest", Math.round((STREET.train.rest - STREET.train.len) * ss) + "px");
     art($(".steam"), STREET.steam);
     // focus windows: one soft ellipse per billboard, plus the character's (its position is a CSS var)
     {

@@ -390,6 +390,15 @@ body::after {
 .bb-ad::after { z-index: 2; }                     /* lamp wash stays on top too */
 .bb-ad:hover .ad.on .ad-img, .bb-ad:focus-visible .ad.on .ad-img { filter: brightness(1.15); }
 
+/* the metro crosses the overpass every so often: it comes out from behind the buildings on the left,
+   nose first, and slips behind the ones on the right. Without motion it rests where it was painted. */
+.train-track, .plain-art > img.train-posts, .train-posts { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); inset-inline-end: auto; bottom: auto; pointer-events: none; }
+.train-track { overflow: hidden; }
+.train-track img { position: absolute; left: 0; top: 0; width: var(--len); height: 100%; max-width: none; transform: translateX(var(--rest)); animation: metro 16s linear -3s infinite; }
+@keyframes metro {
+  0% { transform: translateX(calc(-1 * var(--len))); }
+  62%, 100% { transform: translateX(var(--w)); }      /* about ten seconds to cross, then a quiet overpass */
+}
 /* life in the street: steam off the chai kettle */
 .steam { width: var(--w); height: var(--h); }
 .steam i {
