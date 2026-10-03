@@ -31,20 +31,19 @@
     rails: [362, 240, 1310, 376],      // assets/subway/rails.png: the railings drawn in front of him
   };
 
-  /* Climbing the stairs is driven by scroll, one stride at a time, so his feet land on the steps:
-     reach (front foot in the air) -> plant (it lands a stride up) -> rise (he pushes up on it, the back
-     foot leaves its step) -> push (he's up; the back leg trails). His height holds through reach and
-     plant and comes up through rise and push; he moves forward mostly as he rises.
-     Frames are cells of assets/character/stairs.webp; `last` replaces the final stride's plant and push
-     (the last step, then the stride onto the lobby floor). */
+  /* Stairs are driven by scroll, one stride at a time, so his feet land on the steps:
+     reach (front foot in the air) -> plant (it lands a stride on) -> rise (he shifts onto it, the back
+     foot leaves its step) -> push (the back leg trails). His height holds through reach and plant and
+     changes through rise and push; he moves forward mostly in the second half.
+     Frames are cells of assets/character/stairs.webp (0-7 climbing, 8-15 coming down); `first` is the
+     flight's first stride and `last` replaces the final stride's last frames (stepping off). */
   const CLIMB = {
     strides: 7, px: 110,                         // strides in the flight, scroll px per stride
-    first: [1, 3, 2, 5], even: [7, 6, 4, 5], odd: [11, 10, 8, 9], last: [null, 12, null, 13],
+    up: { first: [0, 0, 1, 2], even: [7, 4, 5, 6], odd: [7, 0, 2, 3], last: [null, null, 6, 7] },
+    down: { first: [1, 0, 2, 3], even: [4, 0, 2, 3], odd: [5, 0, 1, 3], last: [null, null, 6, 7] },
     forward: 0.3,                                // share of a stride's forward travel made during reach + plant
-    rise: [[0.375, 0], [0.625, 0.55], [0.875, 1]],   // [phase, share of the stride's rise]
+    rise: [[0.375, 0], [0.625, 0.55], [0.875, 1]],   // [phase, share of the stride's rise or drop]
   };
-  // Character sheet per location (js/sprite.js SETS); locations without one use the pixel sheet
-  const SPRITE_SET = { street: "street", drain: "drain", subway: "street", cinema: "street", exhibition: "street", rooftop: "street" };
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
   const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
@@ -62,11 +61,6 @@
   const ABOUT_TEXT_START = 0.03;        // after the panel appears, this much of the fall before words light up
   const ABOUT_HOLD = 0.03;              // fully lit for this much of the fall before fading
   const ABOUT_FADE = 0.06;              // fade-out length; it ends exactly as his feet reach the subway grate
-
-  const RIM = {
-    street: "#FF3D9A", drain: "#6BE3A8", subway: "#E8FBFF",
-    cinema: "#D9A441", exhibition: "#FFE3B0", rooftop: "#FFB26B",
-  };
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -209,7 +203,7 @@
   // assets/scenes/rooftop.webp: the rooftop at night (the footer)
   const ROOFTOP = {
     w: 1672, h: 941,
-    door: [95, 738], spot: [850, 772], tall: 250,   // out of the door, over to the bench; his height here
+    door: [95, 738], spot: [985, 728], tall: 250,   // out of the door, over to the bench he sits on; his height here
     sky: [170, 70, 760],        // credits sit in the sky left of the moon: x, y, width
     bulbs: [[904, 417], [975, 435], [1058, 446], [1150, 445], [1235, 433], [1290, 417]],
     hoardings: [[503, 404, 52, 33], [621, 445, 42, 29], [1206, 471, 45, 28], [1390, 448, 49, 33], [1481, 349, 60, 44]],
@@ -412,7 +406,7 @@
     L.gy = snap(vh * 0.8);
     // character scale: a whole number of device pixels per sheet pixel keeps him sharp
     const dpr = window.devicePixelRatio || 1;
-    L.ck = Math.max(1, Math.round(((vh * 0.2) / 170) * dpr)); // device px per sheet px
+    L.ck = Math.max(1, Math.round(((vh * 0.2) / Sprite.STAND) * dpr)); // device px per sheet px: he stands 20% of the screen tall
     L.cs = L.ck / dpr;                                         // css px per sheet px
 
     // 1. street: the art covers the screen (wide screens tilt down it, tall ones pan across)
@@ -505,7 +499,7 @@
     const rs = Math.max(vw / R.w, vh / R.h);
     const rooftop = { x: exhibition.x + exhibition.w + vw, y: front.y, w: Math.round(R.w * rs), h: Math.round(R.h * rs), s: rs };
     // the final view: the bench in the middle, the roof floor at the bottom of the screen
-    L.endCam = { x: rooftop.x + Math.min(Math.max((R.spot[0] + 160) * rs - vw / 2, 0), rooftop.w - vw), y: rooftop.y + rooftop.h - vh };
+    L.endCam = { x: rooftop.x + Math.min(Math.max((R.spot[0] + 30) * rs - vw / 2, 0), rooftop.w - vw), y: rooftop.y + rooftop.h - vh };
 
     Object.assign(L, { street, mh, camStart, camEnd, drain, subway, stairwell, front, backstairs, exhibition, rooftop, boards, frames });
 
@@ -618,9 +612,9 @@
     add({ loc: "street", pose: "walk", scale: hs, a: [xa, sgy], b: [stand, my], len: Math.max(80, Math.hypot(stand - xa, my - sgy)),
       cam: (t, p) => ({ x: camX(p), y: lerp(camEnd.y, dropCam.y, ease(t)) }) });
     // he looks down the hole, then steps off, back down to his usual size as he goes
-    add({ id: "open", loc: "street", set: "drain", pose: "open", scale: hs, a: [stand, my], b: [stand, my], len: 130,
+    add({ id: "open", loc: "street", pose: "open", scale: hs, a: [stand, my], b: [stand, my], len: 130,
       cam: () => ({ x: openX, y: dropCam.y }) });
-    add({ id: "hop", loc: "street", set: "drain", pose: "hop", scale: (t) => lerp(hs, 1, ease(t)), a: [stand, my], b: [mh, my], len: 150,
+    add({ id: "hop", loc: "street", pose: "hop", scale: (t) => lerp(hs, 1, ease(t)), a: [stand, my], b: [mh, my], len: 150,
       ease: "arc", arc: Sprite.H * L.cs * hs * DROP.arc, cam: (t) => ({ x: lerp(openX, camEnd.x, t), y: dropCam.y }) });
     // fall past the About panel: steady speed, camera keeps him ~40% down the screen.
     // About is gone the moment his feet reach the grate into the subway (the fall is linear in y)...
@@ -636,7 +630,7 @@
         return { x: camEnd.x, y: Math.min(Math.max(p.y - vh * view, camEnd.y), subCamY) };
       } });
     // lands in a crouch, rises, fixes his glasses, grins (still the drain's sheet)
-    add({ loc: "subway", set: "drain", pose: "land", a: [mh, sy], b: [mh, sy], len: 280, bubble: ["Next stop: Projects!", 0.72, 1],
+    add({ loc: "subway", pose: "land", a: [mh, sy], b: [mh, sy], len: 280, bubble: ["Next stop: Projects!", 0.8, 1],
       cam: () => ({ x: camEnd.x, y: subCamY }) });
     // --- platform, stairs and lobby ---
     const T = stairwell, P = STAIRWELL, smooth = (u) => { u = Math.min(1, Math.max(0, u)); return u * u * (3 - 2 * u); };
@@ -663,18 +657,18 @@
     // past the foot of the stairs, back across the platform to the first step, then up them (they climb
     // to the left) between the railings, a little smaller with every step (the lobby is drawn further away)
     add({ loc: "subway", pose: "walk", railsBehind: true, a: [leave, sy], b: bottom, len: Math.hypot(bottom[0] - leave, bottom[1] - sy), cam: walkCam });
-    add({ id: "stairs", loc: "subway", loc2: "cinema", set: "street", pose: "walk", stairs: true, a: bottom, b: top, scale: (t) => lerp(1, up, t),
+    add({ id: "stairs", loc: "subway", loc2: "cinema", pose: "walk", stairs: true, a: bottom, b: top, scale: (t) => lerp(1, up, t),
       len: CLIMB.strides * CLIMB.px, cam: walkCam });
     // he turns at the top and steps onto the lobby floor: feet ease down the last few px so they don't pop
-    add({ loc: "cinema", set: "street", pose: "walk", ease: "smooth", scale: up, a: top, b: onto, len: Math.max(40, onto[0] - top[0]), cam: walkCam });
+    add({ loc: "cinema", pose: "walk", ease: "smooth", scale: up, a: top, b: onto, len: Math.max(40, onto[0] - top[0]), cam: walkCam });
     // at the ticket booth he stops and takes the cinema in: a gasp, a delighted look, a grin
     const door = T.px((P.door[0] + P.door[1]) / 2, P.lobby), tkt = T.px(P.ticket, P.lobby);
     const lobbyCam = (p) => clampT({ x: p.x - vw * 0.4, y: lobbyCamY });
-    add({ loc: "cinema", set: "street", pose: "walk", scale: up, a: onto, b: tkt, len: Math.max(40, tkt[0] - onto[0]), cam: walkCam });
-    add({ id: "tickets", loc: "cinema", set: "stairs", pose: "react", scale: up, a: tkt, b: tkt, len: 320,
+    add({ loc: "cinema", pose: "walk", scale: up, a: onto, b: tkt, len: Math.max(40, tkt[0] - onto[0]), cam: walkCam });
+    add({ id: "tickets", loc: "cinema", pose: "react", scale: up, a: tkt, b: tkt, len: 320,
       bubble: ["Ek ticket, please!", 0.62, 1], cam: (t, p) => lobbyCam(p) });
     // ...then on past the posters and the popcorn to the red doors
-    add({ id: "lobby", loc: "cinema", set: "street", pose: "walk", scale: up, a: tkt, b: door, len: door[0] - tkt[0],
+    add({ id: "lobby", loc: "cinema", pose: "walk", scale: up, a: tkt, b: door, len: door[0] - tkt[0],
       cam: (t, p) => lobbyCam(p) });
     L.stairwellPath = [[leave, sy], bottom, top, onto, tkt, door];       // for debug mode
     const tri = (t) => 1 - Math.abs(2 * t - 1);                  // 0 -> 1 -> 0: a cut at the midpoint
@@ -684,7 +678,7 @@
     // he stops beside the stage, left of the screen and controls (on phones: the left edge of the view)
     const leftArt = (frontCam.x - front.x - front.ox) / fs;
     const enter = [fx(F.door), fy], spot = [fx(Math.max(F.stand, leftArt + 70)), fy], exit = [fx(F.exit), fy];
-    add({ loc: "cinema", set: "street", pose: "walk", scale: up, a: door, b: enter, len: 260, ease: "cut",
+    add({ loc: "cinema", pose: "walk", scale: up, a: door, b: enter, len: 260, ease: "cut",
       cut: tri, cam: (t) => (t < 0.5 ? doorCam : frontCam) });
     add({ loc: "cinema", pose: "walk", a: enter, b: spot, len: Math.max(160, spot[0] - enter[0]),
       bubble: ["Housefull!", 0.2, 0.9], cam: () => frontCam });
@@ -794,67 +788,52 @@
     const moving = now - lastMove < 160;
     const tick = (ms) => Math.floor(now / ms);
     const saying = s.bubble && t >= s.bubble[1] && t <= s.bubble[2];
-    let anim = "idle", n = tick(260), pos = p, mirror = false;   // pos: where he is drawn (the camera follows p)
+    let anim = "idle", n = 0, pos = p, mirror = false;     // pos: where he is drawn (the camera follows p)
     const cutSide = s.ease === "cut" && t >= 0.5;          // past the midpoint of a cut
     const poseNow = cutSide && s.pose2 ? s.pose2 : s.pose;
     const loc = s.loc2 && t > (s.ease === "cut" ? 0.5 : 0.55) ? s.loc2 : s.loc;
     const w = Sprite.W * L.cs, h = Sprite.H * L.cs;
-    // his sheet: the segment's or the location's own, if any (a cut leaves the segment's sheet behind)
-    let set = (!cutSide && s.set) || SPRITE_SET[loc] || "pixel";
     switch (poseNow) {
       case "walk":
-        if (s.stairs && facing === Math.sign(s.b[0] - s.a[0])) {
-          // going up: see CLIMB. A flight that runs right to left uses the same frames, mirrored.
-          // (Coming back down he just walks: there are no frames for that.)
-          mirror = s.b[0] < s.a[0];
-          const N = s.strides || CLIMB.strides, q = Math.min(N - 1e-4, t * N), k = Math.floor(q), u = q - k, ph = Math.floor(u * 4);
-          set = "stairs"; anim = "climb";
-          n = (k === 0 ? CLIMB.first : k % 2 ? CLIMB.odd : CLIMB.even)[ph];
-          if (k === N - 1 && CLIMB.last[ph] != null) n = CLIMB.last[ph];
+        if (s.stairs) {
+          // see CLIMB. Going up or coming back down, one stride at a time; the frames face right, so a
+          // flight taken to the left is mirrored.
+          const up = facing === Math.sign(s.b[0] - s.a[0]), A = up ? s.a : s.b, B = up ? s.b : s.a;
+          const N = s.strides || CLIMB.strides, q = Math.min(N - 1e-4, Math.max(0, (up ? t : 1 - t) * N)), k = Math.floor(q), u = q - k, ph = Math.floor(u * 4);
+          const F = up ? CLIMB.up : CLIMB.down;
+          anim = up ? "climb" : "descend"; mirror = B[0] < A[0];
+          n = (k === 0 ? F.first : k % 2 ? F.odd : F.even)[ph];
+          if (k === N - 1 && F.last[ph] != null) n = F.last[ph];
           const f = CLIMB.forward, R = CLIMB.rise;
           const fx = u < 0.5 ? u * 2 * f : f + (u - 0.5) * 2 * (1 - f);
           let fy = u <= R[0][0] ? 0 : 1;
           for (let i = 1; i < R.length; i++) if (u > R[i - 1][0] && u <= R[i][0]) fy = R[i - 1][1] + (R[i][1] - R[i - 1][1]) * (u - R[i - 1][0]) / (R[i][0] - R[i - 1][0]);
-          pos = { x: s.a[0] + (s.b[0] - s.a[0]) * (k + fx) / N, y: s.a[1] + (s.b[1] - s.a[1]) * (k + fy) / N };
+          pos = { x: A[0] + (B[0] - A[0]) * (k + fx) / N, y: A[1] + (B[1] - A[1]) * (k + fy) / N };
         } else if (moving) {
-          // steady game cadence (8 fps walk, 12 fps run), like the style guide's steps() timing
           anim = running ? "run" : "walk";
-          stepPhase += (dt / 1000) * Sprite.fps(set, anim);
+          stepPhase += (dt / 1000) * Sprite.fps(anim);
           n = Math.floor(stepPhase);
-        } else if (hoverLook && s.loc === "subway") anim = "point";
-        else if (s.loc === "exhibition") {   // looking at the photos
-          if (Sprite.painted(set)) { set = "stairs"; anim = tick(3200) % 4 === 3 ? "grin" : "awe"; n = 0; }
-          else { anim = tick(2400) % 2 ? "gaze" : "look"; n = tick(900); }
-        }
-        else if (s.id === "intro" && !saying) {   // a wave, then a pause
-          const wn = Sprite.count(Sprite.resolve(set, "wave", 1).anim, set), k = tick(170) % (wn * 3);
-          anim = k < wn ? "wave" : "idle"; n = k < wn ? k : tick(260);
-        }
-        else if (saying) { anim = "talk"; n = tick(220); }
+        } else if (hoverLook && s.loc === "subway") anim = "wave";
+        else if (s.loc === "exhibition") anim = tick(3200) % 4 === 3 ? "front34" : "back";   // looking at the photos
+        else if (s.id === "intro" && !saying) anim = tick(700) % 3 === 0 ? "wave" : "front"; // a wave, then a pause
+        else if (saying) anim = "front";
         break;
-      case "react": anim = t < 0.3 ? "gasp" : t < 0.62 ? "happy" : "grin"; n = 0; break;
-      case "open": anim = "peer"; n = 0; break;
-      case "hop": anim = t < 0.22 ? "stepoff" : "fallStart"; n = t < 0.22 ? 0 : Math.min(3, Math.floor(((t - 0.22) / 0.78) * 4)); break;
-      case "fall": anim = t >= s.aboutEnter ? "fallEnd" : "fall"; n = tick(150); break;   // legs down once he's through the grate
-      case "land": anim = t < 0.45 ? "land" : t < 0.72 ? "glasses" : "smile"; n = t < 0.14 ? 0 : t < 0.32 ? 1 : 2; break;
-      case "jump": anim = "jump"; n = Math.min(4, Math.floor(t * 5)); break;
-      case "look": anim = "look"; n = tick(700); break;
-      case "watch":
-        if (Sprite.painted(set)) { set = "stairs"; anim = tick(3200) % 4 === 3 ? "grin" : "awe"; n = 0; }   // eyes on the screen, now and then a grin
-        else { anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = s.face || -1; }
+      case "react": anim = t < 0.3 ? "stand" : t < 0.62 ? "cheer" : "grin"; break;
+      case "open": anim = "peer"; n = Math.min(2, Math.floor(t * 3)); break;
+      case "hop":
+        if (t < 0.35) { anim = "stepoff"; n = Math.floor((t / 0.35) * 3); }
+        else { anim = "fallStart"; n = Math.min(5, Math.floor(((t - 0.35) / 0.65) * 6)); }
         break;
-      case "end": {   // by the bench: a wave, then a pause
-        const wn = Sprite.count(Sprite.resolve(set, "wave", 1).anim, set), k = tick(170) % (wn * 3);
-        anim = k < wn ? "wave" : "idle"; n = k < wn ? k : tick(260);
+      case "fall": anim = t >= s.aboutEnter ? "fallEnd" : "fall"; n = tick(t >= s.aboutEnter ? 220 : 110); break;   // legs down once he's through the grate
+      case "land":
+        if (t < 0.45) { anim = "land"; n = Math.min(5, Math.floor((t / 0.45) * 6)); }
+        else anim = t < 0.6 ? "smile" : t < 0.8 ? "glasses" : "grin";
         break;
-      }
+      case "watch": anim = tick(3200) % 4 === 3 ? "front34" : "back"; break;   // eyes on the screen, now and then a look round
+      case "end": anim = "sit"; break;                                          // on the bench with his chai
     }
-    let flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);   // climb frames are drawn facing their direction
-    const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown", "peer", "land", "glasses", "smile", "climb", "gasp", "happy", "grin", "awe"].includes(anim);
-    // painted sheets have their own left-facing frames instead of being mirrored
-    const use = Sprite.resolve(set, anim, facing);
-    set = use.set; anim = use.anim; flips = flips && use.flip;
-    const painted = Sprite.painted(set);
+    const flips = ["walk", "run", "idle"].includes(anim);   // side-on frames face the way he's going
+    const grounded = !["fall", "fallStart", "fallEnd", "stepoff", "cheer", "sit"].includes(anim);
 
     // location
     if (loc !== lastLoc) {
@@ -863,14 +842,14 @@
       markSection(loc);
     }
 
-    // draw sprite (frames are cached per location tint)
-    const key = set + anim + (n % Sprite.count(anim, set)) + loc;
+    // draw sprite
+    const key = anim + (n % Sprite.count(anim));
     if (key !== lastKey) {
-      const src = Sprite.frame(anim, n, RIM[loc], set);
+      const src = Sprite.frame(anim, n);
       if (src) {
         lastKey = key;
         const c = sprite.getContext("2d");
-        c.imageSmoothingEnabled = painted; c.imageSmoothingQuality = "high";   // pixel art stays crisp
+        c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
         c.clearRect(0, 0, sprite.width, sprite.height);
         c.drawImage(src, 0, 0, sprite.width, sprite.height);
       }
@@ -882,15 +861,13 @@
     }
     const sc = cutSide ? s.scale2 : s.scale;               // cuts can change his scale on the far side
     const scale = (typeof sc === "function" ? sc(t) : sc) || 1;
-    const bob = Sprite.bob(anim, n, set) * L.cs;
-    charEl.style.transform = `translate3d(${Math.round(pos.x - w / 2)}px, ${Math.round(pos.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
+    charEl.style.transform = `translate3d(${Math.round(pos.x - w / 2)}px, ${Math.round(pos.y - h)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
     charEl.style.setProperty("--face", mirror ? -1 : flips ? facing : 1);
     backRails.classList.toggle("behind", !!s.railsBehind);   // on the floor he passes in front of the staircase
     stairRails.classList.toggle("behind", !!s.railsBehind);
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size
 
     charEl.classList.toggle("no-shadow", !grounded);
-    charEl.classList.toggle("painted", painted);
 
     const z = cam.z || 1;
     world.style.transform = z === 1
