@@ -8,7 +8,7 @@
 (function () {
   const T = { ready: 250, set: 800, go: 1350, logo: 1900, minHold: 650, maxWait: 6000, dissolve: 700, block: 36, blockTime: 160 };
   // Arcade art (assets/preloader/arcade.webp, 1672 x 941): the CRT's centre and height, in art px
-  const ART = { w: 1672, h: 941, cabinetW: 600, screen: { cx: 837, cy: 340, h: 248, w: 354 } };
+  const ART = { w: 1672, h: 941, cabinetW: 560, screen: { cx: 848, cy: 332, h: 222, w: 312 } };
   // camera per beat: [zoom, pull]. zoom 0 = the widest shot (the room, or on phones the whole cabinet),
   // 1 = closest (the CRT fills most of the view but never overflows it). pull = how far the CRT has moved
   // to the middle of the screen.
@@ -103,7 +103,7 @@
   });
 
   // Radial pixel transition: a grid of blocks covers the screen, then a ring grows from the centre.
-  // Each block flashes saffron, then magenta, as the ring reaches it and shrinks away in four steps,
+  // Each block flashes amber, then red, as the ring reaches it and shrinks away in four steps,
   // so the street opens up from the middle behind a stepped circular edge.
   let revealing = false;
   function reveal() {
@@ -129,7 +129,7 @@
           alive++;
           const step = p <= 0 ? 0 : Math.min(4, 1 + Math.floor(p * 4));     // 0 = whole, 1-4 = shrinking
           const size = B * (1 - step / 4.5), off = (B - size) / 2;
-          g.fillStyle = step === 0 ? "#120A26" : step === 1 ? "#FF9933" : step === 2 ? "#FF3D9A" : "#2A0F3E";
+          g.fillStyle = step === 0 ? "#120A26" : step === 1 ? "#FFC24A" : step === 2 ? "#D8261C" : "#101A4A";
           g.fillRect(k * B + off, r * B + off, size, size);
         }
         if (alive) requestAnimationFrame(frame); else finish();
