@@ -77,13 +77,15 @@
     $("#mail-link").textContent = S.email;
     $("#copyright").textContent = `© ${S.year} ${S.name} · NEON BHARAT GAMES`;
 
+    // each board is an ad for one project: the picture, then its line, title, blurb and a way in
     $("#billboards").innerHTML = S.featured().map((p, i) => `
-      <a class="billboard" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}">
-        <span class="bb-window"><span class="ad-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1024)}" alt="${p.title}: ${p.blurb}" decoding="async" /></span>
-        <span class="bb-sign" style="--band:${p.band}">
-          <span class="bb-line">${p.line}</span>
+      <a class="billboard" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="--band:${p.band}">
+        <span class="bb-pic"><span class="ad-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1024)}" alt="" decoding="async" /></span>
+        <span class="bb-info">
+          <span class="bb-line">${p.line} · ${p.meta.category || ""}</span>
           <span class="bb-title">${p.title}</span>
           <span class="bb-blurb">${p.blurb}</span>
+          <span class="bb-go">View project</span>
         </span>
       </a>`).join("");
 
@@ -119,6 +121,7 @@
     face.style.setProperty("--ar", P.w / P.h);
     face.style.backgroundSize = `${P.frames * 100}% 100%`;
 
+    boardEls = $$(".billboard");
     renderPlain();
     adBoards();
 
@@ -161,6 +164,8 @@
     sign: [[985, 162], [1165, 162], [1165, 224], [985, 224]],   // station sign, hung in the dark of the ceiling
     // blank billboards on the tiled wall: x, y, w, h
     boards: [[1935, 346, 473, 190], [2609, 346, 506, 190], [3607, 346, 473, 190], [4281, 346, 506, 190]],
+    dim: [1500, 5016], dimBy: 0.5,   // the shaded stretch (x from, to) and how dark
+    reach: 430,                      // a board lights up when he is within this of its centre
   };
 
   // assets/scenes/cinema-front.webp (1672 x 941): the auditorium's front view
@@ -455,7 +460,7 @@
     // 3. subway: flush under the drain, whose grate covers the subway's own
     const subway = {
       x: drain.x, y: Math.round(drain.y + drain.h - SUBWAY.cut * ss),
-      w: Math.round(SUBWAY.w * ss), h: Math.round(SUBWAY.h * ss),
+      w: Math.round(SUBWAY.w * ss), h: Math.round(SUBWAY.h * ss), s: ss,
     };
     L.sy = subway.y + Math.round(SUBWAY.floor * ss);                                   // platform feet line
     L.subCamY = Math.min(Math.max(subway.y, L.sy - vh * 0.8), subway.y + subway.h - vh);
@@ -529,6 +534,9 @@
     const signW = SUBWAY.sign[1][0] - SUBWAY.sign[0][0], signX = Math.min(SUBWAY.sign[0][0], (camEnd.x + vw) / ss - signW - 14);
     const sign = SUBWAY.sign.map(([x, y]) => [x - SUBWAY.sign[0][0] + signX, y]);
     mapToQuad($(".station-board"), sign, ss);
+    // the wall, platform and tracks are shaded along the stretch with the boards, so the projects stand out
+    setBox($(".sub-dim"), Math.round(SUBWAY.dim[0] * ss), 0, Math.round((SUBWAY.dim[1] - SUBWAY.dim[0]) * ss), subway.h);
+    $(".sub-dim").style.opacity = SUBWAY.dimBy;
     // "View all projects" plate hangs under the station sign
     {
       const [[x0], [x1], [, y1]] = sign, y = y1 + 9;
@@ -763,6 +771,7 @@
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
   const cutEl = $(".cut"), backRails = $(".back-rails"), stairRails = $(".stair-rails");
+  let litBoard = -1, boardEls = [];
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
   function frame(now) {
@@ -865,6 +874,13 @@
     const bob = Sprite.bob(anim, n) * L.cs * scale;        // the walk's rise and fall
     charEl.style.transform = `translate3d(${Math.round(pos.x - w / 2)}px, ${Math.round(pos.y - h + bob)}px, 0)` + (scale !== 1 ? ` scale(${scale.toFixed(3)})` : "");
     charEl.style.setProperty("--face", mirror ? -1 : flips ? facing : 1);
+    // the board he is standing at lights up and comes forward
+    let lit = -1;
+    if (loc === "subway" && !cutSide) {
+      const ax = (p.x - L.subway.x) / L.subway.s;
+      SUBWAY.boards.forEach(([bx, , bw], i) => { const d = Math.abs(ax - (bx + bw / 2)); if (d < SUBWAY.reach && (lit < 0 || d < Math.abs(ax - (SUBWAY.boards[lit][0] + SUBWAY.boards[lit][2] / 2)))) lit = i; });
+    }
+    if (lit !== litBoard) { litBoard = lit; boardEls.forEach((el, i) => el.classList.toggle("lit", i === lit)); }
     backRails.classList.toggle("behind", !!s.railsBehind);   // on the floor he passes in front of the staircase
     stairRails.classList.toggle("behind", !!s.railsBehind);
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size
