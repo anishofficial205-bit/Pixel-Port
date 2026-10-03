@@ -87,11 +87,10 @@
         </span>
       </a>`).join("");
 
-    $("#tickets").innerHTML = S.reels.map((r, i) => `
-      <li><button class="ticket" type="button" data-i="${i}" aria-pressed="${i === 0}">
-        <span class="t-no">No. ${String(i + 1).padStart(3, "0")}</span>
-        <span class="t-title">${r.title}</span>
-        <span class="t-len">${r.length}</span>
+    $("#reel-posters").innerHTML = S.reels.map((r, i) => `
+      <li><button class="reel-poster" type="button" data-i="${i}" aria-pressed="${i === 0}">
+        <img class="work-media" src="${r.poster}" alt="" loading="lazy" decoding="async" />
+        <span><b>${r.title}</b><small>${r.length}</small></span>
       </button></li>`).join("");
 
     $("#photos").innerHTML = S.photos.map((p, i) => `
@@ -169,7 +168,7 @@
     w: 1672, h: 941,
     front: {
       screen: [501, 191, 668, 308],      // the screen, cut out of the art; the reel plays behind it
-      stage: [430, 546, 812, 44],        // the stage front: reel controls live here
+      stage: [372, 540, 928, 54],        // the stage front: the reel posters stand here
       rowTop: 618,                       // seats from the first row down (assets/cinema/seat-row.webp) are drawn in front of him
       door: 128, exit: 1545, floor: 618, // left door he enters by, right door he leaves by; his feet, just behind the first row
       stand: 330,                        // where he stops, left of the stage, to watch
@@ -389,6 +388,7 @@
   /* ================= LAYOUT ================= */
   const L = {}; // layout numbers
   let segs = [], total = 0, stops = {};
+  let pauseReel = () => {};             // set once the cinema's player exists
 
   const setBox = (el, x, y, w, h) => {
     el.style.setProperty("--x", x + "px"); el.style.setProperty("--y", y + "px");
@@ -546,8 +546,9 @@
     });
     const F = C.front, fbox = (el, [x, y, w, h]) => setBox(el, Math.round(x * fs), Math.round(y * fs), Math.round(w * fs), Math.round(h * fs));
     setBox($(".front-art"), front.ox, front.oy, fw, fh);
+    $(".front-art").style.setProperty("--u", fs.toFixed(3));   // the player's type scales with the hall
     fbox($(".cinema-content"), F.screen);
-    // controls sit on the stage front; on tall narrow screens there's room below the room instead
+    // the posters stand on the stage front; on tall narrow screens there's room below the hall instead
     const visLeft = Math.min(Math.max(front.ox + 836 * fs - vw / 2, 0), front.w - vw) - front.ox;   // camera's left edge, in art-box px
     if (front.h - front.oy - fh > 140) setBox($(".reel-bar"), visLeft + 12, fh + 10, vw - 24, front.h - front.oy - fh - 20);
     else fbox($(".reel-bar"), F.stage);
@@ -836,6 +837,7 @@
 
     // location
     if (loc !== lastLoc) {
+      if (lastLoc === "cinema") pauseReel();              // leaving the cinema stops the reel
       lastLoc = loc;
       body.dataset.location = loc;
       markSection(loc);
@@ -956,6 +958,7 @@
     body.classList.toggle("ride", ride);
     body.classList.toggle("static", !ride);
     markView(ride);
+    pauseReel();
     store.set("nb-mode", ride ? "ride" : "static");
     if (!ride) { world.style.transform = ""; body.dataset.location = "street"; requestAnimationFrame(fitPlainArt); }
     layout();
@@ -1003,33 +1006,67 @@
     // photos: keep the character walking to a focused frame
     $$(".photo-frame").forEach((b) => b.addEventListener("click", () => openLightbox(+b.dataset.i)));
 
-    // reels
-    let reel = 0, muted = true;
-    const media = $("#screen-media");
-    const showReel = (i) => {
+    // reels: the screen is the player, the posters on the stage pick the reel
+    const ICON = {
+      play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+      pause: '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>',
+      sound: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>',
+      muted: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm18.5.9-1.4-1.4-2.6 2.6-2.6-2.6-1.4 1.4 2.6 2.6-2.6 2.6 1.4 1.4 2.6-2.6 2.6 2.6 1.4-1.4-2.6-2.6z"/></svg>',
+      full: '<svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg>',
+    };
+    let reel = 0, muted = false, wake;
+    const media = $("#screen-media"), player = $(".player"), seek = $("#reel-seek");
+    const video = () => $("video", media);
+    const clock = (t) => (isFinite(t) ? `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}` : "0:00");
+    // bring the controls in line with the video's state
+    const sync = () => {
+      const v = video(), r = S.reels[reel], playing = !!v && !v.paused && !v.ended;
+      player.classList.toggle("playing", playing);
+      player.classList.toggle("empty", !v);
+      $("#reel-play").setAttribute("aria-label", v ? (playing ? "Pause" : "Play") + " " + r.title : r.title + ": coming soon");
+      $(".player-big").innerHTML = playing ? ICON.pause : ICON.play;
+      $("#reel-mute").innerHTML = muted ? ICON.muted : ICON.sound;
+      $("#reel-mute").setAttribute("aria-label", muted ? "Turn sound on" : "Mute");
+      const p = v && v.duration ? v.currentTime / v.duration : 0;
+      seek.value = Math.round(p * 1000); seek.style.setProperty("--p", (p * 100).toFixed(1) + "%");
+      $("#reel-time").textContent = v && v.duration ? `${clock(v.currentTime)} / ${clock(v.duration)}` : r.length;
+    };
+    const showReel = (i, play) => {
       reel = (i + S.reels.length) % S.reels.length;
       const r = S.reels[reel];
       media.innerHTML = r.src
-        ? `<video class="work-media" src="${r.src}" poster="${r.poster}" playsinline preload="none" ${muted ? "muted" : ""}></video>`
-        : `<img class="work-media" src="${r.poster}" alt="${r.title} (placeholder poster)" /><span class="now-showing">NOW SHOWING<br><b>${r.title}</b><small>Placeholder: add a video file in js/data.js</small></span>`;
-      $$(".ticket").forEach((t) => t.setAttribute("aria-pressed", String(+t.dataset.i === reel)));
-      $("#reel-play").textContent = "Play reel";
+        ? `<video class="work-media" src="${r.src}" poster="${r.poster}" playsinline preload="metadata"></video>`
+        : `<img class="work-media" src="${r.poster}" alt="${r.title} (placeholder poster)" />`;
+      $("#reel-title").textContent = r.title;
+      $$(".reel-poster").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.i === reel)));
+      const v = video();
+      if (v) {
+        v.muted = muted;
+        ["play", "pause", "timeupdate", "loadedmetadata", "ended"].forEach((e) => v.addEventListener(e, sync));
+        if (play) v.play().catch(() => {});
+      }
+      sync();
     };
-    showReel(0);
-    $$(".ticket").forEach((t) => t.addEventListener("click", () => showReel(+t.dataset.i)));
-    $("#reel-next").addEventListener("click", () => showReel(reel + 1));
-    $("#reel-play").addEventListener("click", () => {
-      const v = $("video", media);
+    const toggleReel = () => {
+      const v = video();
       if (!v) { media.classList.remove("flicker"); void media.offsetWidth; media.classList.add("flicker"); return; }
-      if (v.paused) { v.play(); $("#reel-play").textContent = "Pause"; } else { v.pause(); $("#reel-play").textContent = "Play reel"; }
+      v.paused || v.ended ? v.play().catch(() => {}) : v.pause();
+    };
+    pauseReel = () => video()?.pause();
+    $("#reel-full").innerHTML = ICON.full;
+    showReel(0);
+    $$(".reel-poster").forEach((b) => b.addEventListener("click", () => showReel(+b.dataset.i, true)));   // pick a reel: it starts
+    $("#reel-play").addEventListener("click", toggleReel);
+    seek.addEventListener("input", () => { const v = video(); if (v && v.duration) { v.currentTime = (seek.value / 1000) * v.duration; sync(); } });
+    $("#reel-mute").addEventListener("click", () => { muted = !muted; const v = video(); if (v) v.muted = muted; sync(); });
+    $("#reel-full").addEventListener("click", () => {
+      const v = video();
+      if (v) (v.requestFullscreen || v.webkitRequestFullscreen || v.webkitEnterFullscreen)?.call(v);
     });
-    $("#reel-mute").addEventListener("click", (e) => {
-      muted = !muted;
-      const v = $("video", media);
-      if (v) v.muted = muted;
-      e.currentTarget.setAttribute("aria-pressed", String(muted));
-      e.currentTarget.textContent = muted ? "Muted" : "Sound on";
-    });
+    document.addEventListener("fullscreenchange", () => { const v = video(); if (v) v.controls = document.fullscreenElement === v; });
+    // while a reel plays the controls step back; any movement over the screen brings them forward
+    const awake = () => { player.classList.add("awake"); clearTimeout(wake); wake = setTimeout(() => player.classList.remove("awake"), 2200); };
+    ["pointermove", "pointerdown", "focusin"].forEach((e) => player.addEventListener(e, awake));
 
     // lightbox
     const lb = $("#lightbox");

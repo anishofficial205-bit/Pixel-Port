@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1791062634" />
+  <link rel="stylesheet" href="styles.css?v=1791063715" />
 </head>
 <body class="ride preloading" data-location="street">
   <!-- preloader: READY? SET... GO! -> logo -> pixel dissolve into the street (js/preloader.js) -->
@@ -38,7 +38,7 @@
     <canvas class="pl-blocks"></canvas>
     <p class="pl-skip">Click or press any key to skip</p>
   </div>
-  <script src="js/preloader.js?v=1791062634"></script>
+  <script src="js/preloader.js?v=1791063715"></script>
   <a class="skip-link" href="#subway">Skip to projects</a>
 
   <!-- HUD: menu, metro route map, skip toggle -->
@@ -115,17 +115,24 @@
           <div class="front-art">
             <div class="content cinema-content">
               <h2 class="sr-only" id="cinema-title">Reels</h2>
-              <div class="screen"><div class="screen-media" id="screen-media"></div></div>
+              <!-- the screen is the player: click it to play; title, progress, sound and full screen along its bottom edge -->
+              <div class="screen">
+                <div class="screen-media" id="screen-media"></div>
+                <div class="player">
+                  <button class="player-toggle" id="reel-play" type="button"><span class="player-big"></span><span class="player-soon">Coming soon</span></button>
+                  <div class="player-strip">
+                    <b id="reel-title"></b>
+                    <input id="reel-seek" type="range" min="0" max="1000" value="0" aria-label="Seek" />
+                    <span id="reel-time"></span>
+                    <button class="player-ic" id="reel-mute" type="button"></button>
+                    <button class="player-ic" id="reel-full" type="button" aria-label="Full screen"></button>
+                  </div>
+                </div>
+              </div>
             </div>
             <img class="bg-img" src="assets/scenes/cinema-front.webp" alt="" decoding="async" fetchpriority="low" />
-            <div class="content reel-bar">
-              <div class="reel-controls">
-                <button class="btn btn-brass" type="button" id="reel-play">Play reel</button>
-                <button class="btn btn-brass" type="button" id="reel-mute" aria-pressed="true">Muted</button>
-                <button class="btn btn-brass" type="button" id="reel-next">Next &gt;</button>
-              </div>
-              <ul class="tickets" id="tickets"></ul>
-            </div>
+            <!-- the reels, as posters along the front of the stage -->
+            <div class="content reel-bar"><ul class="reel-posters" id="reel-posters"></ul></div>
           </div>
         </section>
 
@@ -217,8 +224,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1791062634"></script>
-  <script src="js/sprite.js?v=1791062634"></script>
-  <script src="js/main.js?v=1791062634"></script>
+  <script src="js/data.js?v=1791063715"></script>
+  <script src="js/sprite.js?v=1791063715"></script>
+  <script src="js/main.js?v=1791063715"></script>
 </body>
 </html>

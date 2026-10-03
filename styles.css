@@ -495,7 +495,7 @@ body::after {
 .ride #stairwell .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
 .ride #cinema-front { background: #0B0612; }
 .ride .front-art { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
-.ride .front-art .bg-img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ride .front-art .bg-img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }   /* the screen behind its cut-out takes the clicks */
 .ride .front-art .content { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
 
 /* reel posters on the lobby's blank boards */
@@ -512,32 +512,69 @@ body::after {
 .screen { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--outline); }
 .screen-media { position: absolute; inset: 0; }
 .screen-media img, .screen-media video { width: 100%; height: 100%; object-fit: cover; }
-.now-showing {
-  position: absolute; inset: auto 0 0 0; padding: 12px; text-align: center;
-  font-family: var(--font-label); font-weight: 700; font-size: 11px; line-height: 1.6; letter-spacing: 0.08em; color: var(--marigold);
-  background: rgba(26, 14, 31, 0.78);
-}
-.now-showing b { display: block; font-family: var(--font-display); font-size: 24px; line-height: 1.2; letter-spacing: 0; color: var(--paper); font-weight: 400; }
-.now-showing small { display: block; font-family: var(--font-body); font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--spotlight); }
 .screen-media.flicker { animation: flicker 0.4s steps(1) 2; }
 
-/* the stage front holds the controls and ticket stubs */
-.reel-bar { display: flex; align-items: center; justify-content: center; align-content: flex-start; gap: 14px; flex-wrap: wrap; }
-.reel-controls { display: flex; gap: 10px; }
-@media (max-width: 700px) { .reel-bar { gap: 8px; } .tickets { gap: 8px; } .ticket { padding: 3px 12px; } }   /* clear of the bottom nav */
-.reel-controls .btn { padding: 8px 10px; }
-.tickets { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.ticket {
-  display: flex; gap: 8px; align-items: baseline; text-align: left;
-  background: var(--spotlight); color: var(--velvet-deep); border: 0; padding: 4px 14px; cursor: pointer;
-  box-shadow: 0 0 0 3px var(--velvet-deep);
-  clip-path: polygon(0 0, 100% 0, 100% 35%, calc(100% - 6px) 50%, 100% 65%, 100% 100%, 0 100%, 0 65%, 6px 50%, 0 35%);
+/* the screen is the player: one big button over the whole picture, and a strip along its bottom edge */
+.player { position: absolute; inset: 0; font-size: max(9.5px, calc(var(--u, 1) * 15px)); color: var(--paper); }
+.player svg { width: 1em; height: 1em; fill: currentColor; display: block; }
+.player-toggle {
+  position: absolute; inset: 0; width: 100%; border: 0; padding: 0; cursor: pointer;
+  display: grid; place-items: center; background: linear-gradient(transparent 55%, rgba(11, 7, 20, 0.82));
+  transition: opacity 0.3s ease;
 }
-.ticket .t-no { display: none; }
-.ticket .t-title { font-size: 13.5px; font-weight: 700; }
-.ticket .t-len { font-size: 13px; opacity: 0.7; }
-.ticket[aria-pressed="true"] { background: var(--marigold); }
-.ticket:hover { background: var(--dawn-orange); }
+.player-big {
+  display: grid; place-items: center; width: 3.6em; height: 3.6em; border-radius: 50%; font-size: 1.5em;
+  background: rgba(16, 10, 34, 0.72); color: #FFC24A; box-shadow: inset 0 0 0 2px #FFC24A;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.3s ease;
+}
+.player-toggle:hover .player-big, .player-toggle:focus-visible .player-big { transform: scale(1.08); background: #FFC24A; color: #140B2E; }
+.player-toggle:focus-visible { outline: 2px solid #FFC24A; outline-offset: -4px; }
+.player-soon { display: none; padding: 0.5em 1em; border-radius: 999px; background: rgba(16, 10, 34, 0.78); box-shadow: inset 0 0 0 1px rgba(247, 232, 200, 0.2); font-weight: 700; font-size: 0.85em; letter-spacing: 0.08em; text-transform: uppercase; }
+.player.empty .player-big { display: none; }
+.player.empty .player-soon { display: block; }
+.player.empty #reel-seek, .player.empty #reel-full, .player.empty #reel-mute { visibility: hidden; }
+.player-strip { position: absolute; left: 3%; right: 2%; bottom: 4%; display: flex; align-items: center; gap: 0.7em; transition: opacity 0.3s ease; }
+.player-strip b { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px rgba(11, 7, 20, 0.8); }
+#reel-time { font-size: 0.82em; color: rgba(247, 232, 200, 0.75); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#reel-seek {
+  flex: 1; min-width: 30px; height: 1.2em; margin: 0; cursor: pointer; background: none; -webkit-appearance: none; appearance: none;
+}
+#reel-seek::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; background: linear-gradient(to right, #FFC24A var(--p, 0%), rgba(247, 232, 200, 0.3) var(--p, 0%)); }
+#reel-seek::-moz-range-track { height: 3px; border-radius: 3px; background: linear-gradient(to right, #FFC24A var(--p, 0%), rgba(247, 232, 200, 0.3) var(--p, 0%)); }
+#reel-seek::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 11px; margin-top: -4px; border-radius: 50%; background: #FFC24A; border: 0; }
+#reel-seek::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: #FFC24A; border: 0; }
+.player-ic { display: grid; place-items: center; width: 2em; height: 2em; flex: none; border: 0; padding: 0; border-radius: 50%; background: none; color: var(--paper); cursor: pointer; font-size: 1.1em; transition: background-color 0.2s ease; }
+.player-ic:hover, .player-ic:focus-visible { background: rgba(247, 232, 200, 0.18); }
+/* while it plays, the controls step back until the pointer moves over the screen */
+.player.playing:not(.awake) .player-strip, .player.playing:not(.awake) .player-big { opacity: 0; }
+.player.playing:not(.awake) .player-toggle { background: none; cursor: none; }
+.player.playing .player-toggle { background: linear-gradient(transparent 70%, rgba(11, 7, 20, 0.7)); }
+
+/* the reels, as posters along the front of the stage */
+.reel-bar { display: flex; align-items: center; justify-content: center; }
+.reel-posters { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.8em; justify-content: center; font-size: max(10px, calc(var(--u, 1) * 15px)); }
+.reel-poster {
+  display: flex; align-items: center; gap: 0.6em; padding: 0.3em 0.9em 0.3em 0.3em; border: 0; border-radius: 0.7em; cursor: pointer; text-align: left;
+  color: var(--paper); background: rgba(16, 10, 34, 0.82); box-shadow: inset 0 0 0 1px rgba(247, 232, 200, 0.16);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.reel-poster img { width: 3.7em; height: 2.3em; border-radius: 0.45em; object-fit: cover; flex: none; }
+.reel-poster b { display: block; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.reel-poster small { font-size: 0.8em; color: #B9A9D6; }
+.reel-poster:hover, .reel-poster:focus-visible { transform: translateY(-2px); box-shadow: inset 0 0 0 1px rgba(247, 232, 200, 0.5); }
+.reel-poster[aria-pressed="true"] { box-shadow: inset 0 0 0 2px #FFC24A; }
+.reel-poster[aria-pressed="true"] b { color: #FFC24A; }
+@media (max-width: 700px) {   /* phones: three posters side by side under the hall, thumbnail on top */
+  .reel-bar { align-items: flex-start; }
+  .reel-posters { width: 100%; gap: 6px; font-size: 10.5px; }
+  .reel-posters li { flex: 1; min-width: 0; }
+  .reel-poster { width: 100%; flex-direction: column; align-items: stretch; padding: 4px 4px 6px; gap: 4px; border-radius: 9px; }
+  .reel-poster img { width: 100%; height: 40px; }
+  .reel-poster b { overflow: hidden; text-overflow: ellipsis; }
+  #reel-time { display: none; }
+  .player-strip { left: 14%; }   /* he stands in front of the screen's left edge on phones */
+}
 
 /* foreground seat row (world level, in front of the character) */
 .front-row { display: none; }
@@ -679,10 +716,6 @@ body::after {
   .marquee-text { font-size: 11px; }
   .credits-title { font-size: 28px; }
   .credits-line { font-size: 16px; }
-  .reel-controls .btn { padding: 8px 10px; }
-  .now-showing { padding: 8px; }
-  .now-showing b { font-size: 15px; }
-  .now-showing small { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
