@@ -44,7 +44,7 @@
     rise: [[0.375, 0], [0.625, 0.55], [0.875, 1]],   // [phase, share of the stride's rise]
   };
   // Character sheet per location (js/sprite.js SETS); locations without one use the pixel sheet
-  const SPRITE_SET = { street: "street", drain: "drain", subway: "street", cinema: "street" };
+  const SPRITE_SET = { street: "street", drain: "drain", subway: "street", cinema: "street", exhibition: "street", rooftop: "street" };
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
   const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
@@ -108,6 +108,7 @@
         <figcaption class="plaque"><b>${p.title}</b><span>${p.place} · ${p.year}</span></figcaption>
       </figure>`).join("");
 
+    $(".hoardings").innerHTML = ROOFTOP.hoardings.map((_, i) => `<i class="hoarding" style="background-image:url(${S.img(S.projects[i % S.projects.length].cover, 256)})"></i>`).join("");
     $$(".back-photo").forEach((el, i) => { const ph = S.photos[i % S.photos.length]; $("img", el).src = ph.src; });
     $$(".cin-poster").forEach((el, i) => {
       const r = S.reels[i % S.reels.length];
@@ -196,17 +197,22 @@
     rails: [178, 211, 1411, 609],                // assets/backstairs/rails.png: the railings drawn in front of him
   };
 
-  // assets/scenes/gallery.webp (tools/build_gallery.py): entrance, window wall, exit door + the rooftop outside
+  // assets/scenes/gallery.webp: three paintings side by side (tools/build_gallery.py prints these numbers)
   const GALLERY = {
-    w: 6496, h: 941,
-    floor: 770,                 // his feet on the wooden floor
-    artScale: 1.4,              // this art is drawn ~1.4x bigger than the other scenes, so it's shown smaller
-    enter: 140, exit: 3930,     // double doors he comes in by; the door out to the roof
-    frames: [[1063, 270, 438, 191], [2064, 263, 152, 197], [2436, 272, 424, 188], [3351, 277, 323, 178]],
-    plaques: [[1240, 508, 78, 20], [2107, 505, 70, 19], [2608, 505, 76, 20], [3475, 500, 75, 19]],
-    // rooftop at dawn (the footer): he steps out at `out`, walks to the bench under the string lights
-    bulbs: [[5749, 382], [5803, 402], [5873, 418], [5939, 424], [6005, 424], [6055, 418], [6104, 409], [6152, 397], [6201, 380]],   // rooftop rows are remapped by build_gallery.py
-    roof: { x: 4100, floor: 781, out: 4300, seat: 5869, seatFloor: 692, sky: [5000, 60, 1000] },
+    w: 5016, h: 941,
+    floor: 835, tall: 330,      // his feet on the wooden floor; how tall he stands in this room
+    enter: [215, 775], exit: [4850, 770],   // on the carpet at the door in, and at the door out to the roof
+    title: [335, 205],          // "On display", on the wall beside the first frame
+    frames: [[758, 262, 632, 259], [2132, 274, 203, 240], [2471, 276, 479, 235], [3581, 262, 585, 256]],
+    plaques: [[1030, 543, 83, 19], [2204, 535, 63, 17], [2676, 535, 67, 17], [3839, 541, 73, 19]],
+  };
+  // assets/scenes/rooftop.webp: the rooftop at night (the footer)
+  const ROOFTOP = {
+    w: 1672, h: 941,
+    door: [95, 738], spot: [850, 772], tall: 250,   // out of the door, over to the bench; his height here
+    sky: [170, 70, 760],        // credits sit in the sky left of the moon: x, y, width
+    bulbs: [[904, 417], [975, 435], [1058, 446], [1150, 445], [1235, 433], [1290, 417]],
+    hoardings: [[503, 404, 52, 33], [621, 445, 42, 29], [1206, 471, 45, 28], [1390, 448, 49, 33], [1481, 349, 60, 44]],
   };
 
   // Map an element (sized to its quad's bounding box) onto a quad with a projective transform
@@ -473,19 +479,13 @@
     }
     stairwell.px = (x, y) => [stairwell.x + x * ss, stairwell.y + y * ss];
     L.ty = stairwell.px(0, SA.lobby)[1];                   // lobby floor; later scenes share it
-    const row = L.ty - L.gy;
     const C = CINEMA;
     // the auditorium is only reached through a cut, so leave a screen of space around it
     const fs = Math.max(vw / C.w, Math.min(vh / C.h, vw / 760));   // phones: fit the screen, not the room
     const fw = Math.round(C.w * fs), fh = Math.round(C.h * fs);
     const front = { x: stairwell.x + stairwell.w + vw, y: stairwell.y, w: Math.max(fw, vw), h: Math.max(fh, vh), s: fs };
     front.ox = Math.round((front.w - fw) / 2); front.oy = Math.round((front.h - fh) / 2);
-    // 5. exhibition + 6. rooftop: one strip of art; the rooftop is its right end
-    const G = GALLERY;
-    // shown at the other scenes' scale so he's the same size relative to the room; the art sits at the
-    // bottom of the screen and its top edge (ceiling, night sky) is stretched up to fill the rest
-    const gs = Math.max(vw / 1672, vh / G.h) / G.artScale;
-    const artH = Math.round(G.h * gs);
+    const G = GALLERY, R = ROOFTOP;
     // 5b. back stairs: one painting covering the screen, reached by a cut
     const B = BACKSTAIRS, bs = Math.max(vw / B.w, vh / B.h);
     const backstairs = { x: front.x + front.w + vw, y: front.y, w: Math.round(B.w * bs), h: Math.round(B.h * bs), s: bs };
@@ -496,14 +496,16 @@
       quad($(".back-sign"), B.poster);
       $$(".back-photo").forEach((el, i) => quad(el, B.frames[i]));
     }
-    const exhibition = { x: backstairs.x + backstairs.w + vw, y: row, w: Math.round(G.w * gs), h: Math.max(vh, artH), s: gs };
-    exhibition.oy = exhibition.h - artH;                                   // art top, inside the section
-    L.gty = exhibition.y + exhibition.oy + Math.round(G.floor * gs);
-    const rooftop = { x: exhibition.x + Math.round(G.roof.x * gs), y: exhibition.y, w: Math.round((G.w - G.roof.x) * gs), h: exhibition.h };
-    const gimg = $("#exhibition .bg-img");
-    gimg.style.top = exhibition.oy + "px"; gimg.style.height = artH + "px";
-    setBox($(".gal-top"), 0, 0, exhibition.w, exhibition.oy + 2);
-    const frames = G.frames.map(([x, y, w, h]) => ({ x: Math.round(x * gs), y: exhibition.oy + Math.round(y * gs), w: Math.round(w * gs), h: Math.round(h * gs) }));
+    // 6. exhibition: a long strip, as tall as the screen
+    const gs = vh / G.h;
+    const exhibition = { x: backstairs.x + backstairs.w + vw, y: front.y, w: Math.round(G.w * gs), h: vh, s: gs };
+    L.gty = exhibition.y + Math.round(G.floor * gs);
+    const frames = G.frames.map(([x, y, w, h]) => ({ x: Math.round(x * gs), y: Math.round(y * gs), w: Math.round(w * gs), h: Math.round(h * gs) }));
+    // 7. rooftop: one painting covering the screen (wide screens lose some sky, tall ones pan across)
+    const rs = Math.max(vw / R.w, vh / R.h);
+    const rooftop = { x: exhibition.x + exhibition.w + vw, y: front.y, w: Math.round(R.w * rs), h: Math.round(R.h * rs), s: rs };
+    // the final view: the bench in the middle, the roof floor at the bottom of the screen
+    L.endCam = { x: rooftop.x + Math.min(Math.max((R.spot[0] + 160) * rs - vw / 2, 0), rooftop.w - vw), y: rooftop.y + rooftop.h - vh };
 
     Object.assign(L, { street, mh, camStart, camEnd, drain, subway, stairwell, front, backstairs, exhibition, rooftop, boards, frames });
 
@@ -530,10 +532,13 @@
       dim.style.background = `rgba(0, 0, 0, ${STREET_DIM})`;
     }
     $$("#street .bb-map").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], ss));
-    mapToQuad($(".station-board"), SUBWAY.sign, ss);
+    // station sign: beside the light beam, pulled left on narrow screens so it's in view when he lands
+    const signW = SUBWAY.sign[1][0] - SUBWAY.sign[0][0], signX = Math.min(SUBWAY.sign[0][0], (camEnd.x + vw) / ss - signW - 14);
+    const sign = SUBWAY.sign.map(([x, y]) => [x - SUBWAY.sign[0][0] + signX, y]);
+    mapToQuad($(".station-board"), sign, ss);
     // "View all projects" plate hangs under the station sign
     {
-      const [[x0], [x1], [, y1]] = SUBWAY.sign, y = y1 + 9;
+      const [[x0], [x1], [, y1]] = sign, y = y1 + 9;
       mapToQuad($(".all-projects-sign"), [[x0, y], [x1, y], [x1, y + 26], [x0, y + 26]], ss);
     }
     $$(".billboard").forEach((el, i) => {
@@ -557,23 +562,25 @@
     const rowY = front.y + front.oy + Math.round(F.rowTop * fs);
     setBox($(".front-row"), front.x + front.ox, rowY, fw, front.y + front.oy + fh - rowY);
     $(".front-row img").style.width = fw + "px";
-    setBox($(".gallery-title"), Math.round(560 * gs), exhibition.oy + Math.round(300 * gs));
+    setBox($(".gallery-title"), Math.round(G.title[0] * gs), Math.round(G.title[1] * gs));
     $$(".photo").forEach((el, i) => {
       const f = frames[i]; el.hidden = !f;
       if (!f) return;
       setBox(el, f.x, f.y, f.w, f.h);
       const [px, py, pw, phh] = G.plaques[i];
-      setBox($(".plaque", el), Math.round(px * gs) - f.x, exhibition.oy + Math.round(py * gs) - f.y, Math.round(pw * gs), Math.round(phh * gs));
+      setBox($(".plaque", el), Math.round(px * gs) - f.x, Math.round(py * gs) - f.y, Math.round(pw * gs), Math.round(phh * gs));
     });
-    // string lights over the bench twinkle
+    // rooftop: the string lights over the bench twinkle, and the hoardings on the skyline carry the projects
     const bulbs = $(".bulbs");
-    if (!bulbs.children.length) bulbs.innerHTML = G.bulbs.map((_, i) => `<i style="animation-delay:${(i * 0.37) % 2.2}s"></i>`).join("");
-    [...bulbs.children].forEach((b, i) => setBox(b, Math.round((G.bulbs[i][0] - G.roof.x) * gs), exhibition.oy + Math.round(G.bulbs[i][1] * gs)));
-    // end credits in the dawn sky, kept inside the final view
-    const endX = Math.min(Math.max(G.roof.seat * gs - vw * 0.5, 0), exhibition.w - vw);   // final view: the bench
-    const [kx, ky, kw] = G.roof.sky;   // credits float in the dawn sky
-    const cl = Math.max(kx * gs, endX + 16);
-    setBox($(".credits"), Math.round(cl - G.roof.x * gs), Math.round(Math.max(76, exhibition.oy - 40, ky * gs + exhibition.oy - 200)), Math.round(Math.min(kw * gs, endX + vw - cl - 16)));
+    if (!bulbs.children.length) bulbs.innerHTML = R.bulbs.map((_, i) => `<i style="animation-delay:${(i * 0.37) % 2.2}s"></i>`).join("");
+    [...bulbs.children].forEach((b, i) => { setBox(b, Math.round(R.bulbs[i][0] * rs), Math.round(R.bulbs[i][1] * rs)); b.style.setProperty("--d", Math.round(30 * rs) + "px"); });
+    $$(".hoarding").forEach((el, i) => { const [x, y, w, h] = R.hoardings[i]; setBox(el, Math.round(x * rs), Math.round(y * rs), Math.round(w * rs), Math.round(h * rs)); });
+    // end credits in the sky left of the moon, kept inside the final view and clear of the navbar
+    {
+      const [kx, ky, kw] = R.sky, ex = L.endCam.x - rooftop.x, ey = L.endCam.y - rooftop.y;
+      const cl = Math.max(kx * rs, ex + 16);
+      setBox($(".credits"), Math.round(cl), Math.round(Math.max(ey + 84, ky * rs)), Math.round(Math.min(kw * rs, ex + vw - cl - 16)));
+    }
 
     sprite.width = Sprite.W * L.ck * L.cq; sprite.height = Sprite.H * L.ck * L.cq;
     charEl.style.setProperty("--w", Math.round(Sprite.W * L.cs) + "px");
@@ -685,9 +692,9 @@
     add({ id: "sit", loc: "cinema", pose: "watch", face: 1, a: spot, b: spot, len: vh * 1.1, cam: () => frontCam });
     // across the front of the stage and out the right door, then a velvet cut to the gallery
     add({ loc: "cinema", pose: "walk", a: spot, b: exit, len: exit[0] - spot[0], cam: () => frontCam });
-    // --- gallery: in through the double doors, slowly past the photos, out onto the roof ---
-    const G = GALLERY, gs = exhibition.s, gty = L.gty, gx = (x) => exhibition.x + x * gs;
-    const gIn = [gx(G.enter), gty], gOut = [gx(G.exit), gty];
+    // --- gallery (reached from the back stairs, below) ---
+    const G = GALLERY, gs = exhibition.s, gty = L.gty, gx = (x) => exhibition.x + x * gs, gk = (G.tall * gs) / (Sprite.STAND * L.cs);
+    const gIn = [gx(G.enter[0]), exhibition.y + G.enter[1] * gs], gOut = [gx(G.exit[0]), exhibition.y + G.exit[1] * gs];
     const gCam = (x) => ({ x: Math.min(Math.max(x - vw * 0.4, exhibition.x), exhibition.x + exhibition.w - vw), y: exhibition.y });
     // --- back stairs, between the hall and the gallery: in by the door under the landing, along the floor
     // past the staircase to its foot, up the first flight (right to left), behind the balustrade to the
@@ -708,19 +715,22 @@
       leg(turn, up2, { stairs: true, strides: B.strides[1], len: B.strides[1] * CLIMB.px });
       leg(up2, bOut);
       // through the door at the top: a cut into the gallery
-      add({ loc: "cinema", loc2: "exhibition", pose: "walk", scale: k, a: bOut, b: gIn, len: 260, ease: "cut",
+      add({ loc: "cinema", loc2: "exhibition", pose: "walk", scale: k, scale2: gk, a: bOut, b: gIn, len: 260, ease: "cut",
         cut: tri, cam: (t) => (t < 0.5 ? bCam({ x: bOut[0], y: bOut[1] }) : gCam(gIn[0])) });
     }
-    add({ id: "gallery", loc: "exhibition", pose: "walk", a: gIn, b: gOut, len: (gOut[0] - gIn[0]) / 0.7, cam: (t, p) => gCam(p.x) });
-    // through the door and out into the dawn
-    const endCam = { x: exhibition.x + Math.min(Math.max(G.roof.seat * gs - vw * 0.5, 0), exhibition.w - vw), y: exhibition.y };
-    const out = [gx(G.roof.out), exhibition.y + exhibition.oy + G.roof.floor * gs];
-    const seat = [gx(G.roof.seat), exhibition.y + exhibition.oy + G.roof.seatFloor * gs];
-    add({ loc: "exhibition", loc2: "rooftop", pose: "walk", a: gOut, b: out, len: 260, ease: "cut",
-      cut: (t) => tri(t) * 0.85, cam: (t) => gCam(t < 0.5 ? gOut[0] : out[0]) });
-    // along the roof to the bench, the camera settling on the final view
-    add({ loc: "rooftop", pose: "walk", a: out, b: seat, len: Math.max(200, (seat[0] - out[0]) * 0.8), cam: (t, p) => ({ x: Math.min(gCam(p.x).x, endCam.x), y: exhibition.y }) });
-    add({ loc: "rooftop", pose: "sit", prop: "chai", a: seat, b: seat, len: 260, bubble: ["Chai break?", 0.3, 1.01],
+    // off the carpet onto the floor, slowly past the photos, then up the carpet to the door out
+    const gA = [gIn[0] + 190 * gs, gty], gB = [gOut[0] - 190 * gs, gty];
+    add({ loc: "exhibition", pose: "walk", scale: gk, a: gIn, b: gA, len: 190 * gs, cam: (t, p) => gCam(p.x) });
+    add({ id: "gallery", loc: "exhibition", pose: "walk", scale: gk, a: gA, b: gB, len: (gB[0] - gA[0]) / 0.7, cam: (t, p) => gCam(p.x) });
+    add({ loc: "exhibition", pose: "walk", scale: gk, a: gB, b: gOut, len: 190 * gs, cam: (t, p) => gCam(p.x) });
+    // --- rooftop: out of the door into the night, over to the bench under the string lights ---
+    const R = ROOFTOP, rs = rooftop.s, rk = (R.tall * rs) / (Sprite.STAND * L.cs), endCam = L.endCam;
+    const out = [rooftop.x + R.door[0] * rs, rooftop.y + R.door[1] * rs], bench = [rooftop.x + R.spot[0] * rs, rooftop.y + R.spot[1] * rs];
+    const rCam = (p) => ({ x: Math.min(Math.max(p.x - vw * 0.4, rooftop.x), endCam.x), y: endCam.y });
+    add({ loc: "exhibition", loc2: "rooftop", pose: "walk", scale: gk, scale2: rk, a: gOut, b: out, len: 260, ease: "cut",
+      cut: tri, cam: (t) => (t < 0.5 ? gCam(gOut[0]) : rCam({ x: out[0] })) });
+    add({ loc: "rooftop", pose: "walk", scale: rk, a: out, b: bench, len: Math.max(200, (bench[0] - out[0]) * 0.8), cam: (t, p) => rCam(p) });
+    add({ loc: "rooftop", pose: "end", scale: rk, a: bench, b: bench, len: 260, bubble: ["Chai break?", 0.3, 1.01],
       cam: () => endCam });
 
     const find = (id) => segs.find((s) => s.id === id);
@@ -729,7 +739,7 @@
       drain: find("fall").start + Math.round(find("fall").len * 0.06),
       subway: find("subwalk").start + 2,
       cinema: find("sit").start + 20,
-      exhibition: find("gallery").start + Math.max(0, GALLERY.frames[0][0] * exhibition.s - vw * 0.2) / 0.7,
+      exhibition: find("gallery").start + Math.max(0, (GALLERY.frames[0][0] - GALLERY.enter[0] - 190) * exhibition.s - vw * 0.2) / 0.7,
       rooftop: total,
     };
     stops.order = ["street", "drain", "subway", "cinema", "exhibition", "rooftop"];
@@ -812,7 +822,10 @@
           stepPhase += (dt / 1000) * Sprite.fps(set, anim);
           n = Math.floor(stepPhase);
         } else if (hoverLook && s.loc === "subway") anim = "point";
-        else if (s.loc === "exhibition") { anim = tick(2400) % 2 ? "gaze" : "look"; n = tick(900); }
+        else if (s.loc === "exhibition") {   // looking at the photos
+          if (Sprite.painted(set)) { set = "stairs"; anim = tick(3200) % 4 === 3 ? "grin" : "awe"; n = 0; }
+          else { anim = tick(2400) % 2 ? "gaze" : "look"; n = tick(900); }
+        }
         else if (s.id === "intro" && !saying) {   // a wave, then a pause
           const wn = Sprite.count(Sprite.resolve(set, "wave", 1).anim, set), k = tick(170) % (wn * 3);
           anim = k < wn ? "wave" : "idle"; n = k < wn ? k : tick(260);
@@ -830,7 +843,11 @@
         if (Sprite.painted(set)) { set = "stairs"; anim = tick(3200) % 4 === 3 ? "grin" : "awe"; n = 0; }   // eyes on the screen, now and then a grin
         else { anim = tick(3200) % 4 === 3 ? "look" : "gaze"; n = tick(900); facing = s.face || -1; }
         break;
-      case "sit": anim = s.prop === "chai" ? "chai" : "cinema"; n = tick(s.prop === "chai" ? 650 : 500); break;
+      case "end": {   // by the bench: a wave, then a pause
+        const wn = Sprite.count(Sprite.resolve(set, "wave", 1).anim, set), k = tick(170) % (wn * 3);
+        anim = k < wn ? "wave" : "idle"; n = k < wn ? k : tick(260);
+        break;
+      }
     }
     let flips = ["walk", "run", "idle", "talk", "point", "look", "gaze"].includes(anim);   // climb frames are drawn facing their direction
     const grounded = ["walk", "run", "idle", "talk", "point", "look", "gaze", "wave", "climbUp", "climbDown", "peer", "land", "glasses", "smile", "climb", "gasp", "happy", "grin", "awe"].includes(anim);
@@ -1073,13 +1090,6 @@
   // older browsers: focusing a link inside a clipped scene can scroll it
   $$(".scene, .viewport").forEach((el) => el.addEventListener("scroll", () => { el.scrollLeft = 0; el.scrollTop = 0; }));
 
-  // the gallery's top row, stretched upward by CSS to fill the space above the art
-  function galleryTop() {
-    const img = $("#exhibition .bg-img"), c = $(".gal-top");
-    const draw = () => { c.width = img.naturalWidth; c.height = 1; c.getContext("2d").drawImage(img, 0, 0, img.naturalWidth, 1, 0, 0, img.naturalWidth, 1); };
-    if (img.complete && img.naturalWidth) draw(); else img.addEventListener("load", draw, { once: true });
-  }
-
   /* ================= DEBUG =================
      D key or ?debug: scene bounds, the stairwell walking path and a minimap of the camera viewport. */
   let debug = /[?&]debug\b/.test(location.search);
@@ -1230,7 +1240,6 @@
 
   /* ================= BOOT ================= */
   fillContent();
-  galleryTop();
   scrollCursor();
   watchPlain();
   glitchLogo();

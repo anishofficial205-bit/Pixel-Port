@@ -562,13 +562,11 @@ body::after {
 .gallery-title h2 { font-size: 24px; text-shadow: 3px 3px 0 var(--outline); }
 .gallery-title .hi { font-size: 20px; }
 .gallery-title span:last-child { color: var(--spotlight); font-size: 22px; }
-.ride #exhibition .bg-img { position: absolute; left: 0; top: 0; width: var(--w); pointer-events: none; }
-.ride .gal-top { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
-.static .gal-top { display: none; }
-.ride #exhibition .photos { z-index: 1; }  /* each photo fills its frame's window exactly; plaques ride on the brass */
+.ride #exhibition .bg-img, .ride #rooftop .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); pointer-events: none; }
+.static #rooftop .bg-img { display: none; }
 .ride .gallery-title { text-shadow: 0 0 6px rgba(255, 227, 176, 0.3); }
 .photos { margin: 0; }
-/* photos sit behind the keyed-out picture areas of the frames in the art */
+/* each photo fills a blank frame in the art; its title is engraved on the brass plaque below */
 .photo { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); margin: 0; }
 .photo-frame {
   display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: zoom-in; background: var(--outline);
@@ -580,7 +578,7 @@ body::after {
 .ride .photo .plaque {
   position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); margin: 0; padding: 0 3px;
   display: grid; place-items: center; overflow: hidden; background: none; box-shadow: none; max-width: none;
-  color: #3A2410; font-size: 13px; line-height: 1; white-space: nowrap; pointer-events: none;
+  color: #2A1608; font-size: 13px; line-height: 1; white-space: nowrap; pointer-events: none;
 }
 .ride .photo .plaque b { font-family: var(--font-body); font-size: 13px; }
 .ride .photo .plaque span { display: none; }
@@ -610,12 +608,16 @@ body::after {
 .lb-open { overflow: hidden; }
 
 /* ---------------- 6. rooftop ---------------- */
+.ride .hoardings, .ride .bulbs { left: 0; top: 0; }
 .bulbs i {
-  position: absolute; left: var(--x); top: var(--y); width: 18px; height: 18px; margin: -9px 0 0 -9px;
-  background: radial-gradient(circle, rgba(255, 214, 120, 0.9) 0 20%, rgba(255, 184, 77, 0.35) 45%, transparent 70%);
-  animation: twinkle 2.2s steps(3) infinite;
+  position: absolute; left: var(--x); top: var(--y); width: var(--d, 30px); height: var(--d, 30px); transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 170, 0.9) 0 25%, rgba(255, 184, 77, 0.45) 50%, transparent 72%);
+  animation: twinkle 2.2s ease-in-out infinite;
 }
+/* blank hoardings on the skyline show the projects */
+.hoarding { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); background: #0B0714 center / cover no-repeat; }
 @keyframes twinkle { 0%, 100% { opacity: 1; } 40% { opacity: 0.45; } 70% { opacity: 0.85; } }
+@media (max-width: 700px) { .ride .credits { padding: 12px 12px 14px; margin: -12px; box-sizing: content-box; background: rgba(11, 7, 20, 0.62); box-shadow: 0 0 0 2px rgba(255, 194, 74, 0.25); } }   /* over the skyline on phones */
 .credits-kicker { margin: 0; font-family: var(--font-display); font-size: 8px; color: var(--dawn-orange); text-shadow: 2px 2px 0 var(--outline); }
 .credits-kicker .hi { font-size: 13px; }
 .credits-actions { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
@@ -766,9 +768,9 @@ body::after {
 .plain-photo figcaption { display: flex; gap: 10px; align-items: baseline; margin: 8px 23px 0; font-size: 20px; color: var(--spotlight); }
 .plain-photo figcaption b { font-family: "Silkscreen", var(--font-display); font-weight: 400; font-size: 13px; color: var(--paper); }
 
-/* contact over the dawn rooftop */
+/* contact over the rooftop at night */
 .plain-contact { position: relative; overflow: hidden; background: var(--night); }
-.plain-contact::before { content: ""; position: absolute; inset: 0; background: url(assets/scenes/gallery.webp) right bottom / auto 100% no-repeat; image-rendering: pixelated; opacity: 0.9; }
+.plain-contact::before { content: ""; position: absolute; inset: 0; background: url(assets/scenes/rooftop.webp) center bottom / cover no-repeat; opacity: 0.9; }
 .plain-contact::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(18, 10, 38, 0.92) 0 40%, rgba(18, 10, 38, 0.2) 75%); }
 .plain-contact .plain-wrap { position: relative; z-index: 1; min-height: 60vh; display: flex; flex-direction: column; justify-content: center; }
 .plain-contact .credits-line { font-size: 28px; }

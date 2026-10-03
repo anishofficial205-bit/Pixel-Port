@@ -49,12 +49,13 @@ UP = ROWS[0][1]                    # above the wall stripe the frame is simply t
 # ---- joins: the frames were painted separately, so each side of a join is eased toward the other's mirror
 # image over a few px (floor reflections and ceiling beams then meet instead of stopping dead) ----
 full = np.concatenate([landing, boards, again, lobby], 1).astype(float)
-BLEND = 36
-for j in (W, 2 * W, 3 * W):
-    left, right = full[:, j - BLEND:j].copy(), full[:, j:j + BLEND].copy()
-    k = np.linspace(0, 0.5, BLEND)[None, :, None]                    # 0 away from the join, 0.5 on it
-    full[:, j - BLEND:j] = left * (1 - k) + right[:, ::-1] * k
-    full[:, j:j + BLEND] = right * (1 - k[:, ::-1]) + left[:, ::-1] * k[:, ::-1]
+FLOOR = 600                         # from here down (platform, tracks) the blend is wide; above it, narrow,
+for j in (W, 2 * W, 3 * W):         # or the lamps near a join would show up twice
+    for rows, n in ((slice(0, FLOOR), 10), (slice(FLOOR, H), 36)):
+        left, right = full[rows, j - n:j].copy(), full[rows, j:j + n].copy()
+        k = np.linspace(0, 0.5, n)[None, :, None]                    # 0 away from the join, 0.5 on it
+        full[rows, j - n:j] = left * (1 - k) + right[:, ::-1] * k
+        full[rows, j:j + n] = right * (1 - k[:, ::-1]) + left[:, ::-1] * k[:, ::-1]
 full = np.clip(full, 0, 255).astype(np.uint8)
 strip, lobby = full[:, :3 * W], full[:, 3 * W:]
 Image.fromarray(strip).save(ROOT / "assets/scenes/subway.webp", quality=88, method=6)
