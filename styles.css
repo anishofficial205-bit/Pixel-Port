@@ -203,32 +203,44 @@ body::after {
   animation: none;
 }
 
-.route { position: relative; padding: 5px; }
-.route ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; position: relative; z-index: 1; }
+/* the route: sections as stops on a metro line. The line fills as the journey goes (--route, 0..1),
+   passed stops are filled, the current one is marked. */
+.route { --stop: 84px; --line: #FFC24A; position: relative; padding: 10px 8px 9px; border-radius: 24px; }
+.route ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, var(--stop)); position: relative; z-index: 1; }
 .route a {
-  display: block; padding: 8px 16px; border-radius: 999px;
-  text-decoration: none; font-size: 13px; letter-spacing: 0.04em; line-height: 1;
-  color: rgba(244, 230, 208, 0.66); transition: color 0.25s ease;
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  text-decoration: none; font-size: 11px; letter-spacing: 0.07em; line-height: 1; white-space: nowrap;
+  color: rgba(244, 230, 208, 0.62); transition: color 0.25s ease;
+}
+.route a i {
+  width: 12px; height: 12px; border-radius: 50%; background: #140B2E;
+  box-shadow: 0 0 0 2px rgba(244, 230, 208, 0.5);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 .route a:hover { color: var(--paper); }
-.route a.here { color: var(--night-deep); }
-/* the active section's pill slides between links */
-.route-pill {
-  position: absolute; top: 5px; bottom: 5px; left: 0; width: var(--pill-w, 0); border-radius: 999px;
-  background: var(--accent); opacity: 0; transform: translateX(var(--pill-x, 0));
-  box-shadow: 0 0 18px -2px var(--accent);
-  transition: transform 0.45s cubic-bezier(0.3, 0.9, 0.3, 1), width 0.45s cubic-bezier(0.3, 0.9, 0.3, 1), opacity 0.3s ease, background-color 0.4s ease;
+.route a:hover i { transform: scale(1.2); }
+.route a.done i { background: var(--line); box-shadow: 0 0 0 2px var(--line); }
+.route a.here { color: var(--line); }
+.route a.here i { background: #D8261C; box-shadow: 0 0 0 2px var(--line), 0 0 0 6px rgba(255, 194, 74, 0.28); }
+.route-track {
+  position: absolute; left: calc(8px + var(--stop) / 2); right: calc(8px + var(--stop) / 2); top: 15px; height: 2px;
+  background: rgba(244, 230, 208, 0.22);
 }
-.route-pill.on { opacity: 1; }
-/* journey progress: a hairline along the bottom of the pill */
-.route-progress {
-  position: absolute; left: 22px; right: 22px; bottom: -1px; height: 2px; border-radius: 2px; overflow: hidden;
-  background: rgba(244, 230, 208, 0.08);
+.route-track::after {
+  content: ""; position: absolute; inset: 0; background: var(--line);
+  transform-origin: left; transform: scaleX(var(--route, 0));
 }
-.route-progress::after {
-  content: ""; position: absolute; inset: 0; background: var(--accent);
-  transform-origin: left; transform: scaleX(var(--route, 0)); transition: background-color 0.4s ease;
+.static .route-track::after { transition: transform 0.45s ease; }
+
+/* Ride | Simple: how to view the site */
+.view-switch { justify-self: end; display: flex; gap: 2px; padding: 4px; }
+.view-switch button {
+  border: 0; background: none; cursor: pointer; padding: 8px 14px; border-radius: 999px;
+  font-size: 11.5px; letter-spacing: 0.07em; line-height: 1; color: rgba(244, 230, 208, 0.7);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
+.view-switch button:hover { color: var(--paper); }
+.view-switch button[aria-pressed="true"] { background: var(--paper); color: var(--night-deep); }
 
 .hud-right { justify-self: end; display: flex; gap: 10px; align-items: center; }
 .hud-right > *, .hud-back, .hud-station { white-space: nowrap; }
@@ -237,12 +249,6 @@ body::after {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 .hud-all:hover { background: var(--accent); color: var(--night-deep); border-color: var(--accent); }
-.skip-ride { cursor: pointer; padding: 10px 16px;
-  font: inherit; font-size: 12px; letter-spacing: 0.04em; line-height: 1; color: var(--paper);
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-.skip-ride:hover { background: var(--paper); color: var(--night-deep); border-color: var(--paper); }
-.skip-ride[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .hud :focus-visible { outline: 2px solid var(--neon-cyan); outline-offset: 3px; }
 
 /* project pages: back link + station name in the same style */
@@ -660,14 +666,16 @@ body::after {
 /* ---------------- small screens ---------------- */
 @media (max-width: 700px) {
   body { font-size: 15px; }
-  /* phones: logo + skip on top, section links in a bar near the bottom (thumb reach) */
+  /* phones: logo + view switch on top, the route line near the bottom (thumb reach) */
   .hud { top: calc(var(--frame) + 10px); left: calc(var(--frame) + 10px); right: calc(var(--frame) + 10px); grid-template-columns: 1fr 1fr; }
   .hud-logo { --logo-h: 44px; }
-  .skip-ride, .hud-back, .hud-station, .hud-all { font-size: 10px; padding: 9px 11px; }
+  .hud-back, .hud-station, .hud-all { font-size: 10px; padding: 9px 11px; }
+  .view-switch button { font-size: 10px; padding: 7px 11px; }
   .hud-right { gap: 6px; }
-  .route { position: fixed; left: 50%; bottom: calc(var(--frame) + 12px); transform: translateX(-50%); padding: 4px; }
-  .route a { font-size: 11px; padding: 9px 9px; }
-  .route-pill { top: 4px; bottom: 4px; }
+  .route { --stop: min(60px, calc((100vw - 2 * var(--frame) - 36px) / 6)); position: fixed; left: 50%; bottom: calc(var(--frame) + 12px); transform: translateX(-50%); padding: 9px 6px 8px; border-radius: 20px; }
+  .route a { font-size: 8.5px; letter-spacing: 0.03em; gap: 6px; }
+  .route a i { width: 11px; height: 11px; }
+  .route-track { left: calc(6px + var(--stop) / 2); right: calc(6px + var(--stop) / 2); top: 13.5px; }
   .marquee-text { font-size: 11px; }
   .credits-title { font-size: 28px; }
   .credits-line { font-size: 16px; }

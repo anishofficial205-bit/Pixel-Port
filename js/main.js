@@ -377,14 +377,13 @@
         .filter(([, r]) => r.top < innerHeight * 0.5 && r.bottom > innerHeight * 0.3).pop();
       if (!best) return;
       const loc = best[0].dataset.loc;
-      if (loc !== lastLoc) { lastLoc = loc; body.dataset.location = loc; markSection(loc); }
+      if (loc !== lastLoc) {
+        lastLoc = loc; body.dataset.location = loc; markSection(loc);
+        const ord = stops.order || [];                    // the line fills up to the section in view
+        body.style.setProperty("--route", (Math.max(0, ord.indexOf(loc)) / Math.max(1, ord.length - 1)).toFixed(4));
+      }
     }, { threshold: [0, 0.25, 0.5, 0.75, 1] });
     secs.forEach((el) => io.observe(el));
-    addEventListener("scroll", () => {
-      if (body.classList.contains("ride")) return;
-      const max = document.documentElement.scrollHeight - innerHeight;
-      body.style.setProperty("--route", max > 0 ? (scrollY / max).toFixed(4) : 0);
-    }, { passive: true });
   }
 
   /* ================= LAYOUT ================= */
@@ -911,7 +910,7 @@
     bubble.classList.toggle("show", !!say);
 
 
-    // route progress
+    // route progress: how far along the line between stops
     const ord = stops.order;
     let fi = 0;
     for (let i = 0; i < ord.length - 1; i++) {
@@ -956,8 +955,7 @@
   function setMode(ride) {
     body.classList.toggle("ride", ride);
     body.classList.toggle("static", !ride);
-    $(".skip-ride").setAttribute("aria-pressed", String(!ride));
-    $(".skip-ride").textContent = ride ? "Skip the ride" : "Take the ride";
+    markView(ride);
     store.set("nb-mode", ride ? "ride" : "static");
     if (!ride) { world.style.transform = ""; body.dataset.location = "street"; requestAnimationFrame(fitPlainArt); }
     layout();
@@ -977,7 +975,9 @@
       setMode(ride);
       requestAnimationFrame(() => goTo(at, true));
     };
-    $(".skip-ride").addEventListener("click", toggleRide);
+    $$(".view-switch button").forEach((b) => b.addEventListener("click", () => {
+      if ((b.dataset.view === "ride") !== body.classList.contains("ride")) toggleRide();
+    }));
     $$(".take-ride").forEach((b) => b.addEventListener("click", toggleRide));
 
     $(".play-again").addEventListener("click", () => goTo("street"));
@@ -1111,19 +1111,17 @@
 
   // Highlight the current section in the nav; the pill slides to it (hidden on the street / home)
   function markSection(loc) {
-    let here = null;
-    $$(".route a[data-stop]").forEach((a) => {
-      const on = a.dataset.stop === loc;
-      a.classList.toggle("here", on);
-      on ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current");
-      if (on) here = a;
+    const links = $$(".route a[data-stop]"), at = links.findIndex((a) => a.dataset.stop === loc);
+    links.forEach((a, i) => {
+      a.classList.toggle("here", i === at);
+      a.classList.toggle("done", i < at);                 // stops already passed
+      i === at ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current");
     });
-    const pill = $(".route-pill");
-    pill.classList.toggle("on", !!here);
-    if (here) { pill.style.setProperty("--pill-x", here.offsetLeft + 5 + "px"); pill.style.setProperty("--pill-w", here.offsetWidth + "px"); }
   }
-  addEventListener("resize", () => markSection(lastLoc));
-  document.fonts?.ready.then(() => markSection(lastLoc));
+  // Ride | Simple switch
+  function markView(ride) {
+    $$(".view-switch button").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.view === "ride") === ride)));
+  }
 
   // Nav logo glitch. Hovering (or focusing) plays glitch bursts: red/cyan copies split apart, random
   // horizontal slices tear sideways, the whole mark jitters and now and then flickers. Leaving snaps
@@ -1226,8 +1224,7 @@
   const ride = saved ? saved === "ride" : !reduceMotion;
   body.classList.toggle("ride", ride);
   body.classList.toggle("static", !ride);
-  $(".skip-ride").setAttribute("aria-pressed", String(!ride));
-  $(".skip-ride").textContent = ride ? "Skip the ride" : "Take the ride";
+  markView(ride);
   if ("scrollRestoration" in history && location.hash) history.scrollRestoration = "manual";
   layout();
 
