@@ -198,6 +198,10 @@
     poster: [353, 113, 139, 214],                // big blank frame on the wall: x, y, w, h
     frames: [[806, 261, 46, 64], [887, 219, 45, 63], [967, 179, 46, 66], [1048, 133, 50, 73]],   // small ones up the stairs
     rails: [178, 211, 1384, 609],                // assets/backstairs/rails.png: the railings drawn in front of him
+    // mood: lamps that glow (x, y, glow size) and the warm light they throw (x, y, w, h)
+    lamps: [[92, 205, 230], [640, 243, 220], [1180, 135, 220], [1645, 215, 230], [222, 575, 210], [480, 585, 210], [1183, 540, 220],
+      [770, 150, 130], [810, 165, 150], [852, 150, 130], [422, 62, 170], [1397, 66, 170]],
+    pools: [[250, 760, 420, 150], [560, 800, 720, 140], [330, 90, 190, 250], [1310, 90, 180, 280], [700, 190, 240, 230], [1040, 600, 300, 260]],
   };
 
   // assets/scenes/gallery.webp: three paintings side by side (tools/build_gallery.py prints these numbers)
@@ -731,6 +735,11 @@
       const quad = (el, [x, y, w, h]) => mapToQuad(el, [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], bs);
       quad($(".back-sign"), B.poster);
       $$(".back-photo").forEach((el, i) => quad(el, B.frames[i]));
+      const mood = $(".back-mood");
+      if (mood.children.length < 2) mood.insertAdjacentHTML("beforeend",
+        B.pools.map((_, i) => `<i class="bm-pool" style="--i:${i}"></i>`).join("") + B.lamps.map((_, i) => `<i class="bm-lamp" style="--i:${i}"></i>`).join(""));
+      $$(".bm-pool").forEach((el, i) => { const [x, y, w, h] = B.pools[i]; setBox(el, Math.round(x * bs), Math.round(y * bs), Math.round(w * bs), Math.round(h * bs)); });
+      $$(".bm-lamp").forEach((el, i) => { const [x, y, z] = B.lamps[i]; setBox(el, Math.round((x - z / 2) * bs), Math.round((y - z / 2) * bs), Math.round(z * bs), Math.round(z * bs)); });
     }
     // 6. exhibition: a long strip, as tall as the screen
     const gs = vh / G.h;
@@ -1153,7 +1162,6 @@
     // the finale: once he sits, the roof goes dark and the lights come on (see .fin in styles.css)
     const fin = s.pose === "end" && t > 0.12;
     if (fin !== finOn) { finOn = fin; roofEl.classList.toggle("fin", fin); }
-    charEl.classList.toggle("dimmed", pos.x >= L.backstairs.x && pos.x <= L.backstairs.x + L.backstairs.w);   // the stairwell's low light
     backRails.classList.toggle("behind", !!s.railsBehind);   // on the floor he passes in front of the staircase
     stairRails.classList.toggle("behind", !!s.railsBehind);
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size
