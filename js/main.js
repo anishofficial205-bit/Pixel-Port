@@ -81,6 +81,7 @@
     $("#mail-link").textContent = S.email;
     $("#copyright").textContent = `© ${S.year} ${S.name[0]}${S.name.slice(1).toLowerCase()} Shah. All rights reserved.`;
     $("#cr-place").textContent = S.location;
+    $("#ht-role").textContent = S.role;
 
     // each board is an ad for one project: the picture, then its line, title, blurb and a way in
     $("#billboards").innerHTML = S.featured().map((p, i) => `
@@ -640,7 +641,7 @@
   let segs = [], total = 0, stops = {};
   let pauseReel = () => {};             // set once the cinema's player exists
   let logoRefresh = () => {};           // redraws the logo canvas (set by glitchLogo)
-  const logoEl = $(".hud-logo");
+  const logoEl = $(".hud-logo"), heroTags = $(".hero-tags");
   let plainSize = () => {};             // re-measures the Simple view (set by watchPlain)
 
   const setBox = (el, x, y, w, h) => {
@@ -763,6 +764,14 @@
       const r = logoEl.getBoundingClientRect(), w = r.height * (623 / 435);       // its width follows from its height (the art's shape)
       const k = Math.max(1, Math.min((vw * (vw <= 700 ? 0.62 : LOGO_HERO.width)) / w, LOGO_HERO.max / w, (vh * 0.42) / r.height));
       L.logo = { k, x: vw / 2 - (w * k) / 2 - r.left, y: vh * LOGO_HERO.y - (r.height * k) / 2 - r.top };
+      // the tags around it: each sits at its data-at spot, kept on screen and clear of the navbar
+      const lw = w * k, lh = r.height * k, top = vw <= 700 ? 64 : 84, bottom = vw <= 700 ? 84 : 16;
+      $$(".hero-tags .ht").forEach((el) => {
+        const [ax, ay] = ((vw <= 700 && el.dataset.atM) || el.dataset.at).split(",").map(Number), tw = el.offsetWidth, th = el.offsetHeight;
+        const x = Math.min(vw - tw - 10, Math.max(10, vw / 2 + ax * lw - tw / 2)), y = Math.min(vh - th - bottom, Math.max(top, vh * LOGO_HERO.y + ay * lh - th / 2));
+        el.style.left = Math.round(x) + "px"; el.style.top = Math.round(y) + "px";
+        el.style.setProperty("--dx", Math.round(ax * 60) + "px"); el.style.setProperty("--dy", Math.round(ay * 60) + "px");   // they drift outward as they leave
+      });
       logoAt = -1;
       logoRefresh();
     }
@@ -1178,8 +1187,12 @@
       const g = segs[1], u = Math.min(1, Math.max(0, (cur - g.start) / (g.len * LOGO_HERO.over))), e = 1 - u * u * (3 - 2 * u);
       if (e !== logoAt) {
         logoAt = e;
-        logoEl.style.transform = e ? `translate(${(L.logo.x * e).toFixed(1)}px, ${(L.logo.y * e).toFixed(1)}px) scale(${(1 + (L.logo.k - 1) * e).toFixed(4)})` : "";
+        const k = 1 + (L.logo.k - 1) * e;
+        logoEl.style.transform = e ? `translate(${(L.logo.x * e).toFixed(1)}px, ${(L.logo.y * e).toFixed(1)}px) scale(${k.toFixed(4)})` : "";
+        logoEl.style.setProperty("--sl", (2.8 / Math.sqrt(k)).toFixed(3) + "px");   // scanline pitch: grows only gently with the logo
         logoEl.classList.toggle("hero", e > 0.5);
+        heroTags.style.setProperty("--e", e.toFixed(3));
+        heroTags.classList.toggle("off", e < 0.5);
       }
     }
     // the finale: once he sits, the roof goes dark and the lights come on (see .fin in styles.css)

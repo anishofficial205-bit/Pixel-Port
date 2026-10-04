@@ -188,15 +188,56 @@ body::after {
 }
 /* logo: drawn on a canvas so hover can glitch it (see glitchLogo in main.js) */
 .hud-logo { justify-self: start; display: block; height: var(--logo-h, 58px); line-height: 0; text-decoration: none; transform-origin: 0 0; will-change: transform; }
+/* the logo is shown as if on a CRT: a red/cyan colour fringe, scanlines and a rolling band (both masked
+   to the logo's shape), and an occasional flicker */
+.hud-logo { position: relative; animation: crt-flick 6s steps(1) infinite; }
+.hud-logo::before, .hud-logo::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  -webkit-mask: url(assets/brand/logo-source.png) center / 100% 100% no-repeat; mask: url(assets/brand/logo-source.png) center / 100% 100% no-repeat;
+}
+.hud-logo::after { background: repeating-linear-gradient(rgba(12, 0, 20, 0) 0 calc(var(--sl, 2.8px) * 0.6), rgba(12, 0, 20, 0.34) calc(var(--sl, 2.8px) * 0.6) var(--sl, 2.8px)); }
+.hud-logo::before { z-index: 1; background: linear-gradient(transparent, rgba(255, 255, 255, 0.3), transparent) 0 -40% / 100% 28% no-repeat; animation: logo-roll 4.2s linear infinite; }
+@keyframes logo-roll { to { background-position: 0 170%; } }
+@keyframes crt-flick { 0%, 100% { opacity: 1; } 71% { opacity: 0.82; } 72% { opacity: 1; } 91% { opacity: 0.88; } 92% { opacity: 1; } 93% { opacity: 0.8; } 94% { opacity: 1; } }
 .logo-canvas {
-  height: 100%; width: auto; display: block;
-  filter: drop-shadow(0 0 4px rgba(237, 40, 40, 0.75)) drop-shadow(0 0 14px rgba(237, 40, 40, 0.45));
+  height: 100%; width: auto; display: block; --fringe: drop-shadow(1.1px 0 0 rgba(61, 242, 255, 0.6)) drop-shadow(-1.1px 0 0 rgba(255, 60, 110, 0.55));
+  filter: var(--fringe) drop-shadow(0 0 4px rgba(237, 40, 40, 0.75)) drop-shadow(0 0 14px rgba(237, 40, 40, 0.45));
   animation: logo-glow 2.8s ease-in-out infinite;
   transition: transform 0.18s steps(3);
 }
 @keyframes logo-glow {
-  50% { filter: drop-shadow(0 0 6px rgba(255, 70, 60, 0.95)) drop-shadow(0 0 22px rgba(237, 40, 40, 0.7)); }
+  50% { filter: var(--fringe) drop-shadow(0 0 6px rgba(255, 70, 60, 0.95)) drop-shadow(0 0 22px rgba(237, 40, 40, 0.7)); }
 }
+/* ---- the title card: tags around the big logo on the opening screen. --e runs 1 -> 0 as the logo leaves
+   for the navbar; the tags drift outward and fade in the first part of that. ---- */
+.hero-tags { display: none; }
+.ride .hero-tags { display: block; position: fixed; inset: 0; pointer-events: none; --e: 1; }
+.preloading .hero-tags, .hero-tags.off { visibility: hidden; }
+.ht { position: absolute; opacity: clamp(0, calc(var(--e) * 4 - 3), 1);
+  transform: translate(calc(var(--dx, 0px) * (1 - var(--e)) * 3), calc(var(--dy, 0px) * (1 - var(--e)) * 3)) rotate(var(--r, 0deg)) scale(calc(0.7 + 0.3 * var(--e))); }
+.ht-in { display: block; font-weight: 700; white-space: nowrap; text-transform: none; letter-spacing: 0; animation: ht-pop 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) backwards, ht-bob 3.4s ease-in-out infinite; }
+.ht:nth-child(2) .ht-in { animation-delay: 0.1s, -0.8s; } .ht:nth-child(3) .ht-in { animation-delay: 0.2s, -1.6s; } .ht:nth-child(4) .ht-in { animation-delay: 0.3s, -2.2s; }
+.ht:nth-child(5) .ht-in { animation-delay: 0.45s, -0.4s; } .ht:nth-child(6) .ht-in { animation-delay: 0.3s, -1.2s; } .ht:nth-child(7) .ht-in { animation-delay: 0.4s, -2.6s; }
+@keyframes ht-pop { from { opacity: 0; transform: scale(0.4); } }
+@keyframes ht-bob { 50% { transform: translateY(-5px); } }
+/* "Portfolio": an amber sticker with a hard shadow */
+.ht-port { padding: 7px 14px 8px; background: #FFC24A; color: #14103A; font-family: var(--font-display); font-weight: 400; font-size: clamp(22px, 2.5vw, 36px); line-height: 1; box-shadow: 0 0 0 3px #14103A, 6px 6px 0 3px #D8261C; }
+.ht-port small { font-family: var(--font-label); font-weight: 900; font-size: 0.5em; vertical-align: 0.5em; color: #D8261C; }
+/* speech bubbles, like his */
+.ht-grad, .ht-hi { position: relative; padding: 9px 14px; background: var(--paper); color: var(--outline); font-size: clamp(13px, 1.25vw, 17px); line-height: 1.2;
+  box-shadow: 0 -4px 0 0 var(--outline), 0 4px 0 0 var(--outline), -4px 0 0 0 var(--outline), 4px 0 0 0 var(--outline); }
+.ht-grad::after, .ht-hi::after { content: ""; position: absolute; left: 18px; bottom: 100%; width: 8px; height: 8px; background: var(--paper); box-shadow: 0 -4px 0 0 var(--outline), -4px 0 0 0 var(--outline), 4px 0 0 0 var(--outline); }
+.ht-hi::after { left: 14px; bottom: auto; top: 100%; box-shadow: 0 4px 0 0 var(--outline), -4px 0 0 0 var(--outline), 4px 0 0 0 var(--outline); }
+.ht-hi { font-size: clamp(15px, 1.5vw, 21px); padding: 6px 12px; }
+.ht-grad i { display: inline-block; width: 9px; height: 9px; margin-right: 9px; border-radius: 50%; background: #2BC76B; box-shadow: 0 0 0 0 rgba(43, 199, 107, 0.6); animation: ping-g 1.8s ease-out infinite; }
+@keyframes ping-g { 70%, 100% { box-shadow: 0 0 0 9px rgba(43, 199, 107, 0); } }
+/* role: a navy label */
+.ht-role { padding: 7px 12px; background: #14103A; color: #F6E9CF; font-family: var(--font-label); font-size: clamp(10.5px, 0.95vw, 13px); letter-spacing: 0.12em; text-transform: uppercase; box-shadow: 0 0 0 2px #FFC24A; }
+.ht-scroll { padding: 6px 12px; border-radius: 999px; background: rgba(14, 9, 28, 0.7); color: #F6E9CF; font-family: var(--font-label); font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; }
+.ht-scroll u { display: inline-block; margin-left: 6px; text-decoration: none; color: #FFC24A; animation: ht-nudge 1.2s ease-in-out infinite; }
+@keyframes ht-nudge { 50% { transform: translateY(4px); } }
+.ht-star { width: clamp(22px, 2.6vw, 38px); aspect-ratio: 1; background: #FFF6D8; clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%); animation: ht-pop 0.5s backwards, star-glint 3s ease-in-out infinite; }
+.ht-star.s2 { width: clamp(16px, 1.8vw, 26px); background: #FFC24A; }
 .hud-logo:hover .logo-canvas, .hud-logo:focus-visible .logo-canvas {
   transform: scale(1.06);
   filter: drop-shadow(0 0 6px rgba(255, 90, 70, 1)) drop-shadow(0 0 26px rgba(255, 40, 40, 0.85));
