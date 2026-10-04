@@ -18,7 +18,7 @@ Image.MAX_IMAGE_PIXELS = None
 FILES = [
     "scenes/street.webp", "scenes/drain.webp", "scenes/subway.webp", "scenes/stairwell.webp", "scenes/cinema-front.webp",
     "scenes/backstairs.webp", "scenes/gallery.webp", "scenes/rooftop.webp",
-    "street/leaves.png", "street/train.png", "street/posts.png", "subway/rails.png", "backstairs/rails.png",
+    "street/leaves.png", "street/train.png", "street/posts.png", "street/lights.png", "subway/rails.png", "backstairs/rails.png",
     "cinema/seat-row.webp", "preloader/arcade.webp", "rooftop/train.png", "rooftop/front.png",
 ]
 SHARPEN = ImageFilter.UnsharpMask(radius=1.6, percent=90, threshold=2)

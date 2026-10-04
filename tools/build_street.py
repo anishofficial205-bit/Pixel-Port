@@ -94,6 +94,25 @@ posts[357 - TY0 + 1:374 - TY0 + 1, bx - 5:bx + 4] = [14, 10, 24, 255]
 Image.fromarray(posts.astype(np.uint8)).save(ROOT / "assets/street/posts.png", optimize=True)
 print("train", train.shape[1], "x", train.shape[0], "| track x", TX0, "y", TY0, "| posts box", [PX0, TY0 - 1, PX1 - PX0, posts.shape[0]])
 
+# the lights that stay on when the opening screen dims the street (assets/street/lights.png): lit windows,
+# the stars and the moon, lifted from the finished street
+o = np.clip(out, 0, 255)
+r, g, b = o[..., 0], o[..., 1], o[..., 2]
+keep = np.zeros(o.shape[:2], bool)
+warm = nd.binary_opening((r > 205) & (g > 150) & (b < 200) & (r - b > 45), iterations=1)      # window yellow (stippled lamp light doesn't survive the opening)
+lab, n = nd.label(warm)
+for i, sl in enumerate(nd.find_objects(lab)):
+    h, w = sl[0].stop - sl[0].start, sl[1].stop - sl[1].start
+    fill = (lab[sl] == i + 1).mean()
+    if sl[0].stop < 640 and 3 <= w <= 64 and 4 <= h <= 95 and fill > 0.55:
+        keep[sl] |= lab[sl] == i + 1
+sky = np.zeros_like(keep)
+sky[:335, 500:1300] = True                                                                      # the open sky between the rooftops
+pale = (r > 200) & (g > 190) & (b > 110) & sky
+keep |= nd.binary_dilation(pale, iterations=2) & sky & (r + g + b > 330)
+al = nd.gaussian_filter(keep.astype(float), 0.8)
+Image.fromarray(np.dstack([o, np.clip(al * 255, 0, 255)]).astype(np.uint8)).save(ROOT / "assets/street/lights.png", optimize=True)
+
 # 3. leaves in front of the tall billboard: everything darker than the board, un-mixed from its cream
 bx0, by0, bx1, by1 = LEAVES
 reg = a[by0:by1, bx0:bx1]

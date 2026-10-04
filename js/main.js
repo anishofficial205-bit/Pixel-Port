@@ -81,7 +81,6 @@
     $("#mail-link").textContent = S.email;
     $("#copyright").textContent = `© ${S.year} ${S.name[0]}${S.name.slice(1).toLowerCase()} Shah. All rights reserved.`;
     $("#cr-place").textContent = S.location;
-    $("#ht-role").textContent = S.role;
 
     // each board is an ad for one project: the picture, then its line, title, blurb and a way in
     $("#billboards").innerHTML = S.featured().map((p, i) => `
@@ -269,9 +268,6 @@
     zzz: [1548, 692, 70, 56],
     spots: {                                                  // clickable: box, what it says (in turn), a label
       moon: { box: [1044, 67, 148, 148], says: ["Make a wish!", "Full moon tonight."], label: "The moon" },
-      store: { box: [160, 498, 196, 214], says: ["Open till late!", "Biscuit? Maggi?", "Chhutta nahi hai!"], label: "The general store" },
-      chai: { box: [1398, 560, 150, 190], says: ["Ek cutting chai!", "Only \u20B910!", "Kadak!"], label: "The chai stall" },
-      dog: { box: [1505, 728, 150, 70], says: ["Woof!", "*tail wags*", "...zzz"], label: "The sleeping dog" },
     },
     him: ["Hi!", "That tickles!", "Scroll, yaar!", "Chalo, chalo!"],   // what he says when clicked
   };
@@ -311,17 +307,6 @@
       turn[k] = (turn[k] || 0) + 1;
       say(btn, lines[(turn[k] - 1) % lines.length]);
       if (k === "moon") shoot();
-      if (k === "store") once($(".store-sign"), "buzz", 700);
-      if (k === "chai") once($("#street .steam"), "burst", 1800);
-      if (k === "dog") {
-        once($(".zzz"), "awake", 2600);
-        for (let i = 0; i < 3; i++) {
-          const h = document.createElement("i");
-          h.className = "pop-heart"; h.textContent = "\u2665";
-          h.style.left = 25 + Math.random() * 50 + "%"; h.style.animationDelay = i * 0.12 + "s";
-          btn.append(h); setTimeout(() => h.remove(), 1400);
-        }
-      }
     }));
     // click him: he cheers and says something
     let pokes = 0;
@@ -641,7 +626,7 @@
   let segs = [], total = 0, stops = {};
   let pauseReel = () => {};             // set once the cinema's player exists
   let logoRefresh = () => {};           // redraws the logo canvas (set by glitchLogo)
-  const logoEl = $(".hud-logo"), heroTags = $(".hero-tags");
+  const logoEl = $(".hud-logo"), heroTags = $(".hero-tags"), streetEl = $("#street");
   let plainSize = () => {};             // re-measures the Simple view (set by watchPlain)
 
   const setBox = (el, x, y, w, h) => {
@@ -1192,6 +1177,7 @@
         logoEl.style.setProperty("--sl", (2.8 / Math.sqrt(k)).toFixed(3) + "px");   // scanline pitch: grows only gently with the logo
         logoEl.classList.toggle("hero", e > 0.5);
         heroTags.style.setProperty("--e", e.toFixed(3));
+        streetEl.style.setProperty("--e", e.toFixed(3));        // the street dims behind the title card
         heroTags.classList.toggle("off", e < 0.5);
       }
     }
