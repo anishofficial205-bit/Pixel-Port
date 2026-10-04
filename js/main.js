@@ -205,7 +205,7 @@
     w: 5016, h: 941,
     floor: 835, tall: 330,      // his feet on the wooden floor; how tall he stands in this room
     enter: [215, 775], exit: [4850, 770],   // on the carpet at the door in, and at the door out to the roof
-    title: [335, 205],          // "On display", on the wall beside the first frame
+    sign: [506, 242, 212, 150], // the "On display" plaque, under the wall lamp beside the first frame: x, y, w, h
     reach: 520,                 // a photo's picture light comes up when he is within this of its centre
     frames: [[758, 262, 632, 259], [2132, 274, 203, 240], [2471, 276, 479, 235], [3581, 262, 585, 256]],
     plaques: [[1030, 543, 83, 19], [2204, 535, 63, 17], [2676, 535, 67, 17], [3839, 541, 73, 19]],
@@ -809,7 +809,7 @@
     const rowY = front.y + front.oy + Math.round(F.rowTop * fs);
     setBox($(".front-row"), front.x + front.ox, rowY, fw, front.y + front.oy + fh - rowY);
     $(".front-row img").style.width = fw + "px";
-    setBox($(".gallery-title"), Math.round(G.title[0] * gs), Math.round(G.title[1] * gs));
+    { const [x, y, w, h] = G.sign; mapToQuad($(".gallery-sign"), [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], gs); }
     $$(".photo").forEach((el, i) => {
       const f = frames[i]; el.hidden = !f;
       if (!f) return;

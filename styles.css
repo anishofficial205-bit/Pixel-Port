@@ -688,13 +688,19 @@ body::after {
 .ride .stair-rails.behind { z-index: 4; }
 
 /* ---------------- 5. exhibition ---------------- */
-.gallery-title { display: flex; flex-direction: column; gap: 8px; color: var(--brass); }
-.gallery-title h2 { font-size: 34px; text-shadow: 3px 3px 0 var(--outline); }
-.gallery-title .hi { font-size: 20px; }
-.gallery-title span:last-child { color: var(--spotlight); font-size: 16px; }
-.ride #exhibition .bg-img, .ride #rooftop .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); pointer-events: none; }
-.static #rooftop .bg-img { display: none; }
-.ride .gallery-title { text-shadow: 0 0 6px rgba(255, 227, 176, 0.3); }
+/* the room's sign: an enamel plaque with a brass edge, hung from the picture rail by two wires.
+   It is laid out in art px and scaled with the art. */
+.ride .gallery-sign { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
+.gallery-sign {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; text-align: center;
+  background: #0F1640; color: #F6E9CF; border: 3px solid #D9A441;
+  box-shadow: inset 0 0 0 4px #0F1640, inset 0 0 0 5px rgba(217, 164, 65, 0.65), 0 0 0 1px #3B2608, 0 12px 22px rgba(5, 3, 12, 0.6), 0 0 60px rgba(255, 220, 150, 0.2);
+}
+.gallery-sign .hi { font-size: 15px; line-height: 1; color: #FFC24A; }
+.gallery-sign h2 { font-size: 31px; line-height: 0.95; }
+.gs-sub { padding-top: 8px; border-top: 1px solid rgba(217, 164, 65, 0.7); font-family: var(--font-label); font-weight: 700; font-size: 9.5px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(246, 233, 207, 0.8); }
+.gs-wire { position: absolute; bottom: 100%; left: 22%; width: 1.5px; height: 74px; margin-bottom: 3px; background: linear-gradient(#8C6A2A, #D9A441); }
+.gs-wire + .gs-wire { left: auto; right: 22%; }
 .photos { margin: 0; }
 /* the room is dim; a picture light falls on each photo, brightest on the one he is standing at */
 .gal-dim { display: none; }
