@@ -122,7 +122,7 @@
     face.style.setProperty("--ar", P.w / P.h);
     face.style.backgroundSize = `${P.frames * 100}% 100%`;
 
-    boardEls = $$(".billboard");
+    boardEls = $$(".billboard"); photoEls = $$("#photos .photo");
     streetLife();
     renderPlain();
     adBoards();
@@ -206,6 +206,7 @@
     floor: 835, tall: 330,      // his feet on the wooden floor; how tall he stands in this room
     enter: [215, 775], exit: [4850, 770],   // on the carpet at the door in, and at the door out to the roof
     title: [335, 205],          // "On display", on the wall beside the first frame
+    reach: 520,                 // a photo's picture light comes up when he is within this of its centre
     frames: [[758, 262, 632, 259], [2132, 274, 203, 240], [2471, 276, 479, 235], [3581, 262, 585, 256]],
     plaques: [[1030, 543, 83, 19], [2204, 535, 63, 17], [2676, 535, 67, 17], [3839, 541, 73, 19]],
   };
@@ -799,6 +800,7 @@
     setBox($(".front-art"), front.ox, front.oy, fw, fh);
     $(".front-art").style.setProperty("--u", fs.toFixed(3));   // the player's type scales with the hall
     fbox($(".cinema-content"), F.screen);
+    fbox($(".screen-glow"), F.screen);
     // the posters stand on the stage front; on tall narrow screens there's room below the hall instead
     const visLeft = Math.min(Math.max(front.ox + 836 * fs - vw / 2, 0), front.w - vw) - front.ox;   // camera's left edge, in art-box px
     if (front.h - front.oy - fh > 140) setBox($(".reel-bar"), visLeft + 12, fh + 10, vw - 24, front.h - front.oy - fh - 20);
@@ -1029,7 +1031,7 @@
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
   const cutEl = $(".cut"), backRails = $(".back-rails"), stairRails = $(".stair-rails");
-  let litBoard = -1, boardEls = [], finOn = false;
+  let litBoard = -1, boardEls = [], litPhoto = -1, photoEls = [], finOn = false;
   const roofEl = $("#rooftop");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
@@ -1141,6 +1143,13 @@
       SUBWAY.boards.forEach(([bx, , bw], i) => { const d = Math.abs(ax - (bx + bw / 2)); if (d < SUBWAY.reach && (lit < 0 || d < Math.abs(ax - (SUBWAY.boards[lit][0] + SUBWAY.boards[lit][2] / 2)))) lit = i; });
     }
     if (lit !== litBoard) { litBoard = lit; boardEls.forEach((el, i) => el.classList.toggle("lit", i === lit)); }
+    // ...and in the gallery, the photo he is standing at gets the brightest picture light
+    let litP = -1;
+    if (loc === "exhibition" && !cutSide) {
+      const ax = p.x - L.exhibition.x, near = (i) => Math.abs(ax - (L.frames[i].x + L.frames[i].w / 2));
+      L.frames.forEach((f, i) => { if (near(i) < GALLERY.reach * L.exhibition.s && (litP < 0 || near(i) < near(litP))) litP = i; });
+    }
+    if (litP !== litPhoto) { litPhoto = litP; photoEls.forEach((el, i) => el.classList.toggle("lit", i === litP)); }
     // the finale: once he sits, the roof goes dark and the lights come on (see .fin in styles.css)
     const fin = s.pose === "end" && t > 0.12;
     if (fin !== finOn) { finOn = fin; roofEl.classList.toggle("fin", fin); }
