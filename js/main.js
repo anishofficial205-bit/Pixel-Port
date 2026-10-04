@@ -430,13 +430,13 @@
             ${win("one_night_in_the_city.png", `
               <span class="plain-hero-bg" aria-hidden="true">
                 <span class="plain-art">
-                  <img src="assets/scenes/street.webp" alt="" />
-                  <span class="train-track" style="--x:${T.track[0]}px;--y:${T.track[1]}px;--w:${T.track[2]}px;--h:${T.track[3]}px;--len:${T.len}px;--rest:${T.rest - T.len}px"><img src="assets/street/train.png" alt="" /></span>
-                  <img class="train-posts" src="assets/street/posts.png" alt="" style="--x:${T.posts[0]}px;--y:${T.posts[1]}px;--w:${T.posts[2]}px;--h:${T.posts[3]}px" />
+                  <img src="assets/scenes/street.webp" srcset="assets/scenes/street.webp 1672w, assets/scenes/street-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" />
+                  <span class="train-track" style="--x:${T.track[0]}px;--y:${T.track[1]}px;--w:${T.track[2]}px;--h:${T.track[3]}px;--len:${T.len}px;--rest:${T.rest - T.len}px"><img src="assets/street/train.png" srcset="assets/street/train.png 1x, assets/street/train-2x.webp 2x" alt="" /></span>
+                  <img class="train-posts" src="assets/street/posts.png" srcset="assets/street/posts.png 1x, assets/street/posts-2x.webp 2x" alt="" style="--x:${T.posts[0]}px;--y:${T.posts[1]}px;--w:${T.posts[2]}px;--h:${T.posts[3]}px" />
                   <a class="bb-map bb-ad bb-left" data-quad="left" data-start="0" tabindex="-1"></a>
                   <a class="bb-map bb-ad bb-led" data-quad="led" data-start="1" tabindex="-1"></a>
                   <a class="bb-map bb-ad bb-mid" data-quad="mid" data-start="2" tabindex="-1"></a>
-                  <img class="bb-leaves" src="assets/street/leaves.png" alt="" style="left:${STREET.leaves[0]}px;top:${STREET.leaves[1]}px;width:${STREET.leaves[2]}px;height:${STREET.leaves[3]}px" />
+                  <img class="bb-leaves" src="assets/street/leaves.png" srcset="assets/street/leaves.png 1x, assets/street/leaves-2x.webp 2x" alt="" style="left:${STREET.leaves[0]}px;top:${STREET.leaves[1]}px;width:${STREET.leaves[2]}px;height:${STREET.leaves[3]}px" />
                 </span>
               </span>`, "z-heroWin")}
             <button class="z-him z-guide take-ride" type="button" aria-label="Take the ride: travel through the portfolio as a scrolling journey"></button>
@@ -1091,13 +1091,13 @@
     // draw sprite
     const key = anim + (n % Sprite.count(anim));
     if (key !== lastKey) {
-      const src = Sprite.frame(anim, n);
+      const src = Sprite.frame(anim, n);                   // a cell of his sheet, drawn straight to the canvas
       if (src) {
         lastKey = key;
         const c = sprite.getContext("2d");
         c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
         c.clearRect(0, 0, sprite.width, sprite.height);
-        c.drawImage(src, 0, 0, sprite.width, sprite.height);
+        c.drawImage(src.img, src.x, src.y, src.w, src.h, 0, 0, sprite.width, sprite.height);
       }
     }
     if (loc === "street") {   // keep the hero spotlight on him (street coords = world coords)

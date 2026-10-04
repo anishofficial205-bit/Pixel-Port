@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1791131940" />
+  <link rel="stylesheet" href="styles.css?v=1791132737" />
 </head>
 <body class="ride preloading" data-location="street">
   <!-- preloader: READY? SET... GO! -> logo -> pixel dissolve into the street (js/preloader.js) -->
@@ -30,7 +30,7 @@
           <div class="pl-bar"><i></i></div>
         </div>
       </div>
-      <img class="pl-arcade" src="assets/preloader/arcade.webp" alt="" />
+      <img class="pl-arcade" src="assets/preloader/arcade.webp" srcset="assets/preloader/arcade.webp 1672w, assets/preloader/arcade-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" />
       <div class="pl-glass"></div>
       <div class="pl-marquee"><b>WELCOME</b><span class="hi">स्वागत है</span></div>
       <i class="pl-coin c1"></i><i class="pl-coin c2"></i>
@@ -38,7 +38,7 @@
     <canvas class="pl-blocks"></canvas>
     <p class="pl-skip">Click or press any key to skip</p>
   </div>
-  <script src="js/preloader.js?v=1791131940"></script>
+  <script src="js/preloader.js?v=1791132737"></script>
   <a class="skip-link" href="#subway">Skip to projects</a>
 
   <!-- HUD: menu, metro route map, skip toggle -->
@@ -69,10 +69,10 @@
 
         <!-- 1. THE STREET -->
         <section class="scene" id="street" data-location="street" aria-label="Home">
-          <img class="bg-img" src="assets/scenes/street.webp" alt="An Indian street at night: a general store, a chai stall with a sleeping dog, a metro crossing the overpass, and the sea link and city skyline under a full moon." />
+          <img class="bg-img" src="assets/scenes/street.webp" srcset="assets/scenes/street.webp 1672w, assets/scenes/street-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="An Indian street at night: a general store, a chai stall with a sleeping dog, a metro crossing the overpass, and the sea link and city skyline under a full moon." />
           <!-- the metro crossing the overpass, and the lamp posts that stand in front of it -->
-          <div class="train-track" aria-hidden="true"><img src="assets/street/train.png" alt="" /></div>
-          <img class="train-posts" src="assets/street/posts.png" alt="" aria-hidden="true" />
+          <div class="train-track" aria-hidden="true"><img src="assets/street/train.png" srcset="assets/street/train.png 1x, assets/street/train-2x.webp 2x" alt="" /></div>
+          <img class="train-posts" src="assets/street/posts.png" srcset="assets/street/posts.png 1x, assets/street/posts-2x.webp 2x" alt="" aria-hidden="true" />
           <!-- focus: a light shade over the street with soft windows at the billboards and the character -->
           <div class="street-dim" aria-hidden="true"></div>
           <div class="deco" aria-hidden="true">
@@ -85,17 +85,17 @@
           <a class="content bb-map bb-ad bb-led" data-quad="led" data-start="1"></a>
           <a class="content bb-map bb-ad bb-mid" data-quad="mid" data-start="2"></a>
           <!-- tree leaves that hang in front of the tall board -->
-          <img class="content bb-leaves" src="assets/street/leaves.png" alt="" aria-hidden="true" />
+          <img class="content bb-leaves" src="assets/street/leaves.png" srcset="assets/street/leaves.png 1x, assets/street/leaves-2x.webp 2x" alt="" aria-hidden="true" />
         </section>
 
         <!-- 2. THE DRAIN -->
         <section class="scene" id="drain" data-location="drain" aria-labelledby="about-title">
-          <img class="bg-img" src="assets/scenes/drain.webp" alt="" decoding="async" fetchpriority="low" />
+          <img class="bg-img" src="assets/scenes/drain.webp" srcset="assets/scenes/drain.webp 1672w, assets/scenes/drain-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" decoding="async" fetchpriority="low" />
         </section>
 
         <!-- 3. THE SUBWAY -->
         <section class="scene" id="subway" data-location="subway" aria-labelledby="subway-title">
-          <img class="bg-img" src="assets/scenes/subway.webp" alt="" decoding="async" fetchpriority="low" />
+          <img class="bg-img" src="assets/scenes/subway.webp" srcset="assets/scenes/subway.webp 5016w, assets/scenes/subway-2x.webp 10032w" sizes="(max-width: 1100px) 100vw, 300vw" alt="" decoding="async" fetchpriority="low" />
           <!-- a shade over the station along the billboards, so the projects stand out -->
           <div class="content sub-dim" aria-hidden="true"></div>
           <!-- station name, on a sign hung from the ceiling -->
@@ -109,12 +109,12 @@
 
         <!-- 4. THE STAIRWELL: the subway's last frame, with the stairs up to the cinema lobby -->
         <section class="scene" id="stairwell" data-location="cinema" aria-label="Stairs up to the cinema lobby">
-          <img class="bg-img" src="assets/scenes/stairwell.webp" alt="" decoding="async" fetchpriority="low" />
+          <img class="bg-img" src="assets/scenes/stairwell.webp" srcset="assets/scenes/stairwell.webp 1672w, assets/scenes/stairwell-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" decoding="async" fetchpriority="low" />
           <div class="content cin-poster" data-quad="poster1" aria-hidden="true"><img class="work-media" alt="" /><span></span></div>
           <div class="content cin-poster" data-quad="poster2" aria-hidden="true"><img class="work-media" alt="" /><span></span></div>
         </section>
         <!-- the railings he walks behind: the staircase's near handrail and the rail along the lobby's edge -->
-        <img class="stair-rails" src="assets/subway/rails.png" alt="" aria-hidden="true" />
+        <img class="stair-rails" src="assets/subway/rails.png" srcset="assets/subway/rails.png 1x, assets/subway/rails-2x.webp 2x" alt="" aria-hidden="true" />
         <!-- 5. THE THEATER (reached through the lobby's red doors) -->
         <section class="scene" id="cinema-front" data-location="cinema" aria-labelledby="cinema-title">
           <div class="front-art">
@@ -135,7 +135,7 @@
                 </div>
               </div>
             </div>
-            <img class="bg-img" src="assets/scenes/cinema-front.webp" alt="" decoding="async" fetchpriority="low" />
+            <img class="bg-img" src="assets/scenes/cinema-front.webp" srcset="assets/scenes/cinema-front.webp 1672w, assets/scenes/cinema-front-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" decoding="async" fetchpriority="low" />
             <!-- the reels, as posters along the front of the stage -->
             <div class="content reel-bar"><ul class="reel-posters" id="reel-posters"></ul></div>
           </div>
@@ -143,7 +143,7 @@
 
         <!-- 5b. THE BACK STAIRS: from the cinema hall up to the gallery -->
         <section class="scene" id="backstairs" data-location="cinema" aria-label="Stairs up to the gallery">
-          <img class="bg-img" src="assets/scenes/backstairs.webp" alt="" decoding="async" fetchpriority="low" />
+          <img class="bg-img" src="assets/scenes/backstairs.webp" srcset="assets/scenes/backstairs.webp 1672w, assets/scenes/backstairs-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" decoding="async" fetchpriority="low" />
           <!-- on the blank poster by the stairs -->
           <div class="content back-sign" aria-hidden="true"><i class="up-arrow"></i><b>ART<br />GALLERY</b><span class="hi">प्रदर्शनी</span></div>
           <!-- a taste of the photos, in the small frames up the stairs -->
@@ -153,11 +153,11 @@
           <div class="content back-photo" aria-hidden="true"><img class="work-media" alt="" /></div>
         </section>
         <!-- its handrails and balustrades, drawn in front of him once he is on the stairs -->
-        <img class="back-rails" src="assets/backstairs/rails.png" alt="" aria-hidden="true" />
+        <img class="back-rails" src="assets/backstairs/rails.png" srcset="assets/backstairs/rails.png 1x, assets/backstairs/rails-2x.webp 2x" alt="" aria-hidden="true" />
 
         <!-- 6. THE EXHIBITION -->
         <section class="scene" id="exhibition" data-location="exhibition" aria-labelledby="gallery-title">
-          <img class="bg-img" src="assets/scenes/gallery.webp" alt="" decoding="async" fetchpriority="low" />
+          <img class="bg-img" src="assets/scenes/gallery.webp" srcset="assets/scenes/gallery.webp 5016w, assets/scenes/gallery-2x.webp 10032w" sizes="(max-width: 1100px) 100vw, 300vw" alt="" decoding="async" fetchpriority="low" />
           <div class="content photos" id="photos"></div>
           <div class="content gallery-title">
             <span class="hi">प्रदर्शनी</span>
@@ -168,7 +168,7 @@
 
         <!-- 7. THE ROOFTOP / END CREDITS -->
         <footer class="scene" id="rooftop" data-location="rooftop" aria-labelledby="credits-title">
-          <img class="bg-img" src="assets/scenes/rooftop.webp" alt="" decoding="async" fetchpriority="low" />
+          <img class="bg-img" src="assets/scenes/rooftop.webp" srcset="assets/scenes/rooftop.webp 1672w, assets/scenes/rooftop-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" decoding="async" fetchpriority="low" />
           <div class="deco" aria-hidden="true"><div class="hoardings"></div><div class="bulbs"></div></div>
           <div class="content credits">
             <p class="credits-kicker">THE END · <span class="hi">समाप्त</span></p>
@@ -184,7 +184,7 @@
         </footer>
 
         <!-- the cinema's seats, in front of the character -->
-        <div class="front-row" aria-hidden="true"><img src="assets/cinema/seat-row.webp" alt="" /></div>
+        <div class="front-row" aria-hidden="true"><img src="assets/cinema/seat-row.webp" srcset="assets/cinema/seat-row.webp 1x, assets/cinema/seat-row-2x.webp 2x" alt="" /></div>
 
         <!-- the character -->
         <div class="char" id="char" aria-hidden="true">
@@ -230,8 +230,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1791131940"></script>
-  <script src="js/sprite.js?v=1791131940"></script>
-  <script src="js/main.js?v=1791131940"></script>
+  <script src="js/data.js?v=1791132737"></script>
+  <script src="js/sprite.js?v=1791132737"></script>
+  <script src="js/main.js?v=1791132737"></script>
 </body>
 </html>

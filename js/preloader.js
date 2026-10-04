@@ -44,7 +44,10 @@
 
   // what the first screen needs before we reveal it
   const need = [
-    new Promise((r) => { const i = new Image(); i.onload = i.onerror = r; i.src = "assets/scenes/street.webp"; }),
+    new Promise((r) => {   // the street itself (whichever resolution the page picked), once the page has it
+      const go = () => { const i = document.querySelector("#street .bg-img"); if (!i || i.complete) return r(); i.addEventListener("load", r, { once: true }); i.addEventListener("error", r, { once: true }); };
+      document.readyState === "loading" ? addEventListener("DOMContentLoaded", go, { once: true }) : go();
+    }),
     new Promise((r) => { const i = new Image(); i.onload = i.onerror = r; i.src = "assets/brand/logo.png"; }),
     document.fonts ? document.fonts.ready : Promise.resolve(),
   ];

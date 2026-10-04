@@ -10,18 +10,21 @@
 
     python tools/pack_character.py
 
-Writes assets/character/{main,drain,stairs}.webp. Every sheet uses one cell (the engine's 208 x 179 box at
+Writes assets/character/{main,drain,stairs}.webp. With SCALE=2 in the environment it writes the
+high-definition sheets instead ({main,drain,stairs}-2x.webp), enlarged straight from the sources. Every sheet uses one cell (the engine's 208 x 179 box at
 2x) in which he stands STAND px tall with his feet on the cell bottom; airborne frames are centred on
 their centre of mass. Frame order must match SETS in js/sprite.js.
 """
+import os
 from pathlib import Path
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 from scipy import ndimage as nd
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "assets/character/src/v2"
-CW, CH, COLS, STAND = 416, 358, 8, 300
+SCALE = int(os.environ.get("SCALE", 1))          # SCALE=2 packs the high-definition sheets (<name>-2x.webp)
+CW, CH, COLS, STAND = 416 * SCALE, 358 * SCALE, 8, 300 * SCALE
 
 
 def disk(r):
@@ -86,6 +89,10 @@ def frame(c, m, k, anchor):
     t, b, l, r = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
     img = Image.fromarray(np.dstack([c, np.clip(alpha * 255, 0, 255)]).astype(np.uint8)).crop((l, t, r, b))
     img = img.resize((max(1, round(img.width * k)), max(1, round(img.height * k))), Image.LANCZOS)
+    if k > 1.2:                                       # enlarged from the painting: sharpen the colour a little
+        rgb = img.convert("RGB").filter(ImageFilter.UnsharpMask(radius=1.6, percent=90, threshold=2))
+        rgb.putalpha(img.getchannel("A"))
+        img = rgb
     mm = m[t:b, l:r]
     if anchor == "air":
         cy, cx = nd.center_of_mass(mm)
@@ -103,7 +110,7 @@ def pack(frames, name):
         y = CH - f.height if top is None else top
         assert y >= 0 and ax <= CW // 2 and f.width - ax <= CW // 2, (name, i, f.size, ax, y)
         sheet.alpha_composite(f, ((i % COLS) * CW + CW // 2 - ax, (i // COLS) * CH + y))
-    sheet.save(ROOT / f"assets/character/{name}.webp", quality=90, method=6)
+    sheet.save(ROOT / f"assets/character/{name}{'-2x' if SCALE > 1 else ''}.webp", quality=88 if SCALE > 1 else 90, method=6 if SCALE == 1 else 4)
     print(name, len(frames), "frames", sheet.size)
 
 
