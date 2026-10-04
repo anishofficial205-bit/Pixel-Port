@@ -415,6 +415,7 @@ body::after {
 }
 /* ---- more life in the street (built by streetLife in main.js; boxes come from data-art) ---- */
 #street [data-art] { width: var(--w); height: var(--h); }
+#rooftop { --ss: 1; }
 /* stars: the painted ones glint, the small ones pulse, and now and then one falls */
 .sky-star { background: #FFF6D8; clip-path: polygon(50% 0, 56% 44%, 100% 50%, 56% 56%, 50% 100%, 44% 56%, 0 50%, 44% 44%); animation: star-glint 3.4s ease-in-out infinite; }
 @keyframes star-glint { 0%, 100% { transform: scale(0.5) rotate(0deg); opacity: 0.35; } 50% { transform: scale(1.3) rotate(20deg); opacity: 1; } }
@@ -733,40 +734,80 @@ body::after {
 .lb-close { position: fixed; top: calc(var(--frame) + 14px); right: calc(var(--frame) + 14px); }
 .lb-open { overflow: hidden; }
 
-/* ---------------- 6. rooftop ---------------- */
+/* ---------------- 6. rooftop: the finale ----------------
+   Always: the far metro crosses the bridge, stars glint, fairy lights shimmer, the door lamp flickers.
+   When he sits down (#rooftop.fin): the string lights flicker and go out, the roof dims, then they come
+   back on one by one and pool on the floor, and the credits set themselves line by line. */
 .ride .hoardings, .ride .bulbs { left: 0; top: 0; }
-.bulbs i {
-  position: absolute; left: var(--x); top: var(--y); width: var(--d, 30px); height: var(--d, 30px); transform: translate(-50%, -50%); border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 236, 170, 0.9) 0 25%, rgba(255, 184, 77, 0.45) 50%, transparent 72%);
-  animation: twinkle 2.2s ease-in-out infinite;
-}
-/* blank hoardings on the skyline show the projects */
+#rooftop [data-art] { width: var(--w); height: var(--h); }
 .hoarding { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); background: #0B0714 center / cover no-repeat; }
+.roof-train img { animation-duration: 15s; animation-delay: -6s; }
+.ride #rooftop .deco.roof-far, .ride #rooftop .deco.roof-lights { position: absolute; inset: 0; }
+/* fairy lights: a glow over every little painted bulb, in three layers that twinkle out of step */
+.ride #rooftop .fairy { left: 0; top: 0; width: 100%; height: 100%; mix-blend-mode: screen; opacity: 0.5; animation: fairy 2.4s ease-in-out infinite; }
+.fairy:nth-of-type(2) { animation-delay: -0.8s; } .fairy:nth-of-type(3) { animation-delay: -1.6s; }
+@keyframes fairy { 50% { opacity: 0.05; } }
+.fin .fairy { animation-name: fairy-on; }
+@keyframes fairy-on { 0%, 100% { opacity: 1; filter: brightness(1.3); } 50% { opacity: 0.45; filter: none; } }
+/* the dark that falls when he sits */
+.roof-dim { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: linear-gradient(90deg, rgba(6, 4, 20, 0.86), rgba(6, 4, 20, 0.62) 46%, rgba(6, 4, 20, 0.5)); transition: opacity 0.9s ease;
+  /* the moon stays lit */
+  -webkit-mask-image: radial-gradient(circle calc(82px * var(--ss)) at 63.76% 19.87%, transparent 88%, #000 100%); mask-image: radial-gradient(circle calc(82px * var(--ss)) at 63.76% 19.87%, transparent 88%, #000 100%); }
+.fin .roof-dim { opacity: 1; transition: opacity 1.3s ease 0.7s; }
+/* string lights: a glow over each painted bulb (b = a shade that can put it out) */
+.bulb { position: absolute; left: var(--x); top: var(--y); border-radius: 50%; }
+.bulb::before { content: ""; position: absolute; inset: -55%; border-radius: 50%; background: radial-gradient(circle, rgba(255, 236, 170, 0.8) 0 22%, rgba(255, 184, 77, 0.4) 45%, transparent 70%); animation: twinkle 2.2s ease-in-out infinite; animation-delay: calc(var(--i) * -0.37s); }
+.bulb b { position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(#1B1030 52%, rgba(27, 16, 48, 0) 72%); opacity: 0; }
 @keyframes twinkle { 0%, 100% { opacity: 1; } 40% { opacity: 0.45; } 70% { opacity: 0.85; } }
-@media (max-width: 700px) { .ride .credits { padding: 12px 12px 14px; margin: -12px; box-sizing: content-box; background: rgba(11, 7, 20, 0.62); box-shadow: 0 0 0 2px rgba(255, 194, 74, 0.25); } }   /* over the skyline on phones */
-.credits-kicker { margin: 0; font-family: var(--font-label); font-weight: 700; font-size: 12px; color: var(--dawn-orange); text-shadow: 2px 2px 0 var(--outline); }
-.credits-kicker .hi { font-size: 13px; }
-.credits-actions { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
-.credits .copyright { opacity: 0.85; }
-.credits { width: var(--w); display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
-.credits-title {
-  font-size: 40px; line-height: 1.1; color: var(--marigold);
-  text-shadow: 3px 3px 0 var(--outline), 0 0 8px var(--saffron);
+/* ...they stutter, go out, then come back one after another, brighter than before */
+.fin .bulb b { animation: bulb-out calc(2.4s + var(--i) * 0.28s) linear both; }
+@keyframes bulb-out { 0%, 6%, 12% { opacity: 0; } 3%, 9% { opacity: 0.9; } 18%, 99% { opacity: 0.94; } 100% { opacity: 0; } }
+.fin .bulb::before { inset: -170%; background: radial-gradient(circle, #FFF3C8 0 9%, rgba(255, 214, 120, 0.85) 14%, rgba(255, 170, 60, 0.38) 34%, transparent 68%); mix-blend-mode: screen;
+  animation: bulb-on 0.7s cubic-bezier(0.2, 1.6, 0.4, 1) both, bulb-breathe 3.2s ease-in-out infinite; animation-delay: calc(2.4s + var(--i) * 0.28s), calc(3.2s + var(--i) * 0.4s); }
+@keyframes bulb-on { 0% { opacity: 0; transform: scale(0.2); } 60% { opacity: 1; transform: scale(1.25); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes bulb-breathe { 50% { transform: scale(0.9); filter: brightness(0.85); } }
+/* the light they throw on the bench and the floor */
+.roof-pool { border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 190, 90, 0.5), rgba(255, 150, 50, 0.22) 55%, transparent); mix-blend-mode: screen; opacity: 0; transition: opacity 0.6s ease; }
+.fin .roof-pool { opacity: 1; transition: opacity 1.6s ease 3.4s; }
+
+/* the credits: a typeset column */
+.credits { width: var(--w); max-width: 600px; color: var(--paper); }
+.credits::before { content: ""; position: absolute; inset: -70px -110px -80px -160px; z-index: -1; background: radial-gradient(closest-side, rgba(6, 4, 20, 0.78), rgba(6, 4, 20, 0.5) 60%, transparent); pointer-events: none; }
+.credits > * { opacity: 0; transform: translateY(18px); transition: opacity 0.35s ease, transform 0.35s ease; }
+.fin .credits > * { opacity: 1; transform: none; transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); transition-delay: calc(3.3s + var(--n, 0) * 0.16s); }
+.credits > :nth-child(2) { --n: 1; } .credits > :nth-child(3) { --n: 2; } .credits > :nth-child(4) { --n: 3; } .credits > :nth-child(5) { --n: 4; } .credits > :nth-child(6) { --n: 5; }
+.credits { pointer-events: none; } .fin .credits { pointer-events: auto; }
+.cr-kicker { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; font-family: var(--font-label); font-weight: 700; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #FFC24A; }
+.cr-kicker::before { content: ""; width: 44px; height: 1px; background: currentColor; }
+.cr-kicker .hi { font-size: 15px; letter-spacing: 0; color: var(--paper); opacity: 0.8; }
+.cr-title { margin: 0 0 18px; font-family: var(--font-display); font-weight: 400; font-size: clamp(46px, 6.2vw, 96px); line-height: 0.9; letter-spacing: -0.005em; color: var(--paper); }
+.cr-title em { display: block; font-style: normal; color: #FFC24A; }
+.cr-line { margin: 0 0 20px; max-width: 26ch; font-size: clamp(16px, 1.45vw, 20px); line-height: 1.45; font-weight: 500; color: rgba(244, 230, 208, 0.82); }
+.cr-mail { display: inline-flex; align-items: baseline; gap: 10px; margin-bottom: 30px; font-weight: 900; font-size: clamp(20px, 2.3vw, 34px); line-height: 1.15; letter-spacing: -0.02em; color: var(--paper); text-decoration: none; background: linear-gradient(#FFC24A, #FFC24A) 0 100% / 100% 2px no-repeat; padding-bottom: 6px; transition: color 0.2s ease, background-size 0.3s ease; }
+.cr-mail::after { content: "\2197"; font-weight: 500; color: #FFC24A; transition: transform 0.25s ease; }
+.cr-mail:hover, .cr-mail:focus-visible { color: #FFC24A; }
+.cr-mail:hover::after, .cr-mail:focus-visible::after { transform: translate(3px, -3px); }
+.cr-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 0 26px; margin: 0 0 22px; padding-top: 14px; border-top: 1px solid rgba(244, 230, 208, 0.28); }
+.cr-grid dt { margin-bottom: 8px; font-family: var(--font-label); font-weight: 700; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(244, 230, 208, 0.5); }
+.cr-grid dd { margin: 0; font-weight: 700; font-size: 15px; line-height: 1.5; }
+.cr-links { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.cr-links a, .cr-again { color: var(--paper); text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: color 0.2s ease, background-size 0.25s ease; }
+.cr-links a:hover, .cr-links a:focus-visible, .cr-again:hover, .cr-again:focus-visible { color: #FFC24A; background-size: 100% 1px; }
+.cr-again { padding: 0; border: 0; cursor: pointer; font: inherit; font-weight: 700; text-transform: none; letter-spacing: 0; }
+.cr-again b { display: inline-block; font-weight: 500; color: #FFC24A; transition: transform 0.25s ease; }
+.cr-again:hover b { transform: translateY(-3px); }
+.cr-copy { margin: 0; font-size: 12px; line-height: 1.4; color: rgba(244, 230, 208, 0.45); }
+@media (max-width: 700px) {
+  /* phones: a shorter column, so it clears his head; the moon dims with the rest */
+  .cr-kicker { margin-bottom: 8px; }
+  .cr-title { font-size: 40px; margin-bottom: 12px; }
+  .cr-line, .cr-copy, .cr-grid > :nth-child(2) { display: none; }
+  .cr-mail { margin-bottom: 16px; font-size: 19px; }
+  .cr-grid { grid-template-columns: 1fr auto; gap: 0 18px; margin-bottom: 0; padding-top: 10px; }
+  .cr-links { grid-template-columns: repeat(2, auto); justify-content: start; gap: 0 16px; }
+  .credits::before { inset: -50px -30px -40px -30px; background: radial-gradient(closest-side, rgba(6, 4, 20, 0.86), rgba(6, 4, 20, 0.6) 65%, transparent); }
+  .roof-dim { -webkit-mask-image: none; mask-image: none; }
 }
-.credits-line { margin: 0; font-size: 18px; line-height: 1.4; color: var(--paper); text-shadow: 2px 2px 0 var(--outline); max-width: 42ch; }
-.credits-mail { font-size: 12.5px; text-transform: none; }
-.socials { list-style: none; margin: 0; padding: 0; display: flex; gap: 16px; flex-wrap: wrap; }
-.social {
-  display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--paper);
-  background: var(--night); padding: 6px 10px 6px 6px; box-shadow: 0 0 0 4px var(--outline);
-  font-size: 15px;
-}
-.s-icon {
-  display: grid; place-items: center; width: 24px; height: 24px;
-  background: var(--saffron); color: var(--outline); font-family: var(--font-label); font-weight: 700; font-size: 12px;
-}
-.social:hover { background: var(--dusk); }
-.copyright { margin: 0; font-family: var(--font-label); font-weight: 700; font-size: 12px; color: var(--paper); text-shadow: 2px 2px 0 var(--outline); }
 
 /* ---------------- train wipe (boarding a project) ---------------- */
 .train-wipe { position: fixed; inset: 0; z-index: 90; pointer-events: none; overflow: hidden; }
@@ -795,8 +836,6 @@ body::after {
   .route a i { width: 11px; height: 11px; }
   .route-track { left: calc(6px + var(--stop) / 2); right: calc(6px + var(--stop) / 2); top: 13.5px; }
   .marquee-text { font-size: 11px; }
-  .credits-title { font-size: 28px; }
-  .credits-line { font-size: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

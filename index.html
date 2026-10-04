@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=1791132737" />
+  <link rel="stylesheet" href="styles.css?v=1791134309" />
 </head>
 <body class="ride preloading" data-location="street">
   <!-- preloader: READY? SET... GO! -> logo -> pixel dissolve into the street (js/preloader.js) -->
@@ -38,7 +38,7 @@
     <canvas class="pl-blocks"></canvas>
     <p class="pl-skip">Click or press any key to skip</p>
   </div>
-  <script src="js/preloader.js?v=1791132737"></script>
+  <script src="js/preloader.js?v=1791134309"></script>
   <a class="skip-link" href="#subway">Skip to projects</a>
 
   <!-- HUD: menu, metro route map, skip toggle -->
@@ -169,17 +169,27 @@
         <!-- 7. THE ROOFTOP / END CREDITS -->
         <footer class="scene" id="rooftop" data-location="rooftop" aria-labelledby="credits-title">
           <img class="bg-img" src="assets/scenes/rooftop.webp" srcset="assets/scenes/rooftop.webp 1672w, assets/scenes/rooftop-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" decoding="async" fetchpriority="low" />
-          <div class="deco" aria-hidden="true"><div class="hoardings"></div><div class="bulbs"></div></div>
+          <!-- the skyline: project hoardings, the metro crossing the far bridge, stars -->
+          <div class="deco roof-far" aria-hidden="true"><div class="hoardings"></div></div>
+          <div class="train-track roof-train" aria-hidden="true"><img src="assets/rooftop/train.png" srcset="assets/rooftop/train.png 1x, assets/rooftop/train-2x.webp 2x" alt="" /></div>
+          <img class="train-posts roof-front" src="assets/rooftop/front.png" srcset="assets/rooftop/front.png 1x, assets/rooftop/front-2x.webp 2x" alt="" aria-hidden="true" />
+          <!-- when he sits down the roof goes dark, then the lights come on one by one (class "fin", set in main.js) -->
+          <div class="roof-dim" aria-hidden="true"></div>
+          <div class="deco roof-lights" aria-hidden="true">
+            <img class="fairy" src="assets/rooftop/fairy-1.webp" alt="" loading="lazy" /><img class="fairy" src="assets/rooftop/fairy-2.webp" alt="" loading="lazy" /><img class="fairy" src="assets/rooftop/fairy-3.webp" alt="" loading="lazy" />
+            <div class="bulbs"></div>
+          </div>
           <div class="content credits">
-            <p class="credits-kicker">THE END · <span class="hi">समाप्त</span></p>
-            <h2 class="credits-title" id="credits-title">THANKS FOR PLAYING</h2>
-            <p class="credits-line">Got a project, a job, or just want to share chai? Say hi.</p>
-            <div class="credits-actions">
-              <a class="btn credits-mail" id="mail-link" href="#">Send message</a>
-              <button class="btn btn-sm play-again" type="button">Play again ^</button>
-            </div>
-            <ul class="socials" id="socials"></ul>
-            <p class="copyright" id="copyright"></p>
+            <p class="cr-kicker"><span>The end</span><span class="hi">समाप्त</span></p>
+            <h2 class="cr-title" id="credits-title">Thanks for <em>playing.</em></h2>
+            <p class="cr-line">Got a project, a job, or just want to share chai?</p>
+            <a class="cr-mail" id="mail-link" href="#"></a>
+            <dl class="cr-grid">
+              <div><dt>Elsewhere</dt><dd><ul class="cr-links" id="socials"></ul></dd></div>
+              <div><dt>Based in</dt><dd id="cr-place"></dd></div>
+              <div><dt>Once more?</dt><dd><button class="cr-again play-again" type="button">Play again <b>&uarr;</b></button></dd></div>
+            </dl>
+            <p class="cr-copy" id="copyright"></p>
           </div>
         </footer>
 
@@ -230,8 +240,8 @@
   <!-- train wipe used when boarding a project -->
   <div class="train-wipe" aria-hidden="true"><div class="train-car"></div></div>
 
-  <script src="js/data.js?v=1791132737"></script>
-  <script src="js/sprite.js?v=1791132737"></script>
-  <script src="js/main.js?v=1791132737"></script>
+  <script src="js/data.js?v=1791134309"></script>
+  <script src="js/sprite.js?v=1791134309"></script>
+  <script src="js/main.js?v=1791134309"></script>
 </body>
 </html>

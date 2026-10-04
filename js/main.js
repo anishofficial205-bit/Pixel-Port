@@ -75,7 +75,8 @@
     $("#site-intro").textContent = S.intro;
     $("#mail-link").href = "mailto:" + S.email;
     $("#mail-link").textContent = S.email;
-    $("#copyright").textContent = `© ${S.year} ${S.name} · NEON BHARAT GAMES`;
+    $("#copyright").textContent = `© ${S.year} ${S.name[0]}${S.name.slice(1).toLowerCase()} Shah. All rights reserved.`;
+    $("#cr-place").textContent = S.location;
 
     // each board is an ad for one project: the picture, then its line, title, blurb and a way in
     $("#billboards").innerHTML = S.featured().map((p, i) => `
@@ -127,7 +128,7 @@
     adBoards();
 
     $("#socials").innerHTML = S.socials.map((s) => `
-      <li><a class="social" href="${s.url}" aria-label="${s.label}"><span class="s-icon">${s.short}</span><span>${s.label}</span></a></li>`).join("");
+      <li><a href="${s.url}">${s.label}</a></li>`).join("");
   }
 
   /* ================= STREET ART ================= */
@@ -212,8 +213,15 @@
   const ROOFTOP = {
     w: 1672, h: 941,
     door: [95, 738], spot: [985, 728], tall: 250,   // out of the door, over to the bench he sits on; his height here
-    sky: [170, 70, 760],        // credits sit in the sky left of the moon: x, y, width
+    sky: [150, 70, 640],        // the credits column: x, (unused), width
     bulbs: [[904, 417], [975, 435], [1058, 446], [1150, 445], [1235, 433], [1290, 417]],
+    // the metro on the far bridge (tools/build_gallery.py): its track, its length, where it rests, what it passes behind
+    train: { track: [750, 486, 346, 21], len: 182, rest: 182, front: [853, 484, 187, 25] },
+    // life: the pool of light on the floor, the door lamp, stars, water, a beacon (the fairy lights are images)
+    pool: [700, 640, 760, 230], lamp: [90, 386],
+    stars: [[703, 110, 44], [868, 200, 32], [503, 232, 36], [1272, 130, 36]],
+    dots: [[455, 97], [498, 130], [331, 176], [748, 149], [912, 87], [940, 233], [793, 271], [1240, 238], [1360, 170]],
+    water: [860, 532, 205, 56], beacon: [1031, 441],
     hoardings: [[503, 404, 52, 33], [621, 445, 42, 29], [1206, 471, 45, 28], [1390, 448, 49, 33], [1481, 349, 60, 44]],
   };
 
@@ -807,16 +815,31 @@
       const [px, py, pw, phh] = G.plaques[i];
       setBox($(".plaque", el), Math.round(px * gs) - f.x, Math.round(py * gs) - f.y, Math.round(pw * gs), Math.round(phh * gs));
     });
-    // rooftop: the string lights over the bench twinkle, and the hoardings on the skyline carry the projects
-    const bulbs = $(".bulbs");
-    if (!bulbs.children.length) bulbs.innerHTML = R.bulbs.map((_, i) => `<i style="animation-delay:${(i * 0.37) % 2.2}s"></i>`).join("");
-    [...bulbs.children].forEach((b, i) => { setBox(b, Math.round(R.bulbs[i][0] * rs), Math.round(R.bulbs[i][1] * rs)); b.style.setProperty("--d", Math.round(30 * rs) + "px"); });
+    // rooftop: hoardings on the skyline carry the projects; lights, stars and the far metro are placed from R
+    const far = $(".roof-far"), lights = $(".roof-lights"), bulbs = $(".bulbs");
+    if (!bulbs.children.length) {
+      const box = (cls, a, style = "") => `<i class="${cls}" data-art="${a.join(",")}" style="${style}"></i>`;
+      const at = ([x, y], z) => [x - z / 2, y - z / 2, z, z];
+      bulbs.innerHTML = R.bulbs.map((b, i) => `<i class="bulb" data-art="${at(b, 30).join(",")}" style="--i:${i}"><b></b></i>`).join("");
+      far.insertAdjacentHTML("beforeend",
+        R.dots.map((d, i) => box("sky-dot", at(d, 12), `animation-delay:${-(i * 0.73) % 3}s`)).join("")
+        + R.stars.map(([x, y, z], i) => box("sky-star", at([x, y], z), `animation-delay:${-i * 0.9}s`)).join("")
+        + box("water", R.water) + box("beacon", at(R.beacon, 8)));
+      lights.insertAdjacentHTML("beforeend",
+        box("roof-pool", R.pool) + box("lamp-glow flick", at(R.lamp, 70)));
+    }
+    const rart = (el, [x, y, w, h]) => setBox(el, Math.round(x * rs), Math.round(y * rs), Math.round(w * rs), Math.round(h * rs));
+    $("#rooftop").style.setProperty("--ss", rs.toFixed(4));
+    $$("#rooftop [data-art]").forEach((el) => rart(el, el.dataset.art.split(",").map(Number)));
+    rart($(".roof-train"), R.train.track); rart($(".roof-front"), R.train.front);
+    $(".roof-train").style.setProperty("--len", Math.round(R.train.len * rs) + "px");
+    $(".roof-train").style.setProperty("--rest", "0px");
     $$(".hoarding").forEach((el, i) => { const [x, y, w, h] = R.hoardings[i]; setBox(el, Math.round(x * rs), Math.round(y * rs), Math.round(w * rs), Math.round(h * rs)); });
-    // end credits in the sky left of the moon, kept inside the final view and clear of the navbar
+    // end credits: a column down the left of the final view, clear of the navbar
     {
       const [kx, ky, kw] = R.sky, ex = L.endCam.x - rooftop.x, ey = L.endCam.y - rooftop.y;
       const cl = Math.max(kx * rs, ex + 16);
-      setBox($(".credits"), Math.round(cl), Math.round(Math.max(ey + 84, ky * rs)), Math.round(Math.min(kw * rs, ex + vw - cl - 16)));
+      setBox($(".credits"), Math.round(cl), Math.round(ey + (vw <= 700 ? 78 : 104)), Math.round(Math.min(Math.max(kw * rs, 520), ex + vw - cl - 16)));
     }
 
     sprite.width = Sprite.W * L.ck * L.cq; sprite.height = Sprite.H * L.ck * L.cq;
@@ -967,7 +990,7 @@
     add({ loc: "exhibition", loc2: "rooftop", pose: "walk", scale: gk, scale2: rk, a: gOut, b: out, len: 260, ease: "cut",
       cut: tri, cam: (t) => (t < 0.5 ? gCam(gOut[0]) : rCam({ x: out[0] })) });
     add({ loc: "rooftop", pose: "walk", scale: rk, a: out, b: bench, len: Math.max(200, (bench[0] - out[0]) * 0.8), cam: (t, p) => rCam(p) });
-    add({ loc: "rooftop", pose: "end", scale: rk, a: bench, b: bench, len: 260, bubble: ["Chai break?", 0.3, 1.01],
+    add({ loc: "rooftop", pose: "end", scale: rk, a: bench, b: bench, len: 260, bubble: ["Chai break?", 0, 0.1],
       cam: () => endCam });
 
     const find = (id) => segs.find((s) => s.id === id);
@@ -1006,7 +1029,8 @@
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
   const cutEl = $(".cut"), backRails = $(".back-rails"), stairRails = $(".stair-rails");
-  let litBoard = -1, boardEls = [];
+  let litBoard = -1, boardEls = [], finOn = false;
+  const roofEl = $("#rooftop");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
   function frame(now) {
@@ -1117,6 +1141,9 @@
       SUBWAY.boards.forEach(([bx, , bw], i) => { const d = Math.abs(ax - (bx + bw / 2)); if (d < SUBWAY.reach && (lit < 0 || d < Math.abs(ax - (SUBWAY.boards[lit][0] + SUBWAY.boards[lit][2] / 2)))) lit = i; });
     }
     if (lit !== litBoard) { litBoard = lit; boardEls.forEach((el, i) => el.classList.toggle("lit", i === lit)); }
+    // the finale: once he sits, the roof goes dark and the lights come on (see .fin in styles.css)
+    const fin = s.pose === "end" && t > 0.12;
+    if (fin !== finOn) { finOn = fin; roofEl.classList.toggle("fin", fin); }
     backRails.classList.toggle("behind", !!s.railsBehind);   // on the floor he passes in front of the staircase
     stairRails.classList.toggle("behind", !!s.railsBehind);
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size

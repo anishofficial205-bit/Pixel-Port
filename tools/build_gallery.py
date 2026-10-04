@@ -45,8 +45,60 @@ for j in (W, 2 * W):
 full = np.clip(full, 0, 255).astype(np.uint8)
 Image.fromarray(full).save(ROOT / "assets/scenes/gallery.webp", quality=88, method=6)
 
-roof = load("assets/rooftop/src/rooftop.webp").astype(np.uint8)
+# ---- rooftop: the metro on the far bridge moves, so it is lifted out of the painting ----
+#   assets/rooftop/train.png  the train on its own
+#   assets/rooftop/front.png  what it passes behind: the string-light pole and the bridge's pylon
+src = load("assets/rooftop/src/rooftop.webp")
+TX0, TX1, TY0, TY1 = 750, 932, 486, 507            # the painted train (its nose points right)
+POLE, PYLON = (853, 877), (1022, 1040)             # x ranges of the pole and the pylon, in front of the track
+TRACK_END = 1096                                   # the bridge runs behind buildings from here
+tr = src[TY0:TY1, TX0:TX1].copy()
+r, g, b = tr[..., 0], tr[..., 1], tr[..., 2]
+body = np.zeros(tr.shape[:2], bool)
+body[2:, 2:166] = True                             # the cars are a plain block...
+nose = (np.minimum(np.minimum(r, g), b) > 95) & (b - r < 70)   # ...and the nose is whatever is pale
+body[2:, 166:] = nose[2:, 166:]
+p0, p1 = POLE[0] - TX0, POLE[1] - TX0              # the pole crosses the train: carry the car across it
+tr[:, p0:p1] = tr[:, p0 - (p1 - p0):p0][:, ::-1]
+alpha = nd.gaussian_filter(body.astype(float), 0.5)
+Image.fromarray(np.dstack([tr, alpha * 255]).clip(0, 255).astype(np.uint8)).save(ROOT / "assets/rooftop/train.png", optimize=True)
+roof = src.copy()
+roof[TY0:TY1, TX0:TX1] = src[TY0 - (TY1 - TY0):TY0, TX0:TX1]          # the haze just above the bridge, where the train stood
+fx0, fx1, fy0, fy1 = POLE[0], PYLON[1], TY0 - 2, TY1 + 2
+front = np.zeros((fy1 - fy0, fx1 - fx0, 4))
+front[..., :3] = roof[fy0:fy1, fx0:fx1]
+front[:, :POLE[1] - fx0, 3] = 255
+py = roof[fy0:fy1, PYLON[0]:PYLON[1]]
+front[:, PYLON[0] - fx0:, 3] = ((py[..., 0] > 110) & (py[..., 0] - py[..., 2] > 40)) * 255
+Image.fromarray(front.astype(np.uint8)).save(ROOT / "assets/rooftop/front.png", optimize=True)
+print("rooftop train: track", [TX0, TY0, TRACK_END - TX0, TY1 - TY0], "len", TX1 - TX0, "front", [fx0, fy0, fx1 - fx0, fy1 - fy0])
+roof = roof.astype(np.uint8)
 Image.fromarray(roof).save(ROOT / "assets/scenes/rooftop.webp", quality=90, method=6)
+
+# ---- the fairy lights: every little painted bulb gets a glow, split over three layers that twinkle out of step
+#      (assets/rooftop/fairy-1..3.webp, drawn at twice the painting's size) ----
+STRINGS = [(0, 318, 175, 398), (160, 455, 440, 605), (320, 580, 1672, 622), (852, 380, 880, 595), (1308, 380, 1336, 595), (1125, 640, 1225, 710)]
+r, g, b = [roof[..., i].astype(int) for i in range(3)]
+warm = (r > 215) & (g > 140) & (b < 150) & (r - b > 90)
+zone = np.zeros(warm.shape, bool)
+for x0, y0, x1, y1 in STRINGS:
+    zone[y0:y1, x0:x1] = True
+lab, n = nd.label(warm & zone)
+size = nd.sum(warm & zone, lab, range(1, n + 1))
+dots = [c for c, z in zip(nd.center_of_mass(warm & zone, lab, range(1, n + 1)), size) if z <= 40]
+rng = np.random.default_rng(5)
+layers = [np.zeros((H * 2, W * 2)) for _ in range(3)]
+yy, xx = np.mgrid[-10:11, -10:11]
+blob = np.exp(-(xx * xx + yy * yy) / (2 * 3.2 ** 2))
+for cy, cx in dots:
+    y, x = int(round(cy * 2)), int(round(cx * 2))
+    if 10 <= y < H * 2 - 11 and 10 <= x < W * 2 - 11:
+        L = layers[rng.integers(0, 3)]
+        L[y - 10:y + 11, x - 10:x + 11] = np.maximum(L[y - 10:y + 11, x - 10:x + 11], blob)
+for i, L in enumerate(layers):
+    rgba = np.dstack([np.full(L.shape, 255), np.full(L.shape, 214), np.full(L.shape, 130), L * 255]).astype(np.uint8)
+    Image.fromarray(rgba).save(ROOT / f"assets/rooftop/fairy-{i + 1}.webp", quality=80, method=4)
+print("fairy lights:", len(dots))
 
 
 def boxes(mask, keep):
