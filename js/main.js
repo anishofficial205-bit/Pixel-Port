@@ -1153,6 +1153,7 @@
     // the finale: once he sits, the roof goes dark and the lights come on (see .fin in styles.css)
     const fin = s.pose === "end" && t > 0.12;
     if (fin !== finOn) { finOn = fin; roofEl.classList.toggle("fin", fin); }
+    charEl.classList.toggle("dimmed", pos.x >= L.backstairs.x && pos.x <= L.backstairs.x + L.backstairs.w);   // the stairwell's low light
     backRails.classList.toggle("behind", !!s.railsBehind);   // on the floor he passes in front of the staircase
     stairRails.classList.toggle("behind", !!s.railsBehind);
     charEl.style.setProperty("--inv", (1 / scale).toFixed(3));   // the speech bubble keeps its own size

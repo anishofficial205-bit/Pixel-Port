@@ -672,6 +672,31 @@ body::after {
 
 /* back stairs (cinema -> gallery) */
 .ride #backstairs .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
+/* mood: a cosy, lamplit stairwell. The painting's hard blue-and-orange is softened and warmed, the room is
+   dimmed with a vignette, and each lamp gets a soft pool of light that slowly breathes. */
+.ride #backstairs .bg-img, .ride .back-rails { filter: brightness(0.8) contrast(0.88) saturate(0.86) sepia(0.2); }
+.back-mood { display: none; }
+.ride .back-mood { display: block; position: absolute; inset: 0; pointer-events: none; }
+.back-mood i { position: absolute; inset: 0; }
+.bm-dark { background: radial-gradient(ellipse 70% 75% at 50% 46%, rgba(20, 9, 14, 0.34), rgba(12, 5, 12, 0.74)); }
+.bm-glow { mix-blend-mode: screen; animation: lamp-breathe 5.5s ease-in-out infinite; }
+.bm-glow.a { background:
+    radial-gradient(ellipse 9.0% 15.9% at 5.5% 21.8%, rgba(255, 170, 84, 0.44), transparent),
+    radial-gradient(ellipse 8.4% 14.9% at 38.3% 25.8%, rgba(255, 170, 84, 0.44), transparent),
+    radial-gradient(ellipse 8.4% 14.9% at 70.6% 14.3%, rgba(255, 170, 84, 0.44), transparent),
+    radial-gradient(ellipse 9.0% 15.9% at 98.4% 22.8%, rgba(255, 170, 84, 0.44), transparent),
+    radial-gradient(ellipse 12.6% 22.3% at 48.4% 15.9%, rgba(255, 170, 84, 0.44), transparent); }
+.bm-glow.b { animation-duration: 7s; animation-delay: -2.5s; background:
+    radial-gradient(ellipse 7.8% 13.8% at 13.3% 61.1%, rgba(255, 164, 78, 0.4), transparent),
+    radial-gradient(ellipse 7.8% 13.8% at 28.7% 62.2%, rgba(255, 164, 78, 0.4), transparent),
+    radial-gradient(ellipse 8.4% 14.9% at 70.8% 57.4%, rgba(255, 164, 78, 0.4), transparent),
+    radial-gradient(ellipse 7.8% 13.8% at 25.2% 6.4%, rgba(255, 164, 78, 0.4), transparent),
+    radial-gradient(ellipse 7.8% 13.8% at 83.6% 6.4%, rgba(255, 164, 78, 0.4), transparent),
+    radial-gradient(ellipse 12.0% 21.3% at 22.7% 85.0%, rgba(255, 164, 78, 0.4), transparent); }
+@keyframes lamp-breathe { 0%, 100% { opacity: 1; } 45% { opacity: 0.72; } 60% { opacity: 0.82; } }
+/* the sign, the little photos and he himself sit in the same low light */
+.ride .back-sign, .ride .back-photo { filter: brightness(0.8) sepia(0.4) saturate(1.15); }
+.char.dimmed .char-sprite { filter: brightness(0.84) sepia(0.18); }
 .ride .back-sign, .ride .back-photo { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
 .back-sign { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; color: #1B1140; }
 .back-sign b { font-family: var(--font-display); font-weight: 400; font-size: 17px; line-height: 1.8; }
