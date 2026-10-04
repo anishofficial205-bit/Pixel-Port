@@ -44,6 +44,10 @@
     forward: 0.3,                                // share of a stride's forward travel made during reach + plant
     rise: [[0.375, 0], [0.625, 0.55], [0.875, 1]],   // [phase, share of the stride's rise or drop]
   };
+  // The logo opens large in the middle of the hero and travels to its navbar corner as he sets off:
+  // its width there (share of the screen, capped in px), where its centre sits (share of the screen
+  // height), and how much of his first walk the trip takes
+  const LOGO_HERO = { width: 0.36, max: 470, y: 0.45, over: 0.75 };
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
   const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
@@ -635,6 +639,8 @@
   const L = {}; // layout numbers
   let segs = [], total = 0, stops = {};
   let pauseReel = () => {};             // set once the cinema's player exists
+  let logoRefresh = () => {};           // redraws the logo canvas (set by glitchLogo)
+  const logoEl = $(".hud-logo");
   let plainSize = () => {};             // re-measures the Simple view (set by watchPlain)
 
   const setBox = (el, x, y, w, h) => {
@@ -752,6 +758,14 @@
     // the final view: the bench in the middle, the roof floor at the bottom of the screen
     L.endCam = { x: rooftop.x + Math.min(Math.max((R.spot[0] + 30) * rs - vw / 2, 0), rooftop.w - vw), y: rooftop.y + rooftop.h - vh };
 
+    {   // the logo at rest (navbar corner), and the scale and shift that put it in the middle of the hero
+      logoEl.style.transform = "";
+      const r = logoEl.getBoundingClientRect(), w = r.height * (623 / 435);       // its width follows from its height (the art's shape)
+      const k = Math.max(1, Math.min((vw * (vw <= 700 ? 0.62 : LOGO_HERO.width)) / w, LOGO_HERO.max / w, (vh * 0.42) / r.height));
+      L.logo = { k, x: vw / 2 - (w * k) / 2 - r.left, y: vh * LOGO_HERO.y - (r.height * k) / 2 - r.top };
+      logoAt = -1;
+      logoRefresh();
+    }
     Object.assign(L, { street, mh, camStart, camEnd, drain, subway, stairwell, front, backstairs, exhibition, rooftop, boards, frames });
 
     // place scenes
@@ -1040,7 +1054,7 @@
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
   const cutEl = $(".cut"), backRails = $(".back-rails"), stairRails = $(".stair-rails");
-  let litBoard = -1, boardEls = [], litPhoto = -1, photoEls = [], finOn = false;
+  let litBoard = -1, boardEls = [], litPhoto = -1, photoEls = [], finOn = false, logoAt = -1;
   const roofEl = $("#rooftop");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
@@ -1159,6 +1173,15 @@
       L.frames.forEach((f, i) => { if (near(i) < GALLERY.reach * L.exhibition.s && (litP < 0 || near(i) < near(litP))) litP = i; });
     }
     if (litP !== litPhoto) { litPhoto = litP; photoEls.forEach((el, i) => el.classList.toggle("lit", i === litP)); }
+    // the logo: large in the middle of the hero until he sets off, then it travels to its navbar corner
+    {
+      const g = segs[1], u = Math.min(1, Math.max(0, (cur - g.start) / (g.len * LOGO_HERO.over))), e = 1 - u * u * (3 - 2 * u);
+      if (e !== logoAt) {
+        logoAt = e;
+        logoEl.style.transform = e ? `translate(${(L.logo.x * e).toFixed(1)}px, ${(L.logo.y * e).toFixed(1)}px) scale(${(1 + (L.logo.k - 1) * e).toFixed(4)})` : "";
+        logoEl.classList.toggle("hero", e > 0.5);
+      }
+    }
     // the finale: once he sits, the roof goes dark and the lights come on (see .fin in styles.css)
     const fin = s.pose === "end" && t > 0.12;
     if (fin !== finOn) { finOn = fin; roofEl.classList.toggle("fin", fin); }
@@ -1257,6 +1280,7 @@
     markView(ride);
     pauseReel();
     store.set("nb-mode", ride ? "ride" : "static");
+    if (!ride) { logoEl.style.transform = ""; logoEl.classList.remove("hero"); logoAt = -1; }
     if (!ride) { world.style.transform = ""; body.dataset.location = "street"; requestAnimationFrame(() => { fitPlainArt(); plainSize(); }); }
     layout();
   }
@@ -1467,11 +1491,12 @@
       const g = t.getContext("2d"); g.drawImage(img, 0, 0); g.globalCompositeOperation = "source-in"; g.fillStyle = col; g.fillRect(0, 0, t.width, t.height); return t; };
     let red, cyan, timer = null, frame = 0, rest = 0;
     const size = () => {
-      const dpr = window.devicePixelRatio || 1, h = link.clientHeight || 58, w = Math.round(h * img.width / img.height);
+      // (dpr here includes the logo's largest size in the hero, so it stays sharp when enlarged)
+      const dpr = (window.devicePixelRatio || 1) * ((L.logo && L.logo.k) || 1), h = link.clientHeight || 58, w = Math.round(h * img.width / img.height);
       if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.width = w + "px"; }
       return dpr;
     };
-    const clean = () => { size(); const g = c.getContext("2d"); g.clearRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height); };
+    const clean = () => { size(); const g = c.getContext("2d"); g.imageSmoothingQuality = "high"; g.clearRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height); };
     const rnd = (a, b) => a + Math.random() * (b - a);
     const glitch = () => {
       const dpr = size(), g = c.getContext("2d"), W = c.width, H = c.height, G = GLITCH;
@@ -1504,7 +1529,8 @@
     link.addEventListener("focus", start);
     link.addEventListener("blur", stop);
     img.onload = () => { red = tint("#FF2A4A"); cyan = tint("#3DF2FF"); clean(); };
-    img.src = "assets/brand/logo.png";
+    logoRefresh = () => img.complete && img.naturalWidth && !timer && clean();
+    img.src = "assets/brand/logo-source.png";
     addEventListener("resize", () => img.complete && !timer && clean());
   }
 

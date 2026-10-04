@@ -187,7 +187,7 @@ body::after {
   border-radius: 999px;
 }
 /* logo: drawn on a canvas so hover can glitch it (see glitchLogo in main.js) */
-.hud-logo { justify-self: start; display: block; height: var(--logo-h, 58px); line-height: 0; text-decoration: none; }
+.hud-logo { justify-self: start; display: block; height: var(--logo-h, 58px); line-height: 0; text-decoration: none; transform-origin: 0 0; will-change: transform; }
 .logo-canvas {
   height: 100%; width: auto; display: block;
   filter: drop-shadow(0 0 4px rgba(237, 40, 40, 0.75)) drop-shadow(0 0 14px rgba(237, 40, 40, 0.45));
