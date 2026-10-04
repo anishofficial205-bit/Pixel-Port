@@ -122,6 +122,7 @@
     face.style.backgroundSize = `${P.frames * 100}% 100%`;
 
     boardEls = $$(".billboard");
+    streetLife();
     renderPlain();
     adBoards();
 
@@ -234,6 +235,91 @@
   }
 
   let aboutWords = [], aboutLit = 0, aboutFrame = -1;
+
+  /* ================= STREET LIFE =================
+     Small things that move on the street, and things that answer a click. Positions are in street art px.
+     Everything is built here and placed by layout() from its data-art box (x, y, w, h). */
+  const LIFE = {
+    moon: [1044, 67, 148, 148],
+    stars: [[651, 74, 46], [900, 148, 34], [661, 238, 42], [1350, 94, 36]],                    // x, y, size: the painted four-point stars
+    dots: [[525, 71], [737, 54], [951, 65], [585, 125], [780, 183], [962, 176], [1011, 244], [1257, 139], [1301, 74]],
+    windows: [[268, 234, 33, 65], [314, 390, 36, 36], [420, 408, 48, 70], [450, 328, 26, 44], [526, 385, 26, 42], [1222, 306, 20, 38], [1222, 414, 20, 50], [1600, 150, 48, 76]],
+    lamps: [[657, 310], [970, 312], [1160, 306]],             // the overpass lamps
+    water: [742, 626, 296, 54],
+    beacons: [[940, 530], [1017, 521]],                       // the sea link's towers
+    sign: [163, 503, 178, 38],                                // GENERAL STORE
+    zzz: [1548, 692, 70, 56],
+    spots: {                                                  // clickable: box, what it says (in turn), a label
+      moon: { box: [1044, 67, 148, 148], says: ["Make a wish!", "Full moon tonight."], label: "The moon" },
+      store: { box: [160, 498, 196, 214], says: ["Open till late!", "Biscuit? Maggi?", "Chhutta nahi hai!"], label: "The general store" },
+      chai: { box: [1398, 560, 150, 190], says: ["Ek cutting chai!", "Only \u20B910!", "Kadak!"], label: "The chai stall" },
+      dog: { box: [1505, 728, 150, 70], says: ["Woof!", "*tail wags*", "...zzz"], label: "The sleeping dog" },
+    },
+    him: ["Hi!", "That tickles!", "Scroll, yaar!", "Chalo, chalo!"],   // what he says when clicked
+  };
+  let poke = { until: 0, text: "" };                          // he was just clicked: cheer and say this
+  function streetLife() {
+    const street = $("#street"), deco = $("#street .deco");
+    const box = (cls, a, inner = "") => `<i class="${cls}" data-art="${a.join(",")}">${inner}</i>`;
+    const at = ([x, y], s) => [x - s / 2, y - s / 2, s, s];
+    deco.insertAdjacentHTML("beforeend",
+      LIFE.dots.map((d, i) => box("sky-dot", at(d, 12)).replace("<i ", `<i style="animation-delay:${-(i * 0.73) % 3}s" `)).join("")
+      + LIFE.stars.map(([x, y, z], i) => box("sky-star", at([x, y], z)).replace("<i ", `<i style="animation-delay:${-i * 0.9}s" `)).join("")
+      + box("shoot", [1200, 40, 150, 3])
+      + LIFE.windows.map((w) => box("win-off", [w[0] - 3, w[1] - 3, w[2] + 6, w[3] + 6])).join("")
+      + LIFE.lamps.map((l, i) => box("lamp-glow" + (i === 1 ? " flick" : ""), at(l, 46))).join("")
+      + box("water", LIFE.water)
+      + LIFE.beacons.map((b, i) => box("beacon", at(b, 8)).replace("<i ", `<i style="animation-delay:${-i * 0.6}s" `)).join("")
+      + box("store-sign", LIFE.sign)
+      + box("zzz", LIFE.zzz, "<b>z</b><b>z</b><b>Z</b>"));
+    street.insertAdjacentHTML("beforeend", Object.entries(LIFE.spots).map(([k, v]) =>
+      `<button class="content hot hot-${k}" type="button" tabindex="-1" data-k="${k}" data-art="${v.box.join(",")}" aria-label="${v.label}"><span class="hs-say"></span></button>`).join(""));
+
+    const say = (btn, text) => {
+      const b = $(".hs-say", btn);
+      b.textContent = text; btn.classList.add("say");
+      clearTimeout(btn._t); btn._t = setTimeout(() => btn.classList.remove("say"), 1700);
+    };
+    const shoot = () => {
+      const el = $(".shoot");
+      el.style.setProperty("--x", Math.round((700 + Math.random() * 760) * L.street.s) + "px");
+      el.style.setProperty("--y", Math.round((30 + Math.random() * 120) * L.street.s) + "px");
+      el.classList.remove("go"); void el.offsetWidth; el.classList.add("go");
+    };
+    const once = (el, cls, ms) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(() => el.classList.remove(cls), ms); };
+    const turn = {};
+    $$("#street .hot").forEach((btn) => btn.addEventListener("click", () => {
+      const k = btn.dataset.k, lines = LIFE.spots[k].says;
+      turn[k] = (turn[k] || 0) + 1;
+      say(btn, lines[(turn[k] - 1) % lines.length]);
+      if (k === "moon") shoot();
+      if (k === "store") once($(".store-sign"), "buzz", 700);
+      if (k === "chai") once($("#street .steam"), "burst", 1800);
+      if (k === "dog") {
+        once($(".zzz"), "awake", 2600);
+        for (let i = 0; i < 3; i++) {
+          const h = document.createElement("i");
+          h.className = "pop-heart"; h.textContent = "\u2665";
+          h.style.left = 25 + Math.random() * 50 + "%"; h.style.animationDelay = i * 0.12 + "s";
+          btn.append(h); setTimeout(() => h.remove(), 1400);
+        }
+      }
+    }));
+    // click him: he cheers and says something
+    let pokes = 0;
+    $(".char-hit").addEventListener("click", () => { poke = { until: performance.now() + 1300, text: LIFE.him[pokes++ % LIFE.him.length] }; });
+
+    if (reduceMotion) return;
+    // now and then a window goes dark or lights up again, and a star falls
+    const wins = $$("#street .win-off");
+    setInterval(() => {
+      if (lastLoc !== "street" || document.hidden) return;
+      const off = wins.filter((w) => w.classList.contains("off"));
+      const pick = off.length >= 3 || (off.length && Math.random() < 0.45) ? off[Math.floor(Math.random() * off.length)] : wins[Math.floor(Math.random() * wins.length)];
+      pick.classList.toggle("off");
+    }, 2600);
+    (function next() { setTimeout(() => { if (lastLoc === "street" && !document.hidden && body.classList.contains("ride")) shoot(); next(); }, 7000 + Math.random() * 8000); })();
+  }
 
   /* ================= STREET BILLBOARDS: rotating project ads =================
      Every blank board on the street shows project images in turn (the boards are staggered so they never
@@ -657,6 +743,8 @@
     // place content inside scenes
     const art = (el, [x, y, w, h]) => setBox(el, Math.round(x * ss), Math.round(y * ss), Math.round(w * ss), Math.round(h * ss));
     art($("#street .bb-leaves"), STREET.leaves);
+    $("#street").style.setProperty("--ss", ss.toFixed(4));    // lets the street's small details scale with the art
+    $$("#street [data-art]").forEach((el) => art(el, el.dataset.art.split(",").map(Number)));
     art($("#street .train-track"), STREET.train.track);
     art($("#street .train-posts"), STREET.train.posts);
     $("#street .train-track").style.setProperty("--len", Math.round(STREET.train.len * ss) + "px");
@@ -969,7 +1057,8 @@
           anim = running ? "run" : "walk";
           stepPhase += (dt / 1000) * Sprite.fps(anim);
           n = Math.floor(stepPhase);
-        } else if (hoverLook && s.loc === "subway") anim = "wave";
+        } else if (now < poke.until) anim = "cheer";           // he was just clicked
+        else if (hoverLook && s.loc === "subway") anim = "wave";
         else if (s.loc === "exhibition") anim = tick(3200) % 4 === 3 ? "front34" : "back";   // looking at the photos
         else if (s.id === "intro" && !saying) anim = tick(700) % 3 === 0 ? "wave" : "front"; // a wave, then a pause
         else if (saying) anim = "front";
@@ -1070,7 +1159,7 @@
     // speech bubble
     let say = "";
     if (s.bubble && t >= s.bubble[1] && t <= s.bubble[2]) say = s.bubble[0];
-    if (anim === "point") say = "Let's check this out!";
+    if (now < poke.until) say = poke.text;
     if (bubble.textContent !== say) bubble.textContent = say;
     bubble.classList.toggle("show", !!say);
 
