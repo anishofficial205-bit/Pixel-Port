@@ -688,6 +688,8 @@ body::after {
 .ride .stair-rails.behind { z-index: 4; }
 
 /* ---------------- 5. exhibition ---------------- */
+.ride #exhibition .bg-img, .ride #rooftop .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); pointer-events: none; }
+.static #rooftop .bg-img { display: none; }
 /* the room's sign: an enamel plaque with a brass edge, hung from the picture rail by two wires.
    It is laid out in art px and scaled with the art. */
 .ride .gallery-sign { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
