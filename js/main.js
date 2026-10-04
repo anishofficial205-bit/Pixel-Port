@@ -280,7 +280,7 @@
       LIFE.dots.map((d, i) => box("sky-dot", at(d, 12)).replace("<i ", `<i style="animation-delay:${-(i * 0.73) % 3}s" `)).join("")
       + LIFE.stars.map(([x, y, z], i) => box("sky-star", at([x, y], z)).replace("<i ", `<i style="animation-delay:${-i * 0.9}s" `)).join("")
       + box("shoot", [1200, 40, 150, 3])
-      + LIFE.windows.map((w) => box("win-off", [w[0] - 3, w[1] - 3, w[2] + 6, w[3] + 6])).join("")
+      + LIFE.windows.map((w) => box("win-off", w)).join("")
       + LIFE.lamps.map((l, i) => box("lamp-glow" + (i === 1 ? " flick" : ""), at(l, 46))).join("")
       + box("water", LIFE.water)
       + LIFE.beacons.map((b, i) => box("beacon", at(b, 8)).replace("<i ", `<i style="animation-delay:${-i * 0.6}s" `)).join("")

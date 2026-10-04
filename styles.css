@@ -482,7 +482,7 @@ body::after {
 @keyframes shoot { 0% { opacity: 0; translate: 0 0; } 15% { opacity: 1; } 100% { opacity: 0; translate: calc(-420px * var(--ss)) calc(187px * var(--ss)); } }
 /* windows go dark and light up again */
 .win-off { background: #2A1B45; mix-blend-mode: multiply; opacity: 0; transition: opacity 0.6s ease; }
-.win-off.off { opacity: 0.92; }
+.win-off.off { opacity: calc(0.92 * (1 - var(--e, 0))); }   /* (not while the street is dimmed for the title card: it would show as a black box) */
 /* overpass lamps glow; one has a loose connection */
 .lamp-glow { border-radius: 50%; background: radial-gradient(rgba(255, 224, 140, 0.85), rgba(255, 170, 60, 0.3) 42%, transparent 70%); mix-blend-mode: screen; animation: lamp-pulse 3.6s ease-in-out infinite; }
 .lamp-glow.flick { animation: lamp-flick 6s steps(1) infinite; }

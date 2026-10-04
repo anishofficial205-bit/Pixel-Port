@@ -94,22 +94,32 @@ posts[357 - TY0 + 1:374 - TY0 + 1, bx - 5:bx + 4] = [14, 10, 24, 255]
 Image.fromarray(posts.astype(np.uint8)).save(ROOT / "assets/street/posts.png", optimize=True)
 print("train", train.shape[1], "x", train.shape[0], "| track x", TX0, "y", TY0, "| posts box", [PX0, TY0 - 1, PX1 - PX0, posts.shape[0]])
 
-# the lights that stay on when the opening screen dims the street (assets/street/lights.png): lit windows,
-# the stars and the moon, lifted from the finished street
+# the lights that stay on when the opening screen dims the street (assets/street/lights.png): whole lit
+# windows, the overpass lamps, the chai stall's bulbs, the stars and the moon. Nothing partial: a window
+# counts only if it is a clean rectangle, and the lamp cones, the trees and the shop fronts are left out.
 o = np.clip(out, 0, 255)
 r, g, b = o[..., 0], o[..., 1], o[..., 2]
 keep = np.zeros(o.shape[:2], bool)
-warm = nd.binary_opening((r > 205) & (g > 150) & (b < 200) & (r - b > 45), iterations=1)      # window yellow (stippled lamp light doesn't survive the opening)
-lab, n = nd.label(warm)
+yellow = (r > 205) & (g > 150) & (b < 200) & (r - b > 45)
+lab, n = nd.label(nd.binary_opening(yellow, structure=np.ones((5, 5))))
 for i, sl in enumerate(nd.find_objects(lab)):
-    h, w = sl[0].stop - sl[0].start, sl[1].stop - sl[1].start
+    y0, y1, x0, x1 = sl[0].start, sl[0].stop, sl[1].start, sl[1].stop
+    h, w = y1 - y0, x1 - x0
     fill = (lab[sl] == i + 1).mean()
-    if sl[0].stop < 640 and 3 <= w <= 64 and 4 <= h <= 95 and fill > 0.55:
-        keep[sl] |= lab[sl] == i + 1
+    upstairs = y1 < 490 and not (60 < x0 < 300 and y0 > 255 and x0 < 250) and not (x0 > 1440 and y0 > 320)   # above the shops; not in a lamp's cone
+    if upstairs and 9 <= w <= 64 and 14 <= h <= 95 and fill > 0.8:
+        keep[y0:y1, x0:x1] = True                                   # the whole pane, frame bars and all
+round_lights = np.zeros_like(keep)
+round_lights[296:332, 640:1180] = True                              # the overpass lamps
+round_lights[556:622, 1430:1575] = True                             # the chai stall's bulbs
 sky = np.zeros_like(keep)
-sky[:335, 500:1300] = True                                                                      # the open sky between the rooftops
-pale = (r > 200) & (g > 190) & (b > 110) & sky
-keep |= nd.binary_dilation(pale, iterations=2) & sky & (r + g + b > 330)
+sky[:335, 500:1310] = True                                          # the open sky between the rooftops
+sky[60:128, 1318:1384] = True                                       # ...and the star above the right-hand hoarding
+pale = (r > 200) & (g > 185) & (b > 100)
+glow = nd.binary_opening(pale, iterations=1)
+lab, n = nd.label(glow & (sky | round_lights))
+size = nd.sum(glow & (sky | round_lights), lab, range(1, n + 1))
+keep |= nd.binary_dilation(np.isin(lab, [i + 1 for i in range(n) if size[i] >= 12]), iterations=2)
 al = nd.gaussian_filter(keep.astype(float), 0.8)
 Image.fromarray(np.dstack([o, np.clip(al * 255, 0, 255)]).astype(np.uint8)).save(ROOT / "assets/street/lights.png", optimize=True)
 
