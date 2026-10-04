@@ -31,6 +31,7 @@ window.SITE = {
   about: {
     title: "About me",
     tags: ["Branding", "Packaging", "UI/UX", "Editorial Design"],
+    marks: ["starts with the story", "films", "food", "travel", "truly means something"],   // highlighted in the Simple view
     portrait: { src: "assets/about/portrait-frames.webp", frames: 3, w: 280, h: 400 },
     text: [
       { text: "I’m Anish Shah, a 20-year-old designer who starts with the story and lets the visuals follow, always building alongside people. I find my inspiration in films that change the way I see the world, food that brings me joy, and travel that keeps my imagination restless. I translate feelings into design, so the work doesn’t just look good but truly means something." },
