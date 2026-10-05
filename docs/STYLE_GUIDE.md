@@ -1,4 +1,4 @@
-# Neon Bharat — Visual Style Guide (v2: The Journey)
+# Visual Style Guide (v2: The Journey)
 
 Read this before building or changing any UI. The whole site is one continuous 16-bit video game level set in a modern Indian city at night. The visitor scrolls, and the pixel character travels through six locations. Every location must feel like a different room of the **same game**: same pixel rules, same palette family, same UI language, different lighting mood.
 
@@ -129,7 +129,7 @@ Animation runs at 8–12 fps using `steps()` timing. Walking is driven by scroll
 
 ### 7.1 The Street (hero)
 
-**Scene:** The existing Neon Bharat street. Wet road with neon reflections, auto-rickshaw, black-and-yellow taxi, chai stall with steam, sleeping stray dog, metro train on the overpass, skyline with IT towers, cranes, sea link, full moon, purple sky. A **manhole cover** in the road in front of the character (this is where he'll go next, so make it slightly visible as a hint).
+**Scene:** The existing street. Wet road with neon reflections, auto-rickshaw, black-and-yellow taxi, chai stall with steam, sleeping stray dog, metro train on the overpass, skyline with IT towers, cranes, sea link, full moon, purple sky. A **manhole cover** in the road in front of the character (this is where he'll go next, so make it slightly visible as a hint).
 
 **Key light:** Magenta + cyan neon, orange sodium lamps.
 
@@ -141,7 +141,7 @@ Animation runs at 8–12 fps using `steps()` timing. Walking is driven by scroll
 
 ### 7.2 The Drain (transition)
 
-**Scene:** The character crouches, slides the manhole cover aside, and drops in. The camera follows him down a vertical shaft: damp brick and concrete walls, dripping water, rusted pipes, a ladder, a few glowing teal-green puddles, maybe a rat peeking out, a little graffiti ("Neon Bharat was here"). The shaft gets darker, then light from below (the subway) starts to glow cyan-white.
+**Scene:** The character crouches, slides the manhole cover aside, and drops in. The camera follows him down a vertical shaft: damp brick and concrete walls, dripping water, rusted pipes, a ladder, a few glowing teal-green puddles, maybe a rat peeking out, a little graffiti. The shaft gets darker, then light from below (the subway) starts to glow cyan-white.
 
 **Key light:** Near-dark; teal-green glow from puddles and slime, the circle of neon street light shrinking above, subway fluorescent light growing below.
 

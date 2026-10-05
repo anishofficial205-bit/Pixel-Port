@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------
-   NEON BHARAT — scroll-driven journey
+   ANISH SHAH PORTFOLIO — scroll-driven journey
    Scroll distance moves the character along a path of segments.
    The camera follows; each segment knows its pose and location.
 ------------------------------------------------------------------- */
@@ -1278,7 +1278,7 @@
     body.classList.toggle("static", !ride);
     markView(ride);
     pauseReel();
-    store.set("nb-mode", ride ? "ride" : "static");
+    store.set("view-mode", ride ? "ride" : "static");
     if (!ride) { logoEl.style.transform = ""; logoEl.classList.remove("hero"); logoAt = -1; }
     if (!ride) { world.style.transform = ""; body.dataset.location = "street"; requestAnimationFrame(() => { fitPlainArt(); plainSize(); }); }
     layout();
@@ -1579,7 +1579,7 @@
   watchPlain();
   glitchLogo();
   bindUI();
-  const saved = store.get("nb-mode");
+  const saved = store.get("view-mode");
   const ride = saved ? saved === "ride" : !reduceMotion;
   body.classList.toggle("ride", ride);
   body.classList.toggle("static", !ride);

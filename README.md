@@ -1,10 +1,10 @@
-# Neon Bharat: Pixel Portfolio
+# Anish Shah: Design Portfolio
 
 A design portfolio built as one continuous 16-bit game level. As you scroll, the character walks through one night in the city:
 
 **Street** (hero) → **Drain** (transition) → **Subway** (project billboards) → **Cinema** (reels) → **Exhibition** (photography) → **Rooftop at dawn** (contact / footer)
 
-The visual rules live in [`docs/NEON_BHARAT_STYLE.md`](docs/NEON_BHARAT_STYLE.md).
+The visual rules live in [`docs/STYLE_GUIDE.md`](docs/STYLE_GUIDE.md).
 
 > **Status:** all six locations use real art. Text, projects, reels and photos in `js/data.js` are still placeholders.
 
