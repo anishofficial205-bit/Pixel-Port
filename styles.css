@@ -728,12 +728,12 @@ body::after {
    every lamp glows gold and breathes, with warm light pooling on the floor and the walls. */
 .back-mood { display: none; }
 .ride .back-mood { display: block; position: absolute; inset: 0; pointer-events: none; }
-.bm-dark { position: absolute; inset: 0; background: radial-gradient(ellipse 85% 85% at 50% 45%, rgba(8, 6, 32, 0.46), rgba(6, 4, 24, 0.7)); }
+.bm-dark { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 80% at 50% 45%, rgba(8, 6, 32, 0.08), rgba(6, 4, 24, 0.4)); }
 .bm-lamp, .bm-pool { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); border-radius: 50%; mix-blend-mode: screen; }
 .bm-lamp { background: radial-gradient(circle, #FFF3C8 0 8%, rgba(255, 214, 120, 0.85) 13%, rgba(255, 170, 60, 0.36) 34%, transparent 68%); animation: bulb-breathe 3.6s ease-in-out infinite; animation-delay: calc(var(--i) * -0.7s); }
 .bm-pool { background: radial-gradient(closest-side, rgba(255, 186, 96, 0.42), rgba(255, 150, 60, 0.18) 58%, transparent); animation: lamp-breathe 6s ease-in-out infinite; animation-delay: calc(var(--i) * -1.1s); }
 @keyframes lamp-breathe { 50% { opacity: 0.72; } }
-.ride .back-rails { filter: brightness(0.62); }
+.ride .back-rails { filter: brightness(0.9); }
 .ride .back-sign { filter: brightness(0.92); box-shadow: 0 0 60px rgba(255, 214, 140, 0.35); }
 .ride .back-photo { box-shadow: 0 0 26px rgba(255, 214, 140, 0.3); }
 .ride .back-sign, .ride .back-photo { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
@@ -770,8 +770,8 @@ body::after {
 .photos { margin: 0; }
 /* the room is dim; a picture light falls on each photo, brightest on the one he is standing at */
 .gal-dim { display: none; }
-.ride .gal-dim { display: block; position: absolute; inset: 0; background: rgba(6, 4, 20, 0.55); pointer-events: none; }
-.ride .photo { filter: brightness(0.82); transition: filter 0.4s ease, box-shadow 0.4s ease; box-shadow: 0 0 40px rgba(255, 228, 170, 0.14); }
+.ride .gal-dim { display: block; position: absolute; inset: 0; background: linear-gradient(rgba(6, 4, 20, 0.3), rgba(6, 4, 20, 0.08) 30%, rgba(6, 4, 20, 0.08) 72%, rgba(6, 4, 20, 0.34)); pointer-events: none; }
+.ride .photo { filter: brightness(0.94); transition: filter 0.4s ease, box-shadow 0.4s ease; box-shadow: 0 0 40px rgba(255, 228, 170, 0.14); }
 .ride .photo::before { content: ""; position: absolute; left: 12%; right: 12%; bottom: 100%; height: 70%; pointer-events: none; opacity: 0.4; transition: opacity 0.4s ease;
   background: linear-gradient(rgba(255, 236, 190, 0), rgba(255, 236, 190, 0.2)); clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); }
 .ride .photo.lit, .ride .photo:hover, .ride .photo:focus-within { filter: none; box-shadow: 0 0 0 2px rgba(255, 194, 74, 0.85), 0 0 90px rgba(255, 224, 160, 0.45); }
