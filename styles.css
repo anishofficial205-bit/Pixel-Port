@@ -180,8 +180,7 @@ body::after {
 }
 .hud > * { pointer-events: auto; }
 .glass {
-  background: rgba(14, 9, 28, 0.62);
-  -webkit-backdrop-filter: blur(12px) saturate(1.3); backdrop-filter: blur(12px) saturate(1.3);
+  background: rgba(14, 9, 28, 0.86);   /* solid enough to read on; a live blur of the moving scene behind cost frames */
   border: 1px solid rgba(244, 230, 208, 0.1);
   box-shadow: 0 10px 30px rgba(5, 3, 10, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   border-radius: 999px;
@@ -191,22 +190,19 @@ body::after {
 /* the logo is shown as if on a CRT: a red/cyan colour fringe, scanlines and a rolling band (both masked
    to the logo's shape), and an occasional flicker */
 .hud-logo { position: relative; animation: crt-flick 6s steps(1) infinite; }
-.hud-logo::before, .hud-logo::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
+.crt {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
   -webkit-mask: url(assets/brand/logo-source.png) center / 100% 100% no-repeat; mask: url(assets/brand/logo-source.png) center / 100% 100% no-repeat;
+  background: repeating-linear-gradient(rgba(12, 0, 20, 0) 0 calc(var(--sl, 2.8px) * 0.6), rgba(12, 0, 20, 0.34) calc(var(--sl, 2.8px) * 0.6) var(--sl, 2.8px));
 }
-.hud-logo::after { background: repeating-linear-gradient(rgba(12, 0, 20, 0) 0 calc(var(--sl, 2.8px) * 0.6), rgba(12, 0, 20, 0.34) calc(var(--sl, 2.8px) * 0.6) var(--sl, 2.8px)); }
-.hud-logo::before { z-index: 1; background: linear-gradient(transparent, rgba(255, 255, 255, 0.3), transparent) 0 -40% / 100% 28% no-repeat; animation: logo-roll 4.2s linear infinite; }
-@keyframes logo-roll { to { background-position: 0 170%; } }
+/* the rolling band moves by transform only, so nothing is repainted */
+.crt i { position: absolute; left: 0; top: 0; width: 100%; height: 28%; background: linear-gradient(transparent, rgba(255, 255, 255, 0.3), transparent); animation: logo-roll 4.2s linear infinite; will-change: transform; }
+@keyframes logo-roll { from { transform: translateY(-110%); } to { transform: translateY(370%); } }
 @keyframes crt-flick { 0%, 100% { opacity: 1; } 71% { opacity: 0.82; } 72% { opacity: 1; } 91% { opacity: 0.88; } 92% { opacity: 1; } 93% { opacity: 0.8; } 94% { opacity: 1; } }
 .logo-canvas {
   height: 100%; width: auto; display: block; --fringe: drop-shadow(1.1px 0 0 rgba(61, 242, 255, 0.6)) drop-shadow(-1.1px 0 0 rgba(255, 60, 110, 0.55));
-  filter: var(--fringe) drop-shadow(0 0 4px rgba(237, 40, 40, 0.75)) drop-shadow(0 0 14px rgba(237, 40, 40, 0.45));
-  animation: logo-glow 2.8s ease-in-out infinite;
+  filter: var(--fringe) drop-shadow(0 0 5px rgba(245, 55, 50, 0.85)) drop-shadow(0 0 18px rgba(237, 40, 40, 0.55));   /* a steady glow: pulsing a filter repaints every frame */
   transition: transform 0.18s steps(3);
-}
-@keyframes logo-glow {
-  50% { filter: var(--fringe) drop-shadow(0 0 6px rgba(255, 70, 60, 0.95)) drop-shadow(0 0 22px rgba(237, 40, 40, 0.7)); }
 }
 /* ---- the title card: tags around the big logo on the opening screen. --e runs 1 -> 0 as the logo leaves
    for the navbar; the tags drift outward and fade in the first part of that. ---- */
@@ -246,7 +242,6 @@ body::after {
 .hud-logo:hover .logo-canvas, .hud-logo:focus-visible .logo-canvas {
   transform: scale(1.06);
   filter: drop-shadow(0 0 6px rgba(255, 90, 70, 1)) drop-shadow(0 0 26px rgba(255, 40, 40, 0.85));
-  animation: none;
 }
 
 /* the route: sections as stops on a metro line. The line fills as the journey goes (--route, 0..1),
@@ -477,23 +472,24 @@ body::after {
 .shoot.go { animation: shoot 0.9s ease-out; }
 @keyframes shoot { 0% { opacity: 0; translate: 0 0; } 15% { opacity: 1; } 100% { opacity: 0; translate: calc(-420px * var(--ss)) calc(187px * var(--ss)); } }
 /* windows go dark and light up again */
-.win-off { background: #2A1B45; mix-blend-mode: multiply; opacity: 0; transition: opacity 0.6s ease; }
+.win-off { background: #1D1238; opacity: 0; transition: opacity 0.6s ease; }
 .win-off.off { opacity: calc(0.92 * (1 - var(--e, 0))); }   /* (not while the street is dimmed for the title card: it would show as a black box) */
 /* overpass lamps glow; one has a loose connection */
-.lamp-glow { border-radius: 50%; background: radial-gradient(rgba(255, 224, 140, 0.85), rgba(255, 170, 60, 0.3) 42%, transparent 70%); mix-blend-mode: screen; animation: lamp-pulse 3.6s ease-in-out infinite; }
+.lamp-glow { border-radius: 50%; background: radial-gradient(rgba(255, 224, 140, 0.85), rgba(255, 170, 60, 0.3) 42%, transparent 70%); animation: lamp-pulse 3.6s ease-in-out infinite; }
 .lamp-glow.flick { animation: lamp-flick 6s steps(1) infinite; }
 @keyframes lamp-pulse { 50% { opacity: 0.55; transform: scale(0.85); } }
 @keyframes lamp-flick { 0%, 78%, 82%, 86%, 100% { opacity: 1; } 80%, 84% { opacity: 0.15; } }
 /* ripples across the reflections on the water */
-.water { background: repeating-linear-gradient(rgba(9, 12, 46, 0.55) 0 2px, transparent 2px 9px); -webkit-mask-image: linear-gradient(transparent, #000 35%, #000 75%, transparent); mask-image: linear-gradient(transparent, #000 35%, #000 75%, transparent); animation: ripple 1.6s linear infinite; }
-@keyframes ripple { to { background-position: 0 9px; } }
+.water { overflow: hidden; -webkit-mask-image: linear-gradient(transparent, #000 35%, #000 75%, transparent); mask-image: linear-gradient(transparent, #000 35%, #000 75%, transparent); }
+.water::before { content: ""; position: absolute; left: 0; right: 0; top: -9px; bottom: 0; background: repeating-linear-gradient(rgba(9, 12, 46, 0.55) 0 2px, transparent 2px 9px); animation: ripple 1.6s linear infinite; will-change: transform; }
+@keyframes ripple { to { transform: translateY(9px); } }
 .beacon { border-radius: 50%; background: #FF4B3A; box-shadow: 0 0 8px 3px rgba(255, 75, 58, 0.7); animation: beacon 1.8s steps(1) infinite; }
 @keyframes beacon { 50% { opacity: 0.1; } }
 /* the store's sign hums, and buzzes when the store is clicked */
-.store-sign { background: #FFE9B0; mix-blend-mode: overlay; opacity: 0; animation: sign-hum 9s steps(1) infinite; }
-@keyframes sign-hum { 0%, 93%, 96%, 100% { opacity: 0; } 94%, 97% { opacity: 0.55; } }
+.store-sign { background: #FFE9B0; opacity: 0; animation: sign-hum 9s steps(1) infinite; }
+@keyframes sign-hum { 0%, 93%, 96%, 100% { opacity: 0; } 94%, 97% { opacity: 0.28; } }
 .store-sign.buzz { animation: sign-buzz 0.7s steps(1); }
-@keyframes sign-buzz { 0%, 30%, 60% { opacity: 0.75; } 15%, 45%, 100% { opacity: 0; } }
+@keyframes sign-buzz { 0%, 30%, 60% { opacity: 0.4; } 15%, 45%, 100% { opacity: 0; } }
 /* the dog is asleep */
 .zzz b { position: absolute; left: 0; bottom: 0; font-family: var(--font-label); font-weight: 900; font-size: calc(17px * var(--ss)); color: #FFF6D8; text-shadow: 0 1px 0 #14103A; opacity: 0; animation: zzz 3.6s ease-out infinite; }
 .zzz b:nth-child(2) { animation-delay: 1.2s; } .zzz b:nth-child(3) { animation-delay: 2.4s; font-size: calc(22px * var(--ss)); }

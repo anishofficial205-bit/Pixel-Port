@@ -757,7 +757,7 @@
         el.style.left = Math.round(x) + "px"; el.style.top = Math.round(y) + "px";
         el.style.setProperty("--dx", Math.round(ax * 60) + "px"); el.style.setProperty("--dy", Math.round(ay * 60) + "px");   // they drift outward as they leave
       });
-      logoAt = -1;
+      logoAt = -1; dimEls = null;
       logoRefresh();
     }
     Object.assign(L, { street, mh, camStart, camEnd, drain, subway, stairwell, front, backstairs, exhibition, rooftop, boards, frames });
@@ -1048,7 +1048,7 @@
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
   const cutEl = $(".cut"), backRails = $(".back-rails"), stairRails = $(".stair-rails");
-  let litBoard = -1, boardEls = [], litPhoto = -1, photoEls = [], finOn = false, logoAt = -1;
+  let litBoard = -1, boardEls = [], litPhoto = -1, photoEls = [], finOn = false, logoAt = -1, dimEls = null, lastSl = "";
   const roofEl = $("#rooftop");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
@@ -1174,10 +1174,11 @@
         logoAt = e;
         const k = 1 + (L.logo.k - 1) * e;
         logoEl.style.transform = e ? `translate(${(L.logo.x * e).toFixed(1)}px, ${(L.logo.y * e).toFixed(1)}px) scale(${k.toFixed(4)})` : "";
-        logoEl.style.setProperty("--sl", (2.8 / Math.sqrt(k)).toFixed(3) + "px");   // scanline pitch: grows only gently with the logo
+        const sl = (2.8 / Math.sqrt(k)).toFixed(1); if (sl !== lastSl) { lastSl = sl; logoEl.style.setProperty("--sl", sl + "px"); }   // scanline pitch: grows only gently with the logo
         logoEl.classList.toggle("hero", e > 0.5);
         heroTags.style.setProperty("--e", e.toFixed(3));
-        streetEl.style.setProperty("--e", e.toFixed(3));        // the street dims behind the title card
+        if (!dimEls) dimEls = [...streetEl.querySelectorAll(".hero-dim, .street-lights, .bb-ad, .win-off")];
+        dimEls.forEach((el) => el.style.setProperty("--e", e.toFixed(3)));   // the street dims behind the title card (set only where it is used, so the whole street is not restyled every frame)
         heroTags.classList.toggle("off", e < 0.5);
       }
     }

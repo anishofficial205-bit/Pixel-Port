@@ -122,6 +122,7 @@ size = nd.sum(glow & (sky | round_lights), lab, range(1, n + 1))
 keep |= nd.binary_dilation(np.isin(lab, [i + 1 for i in range(n) if size[i] >= 12]), iterations=2)
 al = nd.gaussian_filter(keep.astype(float), 0.8)
 Image.fromarray(np.dstack([o, np.clip(al * 255, 0, 255)]).astype(np.uint8)).save(ROOT / "assets/street/lights.png", optimize=True)
+Image.open(ROOT / "assets/street/lights.png").save(ROOT / "assets/street/lights.webp", quality=88, method=6)   # what 1x screens load
 
 # 3. leaves in front of the tall billboard: everything darker than the board, un-mixed from its cream
 bx0, by0, bx1, by1 = LEAVES
