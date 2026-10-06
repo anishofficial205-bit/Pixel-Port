@@ -109,6 +109,7 @@ def photo_rows(names, gap=1.0, fill=4.3):
     """rows of photos of equal height that fill the column, a small gap between them"""
     rows, row = [], []
     for n in names:
+        if row and sum(SH[x] for x in row) + SH[n] > fill * 1.22: rows.append(row); row = []      # it would overfill: start the next row
         row.append(n)
         if sum(SH[x] for x in row) >= fill: rows.append(row); row = []
     if row: rows.append(row) if sum(SH[x] for x in row) > fill * 0.55 or not rows else rows[-1].extend(row)
