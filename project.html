@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791265165" />
+  <link rel="stylesheet" href="project.css?v=1791266077" />
 </head>
 <body>
   <header class="bar">
@@ -19,43 +19,35 @@
   </header>
 
   <main>
-    <section class="top">
-      <span class="star" style="left:6%;top:22%"></span><span class="star s2" style="right:9%;top:16%"></span><span class="star s3" style="right:22%;bottom:18%"></span>
+    <!-- the page follows the flow of anishah.framer.website: title, brief, main image, then js/flow.js -->
+    <header class="top">
       <p class="kicker" id="p-line"></p>
       <h1 id="p-title"></h1>
       <p class="brief" id="p-intro"></p>
-      <dl class="ticket" id="p-meta"></dl>
-    </section>
-
-    <figure class="board hero-board"><img id="p-hero" alt="" /></figure>
-
-    <p class="lead" id="p-lead"></p>
+    </header>
+    <hr class="rule" />
+    <figure class="shot hero-shot"><img id="p-hero" alt="" /></figure>
 
     <article class="case" id="p-case"></article>
 
     <p class="source"><a id="p-source" target="_blank" rel="noopener">View this project on my Framer site <span aria-hidden="true">↗</span></a></p>
-  </main>
 
-  <a class="next" id="next">
-    <span class="next-art" aria-hidden="true"></span>
-    <span class="next-in">
-      <span class="kicker">Next stop</span>
-      <b id="next-title"></b>
-      <span class="next-blurb" id="next-blurb"></span>
-      <span class="go">Ride on <i aria-hidden="true">→</i></span>
-    </span>
-    <span class="board next-board"><img id="next-img" alt="" loading="lazy" /></span>
-  </a>
+    <nav class="also" aria-label="Other projects">
+      <p class="also-label">See also</p>
+      <ul id="also"></ul>
+    </nav>
+  </main>
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791265165"></script>
+  <script src="js/data.js?v=1791266077"></script>
+  <script src="js/flow.js?v=1791266077"></script>
   <script>
     (function () {
       const list = SITE.projects;
       const id = new URLSearchParams(location.search).get("p");
       const i = Math.max(0, list.findIndex((p) => p.id === id));
-      const p = list[i], next = list[(i + 1) % list.length];
+      const p = list[i], F = FLOW[p.id] || { hero: 1.5, items: [] };
       const $ = (s) => document.querySelector(s);
       const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
@@ -69,75 +61,73 @@
       $("#line").style.setProperty("--n", list.length);
       $("#line").style.setProperty("--at", list.length > 1 ? i / (list.length - 1) : 0);
 
-      $("#p-line").textContent = [p.line, p.meta.category, p.meta.year].filter(Boolean).join(" · ");
+      $("#p-line").textContent = [p.meta.category, p.meta.year].filter(Boolean).join(" · ");
       $("#p-title").textContent = p.title;
       $("#p-intro").textContent = p.intro;
-      $("#p-lead").textContent = p.lead;
       const hero = p.hero || p.cover;
       $("#p-hero").src = SITE.img(hero); $("#p-hero").alt = p.title + ": " + p.blurb;
+      $(".hero-shot").style.setProperty("--ar", F.hero);
       $("#p-source").href = p.source;
 
-      // the ticket: only the fields this project has
-      const labels = { timeframe: "Timeframe", tools: "Tools", collaboration: "Team", year: "Year" };
-      Object.entries(labels).forEach(([k, label]) => {
-        if (!p.meta[k]) return;
-        const d = el("div"); d.append(el("dt", null, label), el("dd", null, p.meta[k])); $("#p-meta").append(d);
-      });
-
-      // case study: a heading opens a numbered chapter, paragraphs fill it, runs of images become rows
       const root = $("#p-case");
-      let box = null, run = [], n = 0;
-      const figure = (b) => {
-        const f = el("figure", "board");
-        f.style.setProperty("--ar", b.w / b.h);
-        const img = el("img");
-        img.src = SITE.img(b.img, b.w / b.h > 2.5 ? 2048 : 1024 + (b.w > b.h ? 1024 : 0));
-        img.alt = p.title + " image"; img.loading = "lazy"; img.decoding = "async";
-        img.width = b.w; img.height = b.h;
+      const shot = (c, size) => {
+        const f = el("figure", "shot"), img = el("img");
+        f.style.setProperty("--ar", c.ar);
+        if (c.l != null) { f.style.marginLeft = c.l + "%"; f.style.width = c.w + "%"; }
+        img.src = SITE.img(c.id, size); img.alt = p.title + " image"; img.loading = "lazy"; img.decoding = "async";
+        if (c.fit && c.fit !== "cover") img.style.objectFit = c.fit;
         f.append(img); return f;
       };
-      const flush = () => {
-        if (!run.length) return;
-        // banners run full width; the rest go in rows of 2 (landscape) or 3 (portrait), equal heights
-        let row = [];
-        const put = () => { if (!row.length) return; const r = el("div", "row"); row.forEach((b) => r.append(figure(b))); root.append(r); row = []; };
-        run.forEach((b) => {
-          if (b.w / b.h > 2.5) { put(); row.push(b); put(); return; }
-          row.push(b);
-          if (row.length >= (row.every((x) => x.h > x.w) ? 3 : 2)) put();
-        });
-        put(); run = [];
-      };
-      const chapter = (title) => {
-        box = el("section", "chapter");
-        if (title) { const h = el("h2"); h.append(el("small", null, String(++n).padStart(2, "0")), title); box.append(h); }
-        box.append(el("div", "chapter-text")); root.append(box);
-      };
-      p.blocks.forEach((b) => {
-        if (b.img) { run.push(b); box = null; return; }
-        flush();
-        if (b.h) { chapter(b.h); return; }
-        if (!box) chapter();
-        const into = box.lastChild;
-        if (b.p) into.append(el("p", null, b.p));
-        if (b.list) {
-          const ul = el("ul", "features");
-          b.list.forEach(([t, d]) => { const li = el("li"); li.append(el("b", null, t), el("span", null, d)); ul.append(li); });
-          into.append(ul);
+      const labels = { year: "Year", timeframe: "Timeframe", tools: "Tools", category: "Category", collaboration: "Collaboration" };
+      F.items.forEach((b) => {
+        let e;
+        if (b.t === "h") e = el(b.big ? "h2" : "h3", b.big ? "sec" : "", b.tx);
+        else if (b.t === "p") e = el("p", b.narrow ? "narrow" : "", b.tx);
+        else if (b.t === "rule") e = el("hr", "rule");
+        else if (b.t === "list") {
+          e = el("ol", "features");
+          b.items.forEach(([t, d]) => { const li = el("li"); li.append(el("b", null, t), el("span", null, d)); e.append(li); });
+        } else if (b.t === "lead") {                       // the big statement, with the facts beside it
+          e = el("section", "lead");
+          const dl = el("dl", "facts");
+          Object.entries(labels).forEach(([k, label]) => { if (!p.meta[k]) return; const d = el("div"); d.append(el("dt", null, label), el("dd", null, p.meta[k])); dl.append(d); });
+          e.append(el("p", "lead-text", p.lead), dl);
+        } else if (b.t === "row") {
+          e = el("div", "row" + (b.bleed ? " bleed" : "") + (b.tight ? " tight" : ""));
+          b.imgs.forEach((c) => e.append(shot(c, b.bleed || c.w > 60 ? 2048 : 1024)));
+        } else if (b.t === "video") {
+          e = el("figure", "shot"); e.style.setProperty("--ar", b.ar);
+          const v = el("video"); v.src = b.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute("aria-label", p.title + " video");
+          e.append(v);
+        } else if (b.t === "ticker") {                     // a strip of photos sliding sideways (shown twice over, so it loops)
+          e = el("div", "ticker"); const track = el("div", "ticker-track");
+          [0, 1].forEach(() => b.imgs.forEach((c) => track.append(shot({ id: c.id, ar: c.ar }, 1024))));
+          e.append(track);
+        } else if (b.t === "tiles") {                      // a tilted wall of tiles, its columns drifting past each other
+          e = el("div", "tiles"); const wall = el("div", "tiles-wall");
+          [0, 1, 2].forEach((c) => {
+            const col = el("div", "tiles-col"), mine = b.imgs.filter((_, k) => k % 3 === c);
+            [...mine, ...mine, ...mine, ...mine].forEach((id) => { const im = el("img"); im.src = SITE.img(id, 1024); im.alt = ""; im.loading = "lazy"; col.append(im); });
+            wall.append(col);
+          });
+          e.append(wall);
         }
+        if (e) root.append(e);
       });
-      flush();
+
+      // see also: the other projects
+      list.filter((q) => q.id !== p.id).forEach((q) => {
+        const li = el("li"), a = el("a"); a.href = "project.html?p=" + q.id;
+        const im = el("img"); im.src = SITE.img(q.cover, 512); im.alt = ""; im.loading = "lazy";
+        const tx = el("span", "also-text"); tx.append(el("small", null, q.meta.category || ""), el("b", null, q.title));
+        a.append(im, tx, el("i", null, "↗")); li.append(a); $("#also").append(li);
+      });
 
       // things come up as they scroll into view
-      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px" });
-      document.querySelectorAll(".lead, .chapter, .row, .next-in, .next-board").forEach((e) => { e.classList.add("rise"); io.observe(e); });
+      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px" });
+      document.querySelectorAll(".case > *, .also li").forEach((e) => { e.classList.add("rise"); io.observe(e); });
 
       $("#back").href = "index.html#project-" + p.id;
-      $("#next").href = "project.html?p=" + next.id;
-      $("#next-title").textContent = next.title;
-      $("#next-blurb").textContent = next.blurb;
-      $("#next-img").src = SITE.img(next.cover, 1024);
-      $(".next-art").style.setProperty("--pan", (((i + 1) % list.length) / Math.max(1, list.length - 1) * 100) + "%");
     })();
   </script>
 </body>
