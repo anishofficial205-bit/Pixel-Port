@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791266077" />
+  <link rel="stylesheet" href="project.css?v=1791266598" />
 </head>
 <body>
   <header class="bar">
@@ -40,8 +40,8 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791266077"></script>
-  <script src="js/flow.js?v=1791266077"></script>
+  <script src="js/data.js?v=1791266598"></script>
+  <script src="js/flow.js?v=1791266598"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -65,9 +65,12 @@
       $("#p-title").textContent = p.title;
       $("#p-intro").textContent = p.intro;
       const hero = p.hero || p.cover;
-      $("#p-hero").src = SITE.img(hero); $("#p-hero").alt = p.title + ": " + p.blurb;
+      const frame = (src, title) => { const f = el("iframe"); f.src = src; f.title = title; f.loading = "lazy"; f.allow = "autoplay; fullscreen; picture-in-picture"; f.allowFullscreen = true; return f; };
+      if (p.heroEmbed) $("#p-hero").replaceWith(frame(p.heroEmbed, p.title + " film"));       // the film opens the page
+      else { $("#p-hero").src = SITE.img(hero); $("#p-hero").alt = p.title + ": " + p.blurb; }
       $(".hero-shot").style.setProperty("--ar", F.hero);
       $("#p-source").href = p.source;
+      if (p.sourceLabel) $("#p-source").firstChild.textContent = p.sourceLabel + " ";
 
       const root = $("#p-case");
       const shot = (c, size) => {
@@ -99,6 +102,9 @@
           e = el("figure", "shot"); e.style.setProperty("--ar", b.ar);
           const v = el("video"); v.src = b.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute("aria-label", p.title + " video");
           e.append(v);
+        } else if (b.t === "embed") {
+          e = el("figure", "shot" + (b.tight ? " tight" : "")); e.style.setProperty("--ar", b.ar);
+          e.append(frame(b.src, p.title));
         } else if (b.t === "ticker") {                     // a strip of photos sliding sideways (shown twice over, so it loops)
           e = el("div", "ticker"); const track = el("div", "ticker-track");
           [0, 1].forEach(() => b.imgs.forEach((c) => track.append(shot({ id: c.id, ar: c.ar }, 1024))));

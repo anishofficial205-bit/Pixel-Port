@@ -13,6 +13,7 @@ above "see also". Items:
                               w = its width, in % of the column (or of the screen when bleed); ar = w / h;
                               tight: it sits flush under the row above
   {t:"video", src, ar}
+  {t:"embed", src, ar, tight}  a film or a flip-book from another site, in a frame
   {t:"ticker", h, imgs:[{id, ar}]}    a strip of photos that slides sideways
   {t:"tiles", imgs:[id]}              a tilted wall of tiles that drifts
 """
@@ -98,5 +99,19 @@ for slug, pid in PAGES.items():
     while seq and seq[0]["t"] == "rule": seq.pop(0)
     flow[pid] = {"hero": round(hero["r"][2] / hero["r"][3], 3), "items": seq}
     print(pid, len(seq), " ".join(i["t"] + (str(len(i["imgs"])) if i["t"] == "row" else "") + ("*" if i.get("bleed") else "") + ("^" if i.get("tight") else "") for i in seq))
+
+# Bhayanaka is not on the Framer site: its flow follows its Behance page (behance.net/gallery/248967119), where
+# the film opens the page (see heroEmbed in js/data.js) and three long boards carry the text.
+BE = "https://mir-s3-cdn-cf.behance.net/project_modules/"
+board = lambda f, w, h: {"t": "row", "bleed": False, "tight": True, "imgs": [{"id": BE + "fs_webp/" + f, "l": 0, "w": 100, "ar": round(w / h, 3), "fit": "cover"}]}
+embed = lambda src, w, h: {"t": "embed", "src": src, "ar": round(w / h, 3), "tight": True}
+flow["bhayanaka"] = {"hero": 1.778, "items": [
+    board("a45819248967119.6a026d8c40739.png", 1400, 794),
+    embed("https://heyzine.com/flip-book/15f25d6fbc.html#page/2", 831, 464),
+    board("3ec7fd248967119.6a026536c3a97.png", 1400, 1530),
+    embed("https://heyzine.com/flip-book/1c703810ea.html#page/2", 831, 551),
+    board("bd7cc8248967119.6a026536c264e.png", 1400, 2191),
+    embed("https://player.vimeo.com/video/1191321738?title=0&byline=0&portrait=0&badge=0&controls=1&color=ffffff", 16, 9),
+]}
 
 (ROOT / "js/flow.js").write_text("/* Each project page's flow, as laid out on anishah.framer.website. Built by tools/build_flow.py; see it for the item types. */\nwindow.FLOW = " + json.dumps(flow, ensure_ascii=False, separators=(",", ":")) + ";\n")

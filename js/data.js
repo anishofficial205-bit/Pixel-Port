@@ -616,6 +616,24 @@ window.SITE = {
           "p": "This project reimagines consent education through a human-centered UI/UX lens, treating consent not as a rule to be taught but as a skill to be practiced. By combining participatory research, culturally sensitive design, and emotionally safe interactions, the project bridges the gap between awareness and real-life behavior. Haven demonstrates how thoughtful design can create trust, encourage difficult conversations, and empower young people to navigate relationships with clarity, autonomy, and respect."
         }
       ]
+    },
+    {
+      // from behance.net/gallery/248967119 (a team project; the boards there carry their own text)
+      "id": "bhayanaka",
+      "featured": false,
+      "title": "Bhayanaka",
+      "line": "Line 5",
+      "blurb": "Production design for a short horror film",
+      "shape": "wide",
+      "band": "#D8261C",
+      "cover": "https://i.vimeocdn.com/video/2156354653-0a8256fe1d25e5e9a73fe937a82c2edad5f9e8cebb9eee1dfb8c0d7073ac9f69-d_1280x720?region=us",
+      "heroEmbed": "https://player.vimeo.com/video/1191228759?title=0&byline=0&portrait=0&badge=0&controls=1&color=ffffff&loop=1",
+      "source": "https://www.behance.net/gallery/248967119/A-production-design-project",
+      "sourceLabel": "View this project on Behance",
+      "intro": "A production design project: designing and dressing a room to evoke dread and unease, for a script titled Bhayānaka.",
+      "lead": "For our production design project, we were given a script titled Bhayānaka, a word rooted in the Sanskrit rasa of fear. The assignment called for designing and dressing an environment to evoke dread and unease, using props, textures, lighting, and surface treatments to suggest a history of violence and ritual. What we built was a room that felt occupied by something that had already happened.",
+      "meta": {"year": "2026", "tools": "Premiere Pro, After Effects, DaVinci Resolve, Acrylic Paint", "category": "Production Design", "collaboration": "Classroom project, team of 8"},
+      "blocks": []
     }
   ],
 
