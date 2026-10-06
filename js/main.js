@@ -77,7 +77,14 @@
   function fillContent() {
     $("#site-name").textContent = `${S.name[0]}${S.name.slice(1).toLowerCase()} Shah, ${S.role}`;
     $("#site-intro").textContent = S.intro;
-    $("#mail-link").href = "mailto:" + S.email;
+    const mailto = "mailto:" + S.email + (S.mailSubject ? "?subject=" + encodeURIComponent(S.mailSubject) : "");
+    $("#mail-link").href = mailto;
+    $("#cr-kicker").textContent = S.footer.kicker;
+    $("#credits-title").innerHTML = `${S.footer.title[0]} <em>${S.footer.title[1]}</em>`;
+    $("#cr-line").textContent = S.footer.line;
+    // the date and time, ticking, as on the Framer site ("October 06 - 11:08:30 AM")
+    const clock = () => { const d = new Date(); $("#cr-clock").textContent = d.toLocaleDateString("en-US", { month: "long", day: "2-digit" }) + " - " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); };
+    clock(); setInterval(clock, 1000);
     $("#mail-link").textContent = S.email;
     $("#copyright").textContent = `© ${S.year} ${S.name[0]}${S.name.slice(1).toLowerCase()} Shah. All rights reserved.`;
     $("#cr-place").textContent = S.location;
@@ -132,7 +139,7 @@
     adBoards();
 
     $("#socials").innerHTML = S.socials.map((s) => `
-      <li><a href="${s.url}">${s.label}</a></li>`).join("");
+      <li><a href="${s.url}" target="_blank" rel="noopener">${s.label}</a></li>`).join("");
   }
 
   /* ================= STREET ART ================= */
@@ -524,9 +531,11 @@
           ${head("05", "Say hello", "संपर्क")}
           <div class="z-contact-grid">
             <div>
-              <p class="z-big" data-rv>Got a project, a job, or just want to share chai?</p>
-              <p data-rv><a class="pxbtn z-mail" href="mailto:${S.email}">${S.email}</a></p>
-              <p class="z-socials" data-rv>${S.socials.map((x) => `<a class="pxbtn sm alt" href="${x.url}">${x.label}</a>`).join("")}</p>
+              <p class="z-kick" data-rv>${S.footer.kicker}</p>
+              <p class="z-big" data-rv>“${S.footer.title.join(" ")}”</p>
+              <p class="z-line" data-rv>${S.footer.line}</p>
+              <p data-rv><a class="pxbtn z-mail" href="mailto:${S.email}${S.mailSubject ? "?subject=" + encodeURIComponent(S.mailSubject) : ""}">${S.email}</a></p>
+              <p class="z-socials" data-rv>${S.socials.map((x) => `<a class="pxbtn sm alt" href="${x.url}" target="_blank" rel="noopener">${x.label}</a>`).join("")}</p>
             </div>
             <figure class="z-roof" data-rv>${win("rooftop.png", `<span class="z-roof-art"><span class="z-him z-sitter" aria-hidden="true"></span></span>`)}</figure>
           </div>

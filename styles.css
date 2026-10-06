@@ -873,7 +873,7 @@ body::after {
 .cr-kicker .hi { font-size: 15px; letter-spacing: 0; color: var(--paper); opacity: 0.8; }
 .cr-title { margin: 0 0 18px; font-family: var(--font-display); font-weight: 400; font-size: clamp(46px, 6.2vw, 96px); line-height: 0.9; letter-spacing: -0.005em; color: var(--paper); }
 .cr-title em { display: block; font-style: normal; color: #FFC24A; }
-.cr-line { margin: 0 0 20px; max-width: 26ch; font-size: clamp(16px, 1.45vw, 20px); line-height: 1.45; font-weight: 500; color: rgba(244, 230, 208, 0.82); }
+.cr-line { margin: 0 0 20px; max-width: 30ch; font-size: clamp(16px, 1.45vw, 20px); line-height: 1.45; font-weight: 500; color: rgba(244, 230, 208, 0.82); }
 .cr-mail { display: inline-flex; align-items: baseline; gap: 10px; margin-bottom: 30px; font-weight: 900; font-size: clamp(20px, 2.3vw, 34px); line-height: 1.15; letter-spacing: -0.02em; color: var(--paper); text-decoration: none; background: linear-gradient(#FFC24A, #FFC24A) 0 100% / 100% 2px no-repeat; padding-bottom: 6px; transition: color 0.2s ease, background-size 0.3s ease; }
 .cr-mail::after { content: "\2197"; font-weight: 500; color: #FFC24A; transition: transform 0.25s ease; }
 .cr-mail:hover, .cr-mail:focus-visible { color: #FFC24A; }
@@ -887,7 +887,8 @@ body::after {
 .cr-again { padding: 0; border: 0; cursor: pointer; font: inherit; font-weight: 700; text-transform: none; letter-spacing: 0; }
 .cr-again b { display: inline-block; font-weight: 500; color: #FFC24A; transition: transform 0.25s ease; }
 .cr-again:hover b { transform: translateY(-3px); }
-.cr-copy { margin: 0; font-size: 12px; line-height: 1.4; color: rgba(244, 230, 208, 0.45); }
+.cr-copy { margin: 0; display: flex; justify-content: space-between; gap: 16px; font-size: 12px; line-height: 1.4; color: rgba(244, 230, 208, 0.45); }
+.cr-clock { font-variant-numeric: tabular-nums; white-space: nowrap; color: rgba(244, 230, 208, 0.7); }
 @media (max-width: 700px) {
   /* phones: a shorter column, so it clears his head; the moon dims with the rest */
   .cr-kicker { margin-bottom: 8px; }
@@ -1138,7 +1139,9 @@ body::after {
 /* ---- say hello: back to the red of the title screen ---- */
 .z-contact { background: var(--red); color: var(--cream); padding-bottom: 0; }
 .z-contact-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(30px, 5vw, 70px); align-items: center; }
-.z-big { margin: 0 0 26px; font-family: var(--font-display); font-size: clamp(36px, 5.2vw, 76px); line-height: 0.98; text-shadow: 4px 4px 0 var(--ink); }
+.z-kick { margin: 0 0 10px; font-family: var(--font-label); font-weight: 700; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; }
+.z-line { margin: 0 0 26px; max-width: 34ch; font-size: 18px; line-height: 1.5; }
+.z-big { margin: 0 0 16px; font-family: var(--font-display); font-size: clamp(36px, 5.2vw, 76px); line-height: 0.98; text-shadow: 4px 4px 0 var(--ink); }
 .z-contact p { margin: 0 0 16px; }
 .z-mail { font-family: var(--font-body); font-weight: 900; text-transform: none; font-size: clamp(18px, 2.2vw, 28px); letter-spacing: -0.01em; padding: 16px 22px; overflow-wrap: anywhere; }
 .z-socials { display: flex; flex-wrap: wrap; gap: 6px 8px; }
