@@ -590,36 +590,50 @@ body::after {
   -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 91%, transparent); mask-image: linear-gradient(to right, transparent, #000 12%, #000 91%, transparent);
 }
 /* each board is an ad: the picture on the left, the project's line, title and blurb beside it.
-   Sizes are in the board's own width (cqw), so the type grows with the board. */
+   Sizes are in the board's own width (cqw), so the type grows with the board. Away from him a board
+   hangs dim behind its glass; the one he stands at comes forward under a lamp and the station darkens. */
+.ride .sub-dim { transition: opacity 0.5s ease; }
+.ride #subway.has-lit .sub-dim { opacity: 0.78 !important; }
 .billboard {
-  container-type: inline-size; display: flex; background: #0B0E2E; overflow: hidden;
-  transform-origin: 50% 100%; filter: brightness(0.72) saturate(0.85);   /* it grows upward, clear of his head */
-  transition: transform 0.45s cubic-bezier(0.3, 1.1, 0.4, 1), filter 0.35s ease, box-shadow 0.35s ease;
+  container-type: inline-size; display: flex; background: #0C0A2A;
+  box-shadow: 0 0 0 1.5px rgba(217, 164, 65, 0.45), 0 0 0 5px #0C0A2A, 0 0 0 6px rgba(217, 164, 65, 0.25);
+  transform-origin: 50% 100%; filter: brightness(0.6) saturate(0.8);   /* it grows upward, clear of his head */
+  transition: transform 0.5s cubic-bezier(0.3, 1.15, 0.4, 1), translate 0.3s ease-out, filter 0.35s ease, box-shadow 0.35s ease;
 }
 .bb-pic { position: relative; flex: none; height: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #0B0714; }
-.bb-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.bb-pic .ad-bg { inset: -8%; image-rendering: auto; filter: brightness(0.5) saturate(1.2); }
+.bb-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .bb-info {
-  flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-start; gap: 1.4cqw;
-  padding: 3.2cqw 2.6cqw 2cqw; border-left: 0.8cqw solid var(--band);
+  position: relative; flex: 1; min-width: 0; overflow: hidden; display: flex; flex-direction: column; gap: 1.5cqw;
+  padding: 3cqw 2.6cqw 2.4cqw; border-left: 1.5px solid rgba(217, 164, 65, 0.7);
+  background: radial-gradient(ellipse 120% 70% at 50% 0, #241E66, #14103A 75%);
 }
-.bb-line { align-self: flex-start; font-family: var(--font-label); font-weight: 700; font-size: 2.1cqw; letter-spacing: 0.06em; text-transform: uppercase; color: var(--band); white-space: nowrap; }
-.bb-title { font-family: var(--font-display); font-size: 4.6cqw; line-height: 1.05; color: var(--paper); }
-.bb-blurb { font-size: 2.55cqw; line-height: 1.3; color: #C9BEE6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.bb-line { display: flex; align-items: center; gap: 1.1cqw; font-family: var(--font-label); font-weight: 700; font-size: 1.7cqw; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #FFC24A; white-space: nowrap; }
+.bb-line i { flex: none; width: 1.7cqw; height: 1.7cqw; border-radius: 50%; background: #D8261C; box-shadow: 0 0 0 0.35cqw #FFC24A; }
+.bb-title { font-family: var(--font-display); font-size: 4.9cqw; line-height: 0.98; color: #F6E9CF; text-wrap: balance; }
+.bb-blurb { font-size: 2.4cqw; line-height: 1.32; color: rgba(246, 233, 207, 0.74); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .bb-go {
-  align-self: flex-start; margin-top: 0.6cqw; padding: 1cqw 2cqw; border-radius: 999px;
-  font-family: var(--font-label); font-weight: 700; font-size: 2.1cqw; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
-  color: #140B2E; background: #FFC24A; opacity: 0; transform: translateY(1cqw); transition: opacity 0.3s ease, transform 0.3s ease;
+  align-self: flex-start; margin-top: auto; display: inline-flex; align-items: center; gap: 0.9cqw; padding: 1.25cqw 1.8cqw 1.35cqw;
+  font-family: var(--font-display); font-size: 2.5cqw; line-height: 1; white-space: nowrap;
+  color: #F6E9CF; background: #D8261C; box-shadow: 0 0 0 0.3cqw #FFC24A, 0.8cqw 0.8cqw 0 0.3cqw rgba(4, 2, 16, 0.6);
+  opacity: 0; transform: translateY(1.2cqw); transition: opacity 0.3s ease 0.1s, transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1) 0.1s;
 }
+.bb-go b { font-family: var(--font-label); font-weight: 700; transition: transform 0.25s ease; }
+/* the lamp over the board he is at: a cone of light from above, and its spill on the wall below */
+.billboard::before, .billboard::after { content: ""; position: absolute; pointer-events: none; opacity: 0; transition: opacity 0.45s ease; }
+.billboard::before { left: 8%; right: 8%; bottom: 100%; height: 34%; background: linear-gradient(rgba(255, 224, 160, 0), rgba(255, 224, 160, 0.16)); clip-path: polygon(36% 0, 64% 0, 100% 100%, 0 100%); }
+.billboard::after { left: -6%; right: -6%; top: 100%; height: 26%; background: radial-gradient(ellipse 50% 100% at 50% 0, rgba(255, 200, 110, 0.3), transparent 70%); }
 /* the board he is standing at (or the one under the pointer) lights up and comes forward */
 .billboard.lit, .billboard:hover, .billboard:focus-visible {
-  z-index: 2; transform: scale(1.28); filter: none;
-  box-shadow: 0 0 0 2px rgba(255, 194, 74, 0.9), 0 18px 60px rgba(5, 3, 12, 0.7), 0 0 70px rgba(255, 180, 70, 0.35);
+  z-index: 2; transform: translateY(-17%) scale(var(--k, 1.4)); translate: var(--sx, 0px) 0; filter: none;   /* lifted clear of his head; --k and --sx come from main.js */
+  box-shadow: 0 0 0 1.5px #FFC24A, 0 0 0 5px #14103A, 0 0 0 6px rgba(255, 194, 74, 0.7), 0 22px 60px rgba(4, 2, 16, 0.8), 0 0 110px rgba(255, 190, 90, 0.4);
 }
+@media (max-width: 700px) { .billboard.lit, .billboard:hover, .billboard:focus-visible { transform: translateY(-34%) scale(var(--k, 1)); } }   /* phones: it can only shrink to fit, so it lifts further */
+.billboard.lit::before, .billboard.lit::after, .billboard:hover::before, .billboard:hover::after { opacity: 1; }
 .billboard.lit .bb-go, .billboard:hover .bb-go, .billboard:focus-visible .bb-go { opacity: 1; transform: none; }
+.billboard.lit .bb-pic img, .billboard:hover .bb-pic img { transform: scale(1.04); }
+.billboard:hover .bb-go b { transform: translateX(0.6cqw); }
 .billboard:focus-visible { outline: 0; }
-@media (max-width: 700px) {   /* phones: a board is already as wide as the screen, so it lights up without growing */
-  .billboard.lit, .billboard:hover, .billboard:focus-visible { transform: none; }
-}
 
 /* ---------------- 4. cinema ---------------- */
 .ride #stairwell .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
