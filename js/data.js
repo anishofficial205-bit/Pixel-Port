@@ -619,9 +619,9 @@ window.SITE = {
     },
     {
       // from behance.net/gallery/248967119 (a team project). Its page is laid out in tools/build_flow.py; photos in assets/projects/bhayanaka
-      "id": "bhayanaka",
+      "id": "bali",
       "featured": false,
-      "title": "Bhayanaka",
+      "title": "Bali",
       "line": "Line 5",
       "blurb": "Production design for a short horror film",
       "shape": "wide",

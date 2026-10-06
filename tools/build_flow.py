@@ -100,7 +100,7 @@ for slug, pid in PAGES.items():
     flow[pid] = {"hero": round(hero["r"][2] / hero["r"][3], 3), "items": seq}
     print(pid, len(seq), " ".join(i["t"] + (str(len(i["imgs"])) if i["t"] == "row" else "") + ("*" if i.get("bleed") else "") + ("^" if i.get("tight") else "") for i in seq))
 
-# Bhayanaka is not on the Framer site. Its words and pictures come from the boards on its Behance page
+# Bali (the film made from the script Bhayanaka) is not on the Framer site. Its words and pictures come from the boards on its Behance page
 # (behance.net/gallery/248967119): the text is typed out here, and the photos are cut from the boards by
 # tools/build_bhayanaka.py, which also writes their shapes. The film opens the page (heroEmbed in js/data.js).
 SH = json.loads((ROOT / "tools/framer/bhayanaka-shapes.json").read_text())
@@ -136,7 +136,7 @@ for k, c in enumerate(_clips):
 embed = lambda src, w, h: {"t": "embed", "src": src, "ar": round(w / h, 3)}
 H = lambda tx: {"t": "h", "tx": tx, "big": False}
 P = lambda tx, narrow=True: {"t": "p", "tx": tx, "narrow": narrow}
-flow["bhayanaka"] = {"hero": 1.778, "items": [
+flow["bali"] = {"hero": 1.778, "items": [
     {"t": "lead"},
     {"t": "rule"},
     H("Moodboards"),
