@@ -200,6 +200,7 @@ body[data-project] .case > p.cap { margin-top: 12px; width: var(--col); margin-l
 body[data-project] .case > p.cap + .row { margin-top: clamp(20px, 2.4vw, 34px); }
 .features.plain b::before { content: none; } .features.plain b { padding-left: 0; display: inline; } .features.plain span { display: inline; } .features.plain li + li { margin-top: 0.7em; }
 .features.plain b:empty { display: none; }
+.features.plain b:not(:empty)::after { content: "\00a0"; }
 @media (max-width: 700px) { .swatches { grid-template-columns: repeat(3, 1fr); row-gap: 22px; } .tablewrap tr + tr th, .tablewrap .facts-table tr:first-child th { white-space: normal; } }
 
 /* pictures: across the screen, never taller than it, one hairline of space between neighbours */
