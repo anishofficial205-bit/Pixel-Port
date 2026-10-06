@@ -16,6 +16,7 @@ above "see also". Items:
   {t:"embed", src, ar, tight}  a film or a flip-book from another site, in a frame
   {t:"ticker", h, imgs:[{id, ar}]}    a strip of photos that slides sideways
   {t:"tiles", imgs:[id]}              a tilted wall of tiles that drifts
+Any item may carry chapter: "Name": a chapter of the page starts there (see CHAPTERS below).
 """
 import json
 from pathlib import Path
@@ -157,5 +158,25 @@ flow["bali"] = {"hero": 1.778, "items": [
     *photo_rows(BTS_MIX),
     embed("https://player.vimeo.com/video/1191321738?title=0&byline=0&portrait=0&badge=0&controls=1&color=ffffff", 16, 9),
 ]}
+
+# Chapters: the names in each page's small index (the list that stays at the left while the page scrolls).
+# Headings name themselves; where a page has few or none, a chapter starts at the item named here: "lead",
+# the start of an image's file name, or the start of a paragraph.
+CHAPTERS = {
+    "thrive": [("lead", "Overview"), ("ZXVw8Izx", "Values"), ("The logo process", "Logo"), ("The color palette", "Colour"), ("g8DTqGfD", "Sketches"), ("To explore how Thrive", "Products"), ("Ivsfxoqc", "In the world")],
+    "krumble": [("lead", "Overview"), ("KC3d3gJ7", "Existing packs"), ("oBjMqgJS", "Sketches"), ("ZjxXNCTb", "Palette"), ("a5bqlwAD", "Dieline"), ("Fcppa449", "Final box")],
+    "parde-ke-peeche": [("lead", "Overview"), ("JOKsFJWZ", "The magazine"), ("Most of the magazine", "Grid"), ("C6Hu12Ur", "Spreads")],
+    "haven": [("lead", "Overview")],
+    "bali": [("lead", "Overview")],
+}
+def starts(it, key):
+    if key == "lead": return it["t"] == "lead"
+    if it["t"] == "row": return any(c["id"].split("/")[-1].startswith(key) for c in it["imgs"])
+    return it["t"] == "p" and it["tx"].startswith(key)
+for pid, marks in CHAPTERS.items():
+    items = flow[pid]["items"]
+    for key, name in marks:
+        k = next(i for i, it in enumerate(items) if starts(it, key))
+        items[k]["chapter"] = name
 
 (ROOT / "js/flow.js").write_text("/* Each project page's flow, as laid out on anishah.framer.website. Built by tools/build_flow.py; see it for the item types. */\nwindow.FLOW = " + json.dumps(flow, ensure_ascii=False, separators=(",", ":")) + ";\n")

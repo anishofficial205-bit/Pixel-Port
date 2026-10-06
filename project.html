@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791269916" />
+  <link rel="stylesheet" href="project.css?v=1791270805" />
 </head>
 <body>
   <header class="bar">
@@ -18,16 +18,24 @@
     <div class="bar-links pill"><a id="back" href="index.html#subway">Back to the ride</a><a href="projects.html">All projects</a></div>
   </header>
 
-  <main>
-    <!-- the page follows the flow of anishah.framer.website: title, brief, main image, then js/flow.js -->
-    <header class="top">
-      <p class="kicker" id="p-line"></p>
-      <h1 id="p-title"></h1>
-      <p class="brief" id="p-intro"></p>
-    </header>
-    <hr class="rule" />
-    <figure class="shot hero-shot"><img id="p-hero" alt="" /></figure>
+  <!-- the opening: the main picture across the whole screen, the title on it, the facts in its corner -->
+  <header class="hero">
+    <img id="p-hero" alt="" />
+    <div class="hero-in">
+      <div class="hero-title">
+        <p class="kicker" id="p-line"></p>
+        <h1 id="p-title"></h1>
+        <p class="brief" id="p-intro"></p>
+      </div>
+      <dl class="facts" id="p-facts"></dl>
+    </div>
+  </header>
 
+  <!-- the chapters, at the left while the page scrolls (wide screens) -->
+  <nav class="index" aria-label="On this page"><ol id="index"></ol></nav>
+
+  <main>
+    <!-- what follows comes from js/flow.js, in the order of the project's own page -->
     <article class="case" id="p-case"></article>
 
     <p class="source"><a id="p-source" target="_blank" rel="noopener">View this project on my Framer site <span aria-hidden="true">↗</span></a></p>
@@ -40,8 +48,8 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791269916"></script>
-  <script src="js/flow.js?v=1791269916"></script>
+  <script src="js/data.js?v=1791270805"></script>
+  <script src="js/flow.js?v=1791270805"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -67,9 +75,9 @@
       $("#p-intro").textContent = p.intro;
       const hero = p.hero || p.cover;
       const frame = (src, title) => { const f = el("iframe"); f.src = src; f.title = title; f.loading = "lazy"; f.allow = "autoplay; fullscreen; picture-in-picture"; f.allowFullscreen = true; return f; };
-      if (p.heroEmbed) $("#p-hero").replaceWith(frame(p.heroEmbed, p.title + " film"));       // the film opens the page
-      else { $("#p-hero").src = SITE.img(hero); $("#p-hero").alt = p.title + ": " + p.blurb; }
-      $(".hero-shot").style.setProperty("--ar", F.hero);
+      $("#p-hero").src = SITE.img(hero); $("#p-hero").alt = p.title + ": " + p.blurb;
+      const labels = { year: "Year", timeframe: "Timeframe", tools: "Tools", collaboration: "Collaboration" };
+      Object.entries(labels).forEach(([k, label]) => { if (!p.meta[k]) return; const d = el("div"); d.append(el("dt", null, label), el("dd", null, p.meta[k])); $("#p-facts").append(d); });
       $("#p-source").href = p.source;
       if (p.sourceLabel) $("#p-source").firstChild.textContent = p.sourceLabel + " ";
 
@@ -82,8 +90,11 @@
         if (c.fit && c.fit !== "cover") img.style.objectFit = c.fit;
         f.append(img); return f;
       };
-      const labels = { year: "Year", timeframe: "Timeframe", tools: "Tools", category: "Category", collaboration: "Collaboration" };
-      F.items.forEach((b) => {
+      // chapters: a heading, or an item marked as a chapter's start, gets a place in the index
+      const chapters = [];
+      const chapter = (name, e) => { e.id = "c" + chapters.length; e.dataset.chapter = name; const li = el("li"), a = el("a", null, name); a.href = "#" + e.id; li.append(a); $("#index").append(li); chapters.push([e, a]); };
+      const items = p.heroEmbed ? [{ t: "embed", src: p.heroEmbed, ar: 1.778, chapter: "The film" }, ...F.items] : F.items;   // a film that opened the old page now follows the opening
+      items.forEach((b) => {
         let e;
         if (b.t === "h") e = el(b.big ? "h2" : "h3", b.big ? "sec" : "", b.tx);
         else if (b.t === "p") e = el("p", b.narrow ? "narrow" : "", b.tx);
@@ -91,14 +102,15 @@
         else if (b.t === "list") {
           e = el("ol", "features");
           b.items.forEach(([t, d]) => { const li = el("li"); li.append(el("b", null, t), el("span", null, d)); e.append(li); });
-        } else if (b.t === "lead") {                       // the big statement, with the facts beside it
-          e = el("section", "lead");
-          const dl = el("dl", "facts");
-          Object.entries(labels).forEach(([k, label]) => { if (!p.meta[k]) return; const d = el("div"); d.append(el("dt", null, label), el("dd", null, p.meta[k])); dl.append(d); });
-          e.append(el("p", "lead-text", p.lead), dl);
+        } else if (b.t === "lead") {                       // the big statement
+          // its first sentence is set large; the rest follows as an ordinary paragraph
+          const cut = p.lead.search(/[.!?]\s/), first = cut > 40 ? p.lead.slice(0, cut + 1) : p.lead, rest = cut > 40 ? p.lead.slice(cut + 2) : "";
+          e = el("p", "lead", first);
+          if (rest) { root.append(e); if (b.chapter) chapter(b.chapter, e); root.append(el("p", null, rest)); return; }
         } else if (b.t === "row") {
           e = el("div", "row" + (b.bleed ? " bleed" : "") + (b.tight ? " tight" : "") + (b.snug ? " snug" : "") + (b.photos ? " photos" : ""));
-          b.imgs.forEach((c) => e.append(shot(c, b.bleed || c.w > 60 ? 2048 : 1024)));
+          e.style.setProperty("--rh", Math.max(...b.imgs.map((c) => c.w / c.ar)).toFixed(2));   // its height, in % of its width
+          b.imgs.forEach((c) => e.append(shot(c, c.w > 40 ? 2048 : 1024)));
         } else if (b.t === "video") {
           e = el("figure", "shot"); e.style.setProperty("--ar", b.ar);
           const v = el("video"); v.src = b.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute("aria-label", p.title + " video");
@@ -119,8 +131,18 @@
           });
           e.append(wall);
         }
-        if (e) root.append(e);
+        if (!e) return;
+        root.append(e);
+        if (b.chapter) chapter(b.chapter, e); else if (b.t === "h") chapter(b.tx, e);
       });
+      // the index follows the scroll: the chapter in view is lit; it shows only between the opening and the end
+      const follow = () => {
+        const y = innerHeight * 0.4; let on = 0;
+        chapters.forEach(([e], k) => { if (e.getBoundingClientRect().top < y) on = k; });
+        chapters.forEach(([, a], k) => a.classList.toggle("here", k === on));
+        document.body.classList.toggle("reading", $(".hero").getBoundingClientRect().bottom < innerHeight * 0.5 && $(".source").getBoundingClientRect().top > innerHeight * 0.6);
+      };
+      if (chapters.length > 1) { addEventListener("scroll", follow, { passive: true }); addEventListener("resize", follow); follow(); } else $(".index").hidden = true;
 
       // see also: the other projects
       list.filter((q) => q.id !== p.id).forEach((q) => {
@@ -132,7 +154,7 @@
 
       // things come up as they scroll into view
       const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px" });
-      document.querySelectorAll(".case > *, .also li").forEach((e) => { e.classList.add("rise"); io.observe(e); });
+      document.querySelectorAll(".case > *:not(.row):not(.tiles):not(.ticker), .also li").forEach((e) => { e.classList.add("rise"); io.observe(e); });
 
       $("#back").href = "index.html#project-" + p.id;
     })();
