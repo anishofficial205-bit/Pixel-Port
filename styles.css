@@ -583,56 +583,53 @@ body::after {
   display: block; text-decoration: none; color: var(--paper);
 }
 .billboard[hidden] { display: none; }
+.bb-slot { display: none; }
+.ride .bb-slot { display: block; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); background: #090720; box-shadow: inset 0 0 0 1px rgba(246, 233, 207, 0.07); }
+.bb-slot[hidden] { display: none !important; }
 /* the station is shaded along the billboards (it eases in from the landing and out toward the stairs) */
 .sub-dim { display: none; }
 .ride .sub-dim {
   display: block; width: var(--w); height: var(--h); background: #05030C; pointer-events: none;
   -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 91%, transparent); mask-image: linear-gradient(to right, transparent, #000 12%, #000 91%, transparent);
 }
-/* each board is an ad: the picture on the left, the project's line, title and blurb beside it.
-   Sizes are in the board's own width (cqw), so the type grows with the board. Away from him a board
-   hangs dim behind its glass; the one he stands at comes forward under a lamp and the station darkens. */
+/* each board is an ad: the picture on the left, the project's category, title and blurb beside it.
+   Sizes are in the board's own width (cqw), so the type grows with the board. Kept plain on purpose:
+   one hairline edge, flat navy, quiet type. Away from him a board hangs dim; the one he stands at
+   comes forward and the station darkens around it. */
 .ride .sub-dim { transition: opacity 0.5s ease; }
 .ride #subway.has-lit .sub-dim { opacity: 0.78 !important; }
 .billboard {
-  container-type: inline-size; display: flex; background: #0C0A2A;
-  box-shadow: 0 0 0 1.5px rgba(217, 164, 65, 0.45), 0 0 0 5px #0C0A2A, 0 0 0 6px rgba(217, 164, 65, 0.25);
-  transform-origin: 50% 100%; filter: brightness(0.6) saturate(0.8);   /* it grows upward, clear of his head */
-  transition: transform 0.5s cubic-bezier(0.3, 1.15, 0.4, 1), translate 0.3s ease-out, filter 0.35s ease, box-shadow 0.35s ease;
+  container-type: inline-size; display: flex; overflow: hidden; background: #0E0C2A;
+  box-shadow: 0 0 0 1px rgba(246, 233, 207, 0.16);
+  transform-origin: 50% 100%; filter: brightness(0.58) saturate(0.8);   /* it grows upward, clear of his head */
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.35, 1), translate 0.45s cubic-bezier(0.25, 1, 0.35, 1), filter 0.35s ease, box-shadow 0.35s ease;
 }
 .bb-pic { position: relative; flex: none; height: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #0B0714; }
 .bb-pic .ad-bg { inset: -8%; image-rendering: auto; filter: brightness(0.5) saturate(1.2); }
 .bb-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.bb-info {
-  position: relative; flex: 1; min-width: 0; overflow: hidden; display: flex; flex-direction: column; gap: 1.5cqw;
-  padding: 3cqw 2.6cqw 2.4cqw; border-left: 1.5px solid rgba(217, 164, 65, 0.7);
-  background: radial-gradient(ellipse 120% 70% at 50% 0, #241E66, #14103A 75%);
-}
-.bb-line { display: flex; align-items: center; gap: 1.1cqw; font-family: var(--font-label); font-weight: 700; font-size: 1.7cqw; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; color: #FFC24A; white-space: nowrap; }
-.bb-line i { flex: none; width: 1.7cqw; height: 1.7cqw; border-radius: 50%; background: #D8261C; box-shadow: 0 0 0 0.35cqw #FFC24A; }
-.bb-title { font-family: var(--font-display); font-size: 4.9cqw; line-height: 0.98; color: #F6E9CF; text-wrap: balance; }
-.bb-blurb { font-size: 2.4cqw; line-height: 1.32; color: rgba(246, 233, 207, 0.74); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.bb-info { flex: 1; min-width: 0; overflow: hidden; display: flex; flex-direction: column; padding: 3.4cqw 3cqw 3cqw; }
+.bb-line { font-family: var(--font-label); font-weight: 700; font-size: 1.5cqw; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(246, 233, 207, 0.55); white-space: nowrap; }
+.bb-title { margin-top: 1.7cqw; font-family: var(--font-display); font-size: 4.6cqw; line-height: 1; color: #F6E9CF; text-wrap: balance; }
+.bb-blurb { margin-top: 1.5cqw; font-size: 2.15cqw; line-height: 1.4; color: rgba(246, 233, 207, 0.62); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* the way in: a line of text over a hairline, nothing boxed */
 .bb-go {
-  align-self: flex-start; margin-top: auto; display: inline-flex; align-items: center; gap: 0.9cqw; padding: 1.25cqw 1.8cqw 1.35cqw;
-  font-family: var(--font-display); font-size: 2.5cqw; line-height: 1; white-space: nowrap;
-  color: #F6E9CF; background: #D8261C; box-shadow: 0 0 0 0.3cqw #FFC24A, 0.8cqw 0.8cqw 0 0.3cqw rgba(4, 2, 16, 0.6);
-  opacity: 0; transform: translateY(1.2cqw); transition: opacity 0.3s ease 0.1s, transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1) 0.1s;
+  margin-top: auto; padding-top: 1.7cqw; border-top: 1px solid rgba(246, 233, 207, 0.16);
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--font-label); font-weight: 700; font-size: 1.6cqw; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap;
+  color: #FFC24A; opacity: 0; transition: opacity 0.35s ease 0.1s;
 }
-.bb-go b { font-family: var(--font-label); font-weight: 700; transition: transform 0.25s ease; }
-/* the lamp over the board he is at: a cone of light from above, and its spill on the wall below */
-.billboard::before, .billboard::after { content: ""; position: absolute; pointer-events: none; opacity: 0; transition: opacity 0.45s ease; }
-.billboard::before { left: 8%; right: 8%; bottom: 100%; height: 34%; background: linear-gradient(rgba(255, 224, 160, 0), rgba(255, 224, 160, 0.16)); clip-path: polygon(36% 0, 64% 0, 100% 100%, 0 100%); }
-.billboard::after { left: -6%; right: -6%; top: 100%; height: 26%; background: radial-gradient(ellipse 50% 100% at 50% 0, rgba(255, 200, 110, 0.3), transparent 70%); }
-/* the board he is standing at (or the one under the pointer) lights up and comes forward */
+.bb-go b { font-size: 2.2cqw; font-weight: 500; letter-spacing: 0; transition: transform 0.25s ease; }
+/* the board he is standing at (or the one under the pointer) lights up and comes forward; --k comes from main.js */
 .billboard.lit, .billboard:hover, .billboard:focus-visible {
-  z-index: 2; transform: translateY(-17%) scale(var(--k, 1.4)); translate: var(--sx, 0px) 0; filter: none;   /* lifted clear of his head; --k and --sx come from main.js */
-  box-shadow: 0 0 0 1.5px #FFC24A, 0 0 0 5px #14103A, 0 0 0 6px rgba(255, 194, 74, 0.7), 0 22px 60px rgba(4, 2, 16, 0.8), 0 0 110px rgba(255, 190, 90, 0.4);
+  z-index: 2; transform: translateY(-17%) scale(var(--k, 1.4)); filter: none;   /* lifted clear of his head */
+  box-shadow: 0 0 0 1px rgba(255, 194, 74, 0.75), 0 24px 70px rgba(4, 2, 16, 0.85);
 }
 @media (max-width: 700px) { .billboard.lit, .billboard:hover, .billboard:focus-visible { transform: translateY(-34%) scale(var(--k, 1)); } }   /* phones: it can only shrink to fit, so it lifts further */
-.billboard.lit::before, .billboard.lit::after, .billboard:hover::before, .billboard:hover::after { opacity: 1; }
-.billboard.lit .bb-go, .billboard:hover .bb-go, .billboard:focus-visible .bb-go { opacity: 1; transform: none; }
-.billboard.lit .bb-pic img, .billboard:hover .bb-pic img { transform: scale(1.04); }
-.billboard:hover .bb-go b { transform: translateX(0.6cqw); }
+/* while lit it is held mid-screen by main.js (--sx), frame by frame, so no easing of its own; it eases back to the wall after */
+.billboard.lit { translate: var(--sx, 0px) 0; transition: transform 0.5s cubic-bezier(0.25, 1, 0.35, 1), translate 0s, filter 0.35s ease, box-shadow 0.35s ease; }
+.billboard.lit .bb-go, .billboard:hover .bb-go, .billboard:focus-visible .bb-go { opacity: 1; }
+.billboard:hover .bb-pic img { transform: scale(1.03); }
+.billboard:hover .bb-go b { transform: translateX(0.5cqw); }
 .billboard:focus-visible { outline: 0; }
 
 /* ---------------- 4. cinema ---------------- */

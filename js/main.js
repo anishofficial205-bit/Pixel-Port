@@ -87,7 +87,7 @@
       <a class="billboard" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="--band:${p.band}">
         <span class="bb-pic"><span class="ad-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1024)}" alt="" decoding="async" /></span>
         <span class="bb-info">
-          <span class="bb-line"><i></i>${p.meta.category || p.line}</span>
+          <span class="bb-line">${p.meta.category || p.line}</span>
           <span class="bb-title">${p.title}</span>
           <span class="bb-blurb">${p.blurb}</span>
           <span class="bb-go">View project <b aria-hidden="true">→</b></span>
@@ -174,7 +174,7 @@
     // blank billboards on the tiled wall: x, y, w, h
     boards: [[1935, 346, 473, 190], [2609, 346, 506, 190], [3607, 346, 473, 190], [4281, 346, 506, 190]],
     dim: [1500, 5016], dimBy: 0.5,   // the shaded stretch (x from, to) and how dark
-    reach: 430,                      // a board lights up when he is within this of its centre
+    reach: 345,                      // a board lights up when he is within this of its centre
   };
 
   // assets/scenes/cinema-front.webp (1672 x 941): the auditorium's front view
@@ -810,6 +810,11 @@
       const b = boards[i];
       el.hidden = !b;
       if (b) setBox(el, b.x, b.y, b.iw, b.ih);
+      // a dark pane stays on the wall behind it, so the painted blank board never shows when the card comes forward
+      let slot = el.previousElementSibling;
+      if (!slot || !slot.classList.contains("bb-slot")) { slot = document.createElement("span"); slot.className = "bb-slot"; slot.setAttribute("aria-hidden", "true"); el.before(slot); }
+      slot.hidden = !b;
+      if (b) setBox(slot, b.x, b.y, b.iw, b.ih);
     });
     // reel posters on the lobby's blank boards
     $$("#stairwell [data-quad]").forEach((el) => {
@@ -1051,7 +1056,7 @@
   let lastCut = -1;
   const aboutPin = $(".about-pin"), aboutFace = $(".about-portrait");
   const cutEl = $(".cut"), backRails = $(".back-rails"), stairRails = $(".stair-rails");
-  let boardShift = null, litBoard = -1, boardEls = [], litPhoto = -1, photoEls = [], finOn = false, logoAt = -1, dimEls = null, lastSl = "";
+  let litSince = 0, litBoard = -1, boardEls = [], litPhoto = -1, photoEls = [], finOn = false, logoAt = -1, dimEls = null, lastSl = "";
   const roofEl = $("#rooftop");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
@@ -1162,13 +1167,15 @@
       const ax = (p.x - L.subway.x) / L.subway.s;
       SUBWAY.boards.forEach(([bx, , bw], i) => { const d = Math.abs(ax - (bx + bw / 2)); if (d < SUBWAY.reach && (lit < 0 || d < Math.abs(ax - (SUBWAY.boards[lit][0] + SUBWAY.boards[lit][2] / 2)))) lit = i; });
     }
-    // the lit board slides sideways as far as it must to stay whole on screen
+    // the lit board holds still in the middle of the screen while he walks on beneath it: it eases there from its
+    // place on the wall once, then stays exactly put (the wall slides by behind it)
+    if (lit !== litBoard) litSince = now;
     if (lit >= 0 && boardEls[lit]) {
-      const [bx, , bw] = SUBWAY.boards[lit], half = bw * L.subway.s * L.boardK[lit] / 2 + 34, at = L.subway.x + (bx + bw / 2) * L.subway.s - cam.x;
-      const sx = Math.round(half * 2 >= L.vw ? L.vw / 2 - at : Math.min(L.vw - half, Math.max(half, at)) - at);
-      if (sx !== boardShift) { boardShift = sx; boardEls[lit].style.setProperty("--sx", sx + "px"); }
+      const [bx, , bw] = SUBWAY.boards[lit], at = L.subway.x + (bx + bw / 2) * L.subway.s - cam.x;
+      const u = Math.min(1, (now - litSince) / 420), e = 1 - Math.pow(1 - u, 3);
+      boardEls[lit].style.setProperty("--sx", ((L.vw / 2 - at) * e).toFixed(1) + "px");
     }
-    if (lit !== litBoard) { boardShift = null; litBoard = lit; boardEls.forEach((el, i) => el.classList.toggle("lit", i === lit)); $("#subway").classList.toggle("has-lit", lit >= 0); }   // ...and the station falls darker around it
+    if (lit !== litBoard) { litBoard = lit; boardEls.forEach((el, i) => el.classList.toggle("lit", i === lit)); $("#subway").classList.toggle("has-lit", lit >= 0); }   // ...and the station falls darker around it
     // ...and in the gallery, the photo he is standing at gets the brightest picture light
     let litP = -1;
     if (loc === "exhibition" && !cutSide) {
