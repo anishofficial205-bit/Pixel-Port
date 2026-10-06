@@ -122,6 +122,17 @@ def photo_rows(names, gap=1.0, fill=4.3):
         out.append({"t": "row", "bleed": False, "tight": False, "snug": k > 0, "photos": len(r) > 3,
                     "imgs": [{"id": PIC + x + ".webp", "l": gap if i else 0, "w": round(free * SH[x] / total, 2), "ar": SH[x], "fit": "cover"} for i, x in enumerate(r)]})
     return out
+# the BTS wall: photos and clips shuffled together (always the same shuffle), the clips spread through it so
+# that no two sit side by side
+import random
+_rng = random.Random(7)
+_photos, _clips = [f"bts-{i:02d}" for i in range(1, 24)], [f"clip-{i}" for i in range(1, 8)]
+_rng.shuffle(_photos); _rng.shuffle(_clips)
+BTS_MIX, _step = [], len(_photos) / len(_clips)
+for k, c in enumerate(_clips):
+    chunk = _photos[round(k * _step):round((k + 1) * _step)]
+    at = 1 + _rng.randrange(max(1, len(chunk) - 1))                 # somewhere inside its share of the photos, never first
+    BTS_MIX += chunk[:at] + [c] + chunk[at:]
 embed = lambda src, w, h: {"t": "embed", "src": src, "ar": round(w / h, 3)}
 H = lambda tx: {"t": "h", "tx": tx, "big": False}
 P = lambda tx, narrow=True: {"t": "p", "tx": tx, "narrow": narrow}
@@ -143,8 +154,7 @@ flow["bhayanaka"] = {"hero": 1.778, "items": [
     H("Set Construction & BTS"),
     P("Us trying to structure the chaos that we are :)", narrow=False),
     *photo_rows(["team"], fill=1.0),
-    *photo_rows([f"bts-{i:02d}" for i in range(1, 24)]),
-    *[dict(r, snug=True) for r in photo_rows([f"clip-{i}" for i in (4, 1, 3, 7, 6, 2, 5)], fill=5.2)],
+    *photo_rows(BTS_MIX),
     embed("https://player.vimeo.com/video/1191321738?title=0&byline=0&portrait=0&badge=0&controls=1&color=ffffff", 16, 9),
 ]}
 
