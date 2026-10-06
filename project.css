@@ -15,7 +15,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { background: var(--ink); scroll-behavior: smooth; }
 body {
-  margin: 0; min-height: 100vh; color: var(--cream); font: 500 17px/1.65 var(--text); -webkit-font-smoothing: antialiased;
+  margin: 0; min-height: 100vh; color: var(--cream); font: 500 17px/1.65 var(--text); letter-spacing: -0.5px; -webkit-font-smoothing: antialiased;
   /* a night sky that warms toward the lamps at the top */
   background:
     radial-gradient(ellipse 70% 520px at 50% -80px, var(--glow-a, rgba(255, 170, 70, 0.2)), transparent 70%),
@@ -79,8 +79,8 @@ h1 { margin-top: 18px; font: 400 clamp(54px, 9vw, 124px)/0.95 var(--display); le
 
 .case { display: flex; flex-direction: column; }
 .case > * { margin-top: clamp(22px, 2.7vw, 38px); }
-.case > h3 { margin-top: clamp(30px, 3.2vw, 46px); font: 400 clamp(24px, 2.3vw, 32px)/1.2 var(--display); color: var(--cream); }
-.case > h2.sec { margin-top: clamp(26px, 3vw, 40px); font: 400 clamp(30px, 2.9vw, 41px)/1.15 var(--display); color: var(--amber); }
+.case > h3 { margin-top: clamp(30px, 3.2vw, 46px); font: 400 clamp(24px, 2.3vw, 32px)/1.2 var(--display); color: var(--cream); letter-spacing: 0; }
+.case > h2.sec { margin-top: clamp(26px, 3vw, 40px); font: 400 clamp(30px, 2.9vw, 41px)/1.15 var(--display); color: var(--amber); letter-spacing: 0; }
 .case > h2.sec + h3 { margin-top: 10px; }
 .case > p, .features { font-size: clamp(16px, 1.4vw, 20px); line-height: 1.75; color: var(--soft); }
 .case > h3 + p, .case > h3 + .features { margin-top: 10px; }
@@ -173,7 +173,7 @@ body[data-project] main { width: 100%; --col: min(1272px, 100vw - 2 * var(--gutt
 /* words: one column, set in */
 body[data-project] .case { align-items: flex-start; padding-top: clamp(40px, 6vw, 90px); }
 body[data-project] .case > h3, body[data-project] .case > h2.sec, body[data-project] .case > p, body[data-project] .case > .features { width: var(--tw); margin-left: var(--tx); align-self: flex-start; }
-body[data-project] .case > p.lead { width: min(62vw, 100vw - 2 * var(--gutter), 1000px); margin-top: 0; font: 400 clamp(26px, 3.1vw, 50px)/1.18 var(--display); color: var(--cream); text-wrap: balance; }
+body[data-project] .case > p.lead { width: min(62vw, 100vw - 2 * var(--gutter), 1000px); margin-top: 0; font: 400 clamp(26px, 3.1vw, 50px)/1.18 var(--display); color: var(--cream); text-wrap: balance; letter-spacing: 0; }
 @media (max-width: 1099px) { body[data-project] .case > p.lead { width: calc(100vw - 2 * var(--gutter)); } }
 body[data-project] .case > p.lead + p { margin-top: clamp(20px, 2.4vw, 34px); }
 body[data-project] .case > .rule { width: var(--col); align-self: center; margin-bottom: 0; }
@@ -293,7 +293,7 @@ body[data-project="bali"] .case > h3::after { content: ""; display: block; width
 .card a:hover .board img { transform: scale(1.04); }
 .card-meta { display: flex; align-items: center; gap: 10px; margin-top: 26px; font-weight: 700; font-size: 11px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); }
 .card-meta i { width: 11px; height: 11px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 2px var(--amber); }
-.card-title { margin-top: 12px; font: 400 clamp(30px, 3.6vw, 46px)/0.95 var(--display); transition: color 0.2s ease; }
+.card-title { margin-top: 12px; font: 400 clamp(30px, 3.6vw, 46px)/0.95 var(--display); transition: color 0.2s ease; letter-spacing: 0; }
 .card a:hover .card-title { color: var(--amber); }
 .card-blurb { margin-top: 10px; color: var(--soft); }
 
