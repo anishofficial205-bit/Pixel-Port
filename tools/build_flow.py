@@ -105,6 +105,9 @@ for slug, pid in PAGES.items():
 # tools/build_bhayanaka.py, which also writes their shapes. The film opens the page (heroEmbed in js/data.js).
 SH = json.loads((ROOT / "tools/framer/bhayanaka-shapes.json").read_text())
 PIC = "assets/projects/bhayanaka/"
+# ...plus what the user sent on 2026-10-06: a photo of the team on the set (team.webp) and seven short clips of
+# the build, turned into silent looping pictures (clip-1..7.webp, animated WebP, 640 px wide, 15 frames a second)
+SH.update({"team": 1.333, **{f"clip-{i}": 1.778 for i in range(1, 8)}})
 def photo_rows(names, gap=1.0, fill=4.3):
     """rows of photos of equal height that fill the column, a small gap between them"""
     rows, row = [], []
@@ -139,7 +142,9 @@ flow["bhayanaka"] = {"hero": 1.778, "items": [
     {"t": "rule"},
     H("Set Construction & BTS"),
     P("Us trying to structure the chaos that we are :)", narrow=False),
+    *photo_rows(["team"], fill=1.0),
     *photo_rows([f"bts-{i:02d}" for i in range(1, 24)]),
+    *[dict(r, snug=True) for r in photo_rows([f"clip-{i}" for i in (4, 1, 3, 7, 6, 2, 5)], fill=5.2)],
     embed("https://player.vimeo.com/video/1191321738?title=0&byline=0&portrait=0&badge=0&controls=1&color=ffffff", 16, 9),
 ]}
 
