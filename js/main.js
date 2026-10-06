@@ -428,8 +428,19 @@
         <div class="z-bits" aria-hidden="true">${bit("star", 6, 16, 42)}${bit("spark", 44, 12, 20)}${bit("spark", 93, 44, 26)}${bit("star", 52, 70, 28)}${bit("spark", 3, 62, 18)}${bit("heart", 88, 14, 34)}</div>
         <div class="plain-wrap z-hero-grid">
           <div class="z-hero-text">
-            <p class="z-tag pxb">${S.role}</p>
-            <h1 class="z-title"><span>${first}</span><span>Shah</span><i class="z-bub pxb z-bub-a" aria-hidden="true">Hello!</i><i class="z-bub pxb z-bub-b hi" aria-hidden="true">नमस्ते</i></h1>
+            <h1 class="sr-only">${first} Shah, design portfolio</h1>
+            <!-- the ride's title card, whole: the neon logo on its dark screen, with its stickers and sparkles around it -->
+            <div class="zl" aria-hidden="true">
+              <span class="zl-screen"></span>
+              <span class="zl-logo"><img src="assets/brand/logo-source.png" alt="" /><span class="crt"><i></i></span></span>
+              <span class="zl-t zl-port"><b class="ht-in ht-port">Portfolio <small>'26</small></b></span>
+              <span class="zl-t zl-badge"><b class="ht-in ht-badge">
+                <svg viewBox="0 0 120 120"><defs><path id="zl-ring" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0" /></defs>
+                  <circle cx="60" cy="60" r="58" /><text textLength="266" lengthAdjust="spacing"><textPath href="#zl-ring" textLength="266" lengthAdjust="spacing">DESIGN PORTFOLIO &#9733; ANISH SHAH &#9733; 2026 &#9733;</textPath></text></svg>
+                <i class="hi">नमस्ते</i></b></span>
+              <span class="zl-t zl-hey"><b class="ht-in ht-hey"><i></i>Looking for a grad project</b></span>
+              <span class="zl-t zl-s1"><b class="ht-in ht-star"></b></span><span class="zl-t zl-s2"><b class="ht-in ht-star s2"></b></span><span class="zl-t zl-s3"><b class="ht-in ht-star s3"></b></span>
+            </div>
             <p class="z-intro">I design things for <mark>screens</mark> and <mark>streets</mark>: brands, packaging, interfaces and print.</p>
             <div class="z-cta">
               <button class="pxbtn z-start take-ride" type="button"><b>&#9654;</b> Press start<small>take the ride</small></button>

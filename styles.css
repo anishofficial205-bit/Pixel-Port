@@ -1052,6 +1052,17 @@ body::after {
 .z-bub::after { content: ""; position: absolute; left: 18px; top: 100%; width: 8px; height: 8px; margin-top: 4px; background: var(--cream); box-shadow: -4px 0 0 var(--ink), 4px 0 0 var(--ink), 0 4px 0 var(--ink), 0 8px 0 0 var(--ink), 4px 8px 0 0 var(--ink); }
 .z-bub-a { right: -26px; top: -30px; rotate: 6deg; }
 .z-bub-b { left: 86%; top: 58%; rotate: -5deg; animation-delay: 0.6s; font-family: var(--font-hindi); }
+/* the ride's title card in the Simple view: the logo glows on a dark screen (it would be lost on the red), stickers over its edges */
+.zl { position: relative; width: min(100%, 560px); aspect-ratio: 1.36; margin: 6px 0 8px; }
+.zl-screen { position: absolute; inset: 9% 3% 10% 2%; background: #0C0A2A radial-gradient(ellipse 70% 70% at 50% 50%, #241B5E, #0C0A2A 75%); box-shadow: 0 0 0 4px var(--ink), 10px 10px 0 4px var(--ink); }
+.zl-logo { position: absolute; left: 50%; top: 50%; width: 66%; aspect-ratio: 623 / 435; translate: -50% -50%; animation: crt-flick 6s steps(1) infinite; }
+.zl-logo img { display: block; width: 100%; height: 100%; filter: drop-shadow(1.4px 0 0 rgba(61, 242, 255, 0.6)) drop-shadow(-1.4px 0 0 rgba(255, 60, 110, 0.55)) drop-shadow(0 0 7px rgba(245, 55, 50, 0.85)) drop-shadow(0 0 26px rgba(237, 40, 40, 0.6)); }
+.zl-logo .crt { --sl: 4.2px; }
+.zl-t { position: absolute; rotate: var(--r, 0deg); }
+.zl-port { left: -3%; top: 2%; --r: -9deg; }
+.zl-badge { right: -5%; top: -6%; }
+.zl-hey { right: -2%; bottom: 1%; --r: -4deg; }
+.zl-s1 { left: 7%; bottom: 17%; } .zl-s2 { right: 9%; top: 46%; } .zl-s3 { left: 54%; top: 13%; }
 .z-intro { margin: 30px 0 22px; max-width: 30ch; font-size: clamp(17px, 1.5vw, 20px); line-height: 1.6; font-weight: 500; }
 .z-cta { display: flex; align-items: center; gap: 10px 8px; }
 .z-start { font-size: 21px; padding: 14px 18px; white-space: nowrap; }
@@ -1175,7 +1186,8 @@ body::after {
   .z-title { font-size: 25vw; text-shadow: 3px 3px 0 var(--blue), 6px 6px 0 var(--blue), 9px 9px 0 var(--ink); }
   .z-bub-a { right: -4px; top: -22px; } .z-bub-b { left: 52%; top: 98%; }
   .z-cta { flex-wrap: wrap; }
-  .z-intro { margin-top: 44px; }
+  .z-intro { margin-top: 26px; }
+  .zl-badge { right: -2%; } .zl-hey { right: 0; }
   .z-start { font-size: 21px; }
   .z-hero-art { margin: 0 6px 0 46px; }
   .z-guide { left: -30%; height: 92%; bottom: -24%; }
