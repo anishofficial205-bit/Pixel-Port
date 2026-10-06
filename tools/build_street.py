@@ -94,6 +94,7 @@ posts[357 - TY0 + 1:374 - TY0 + 1, bx - 5:bx + 4] = [14, 10, 24, 255]
 Image.fromarray(posts.astype(np.uint8)).save(ROOT / "assets/street/posts.png", optimize=True)
 print("train", train.shape[1], "x", train.shape[0], "| track x", TX0, "y", TY0, "| posts box", [PX0, TY0 - 1, PX1 - PX0, posts.shape[0]])
 
+CHAI_BULBS, BULB_CORE, BULB_HALO = [(1458, 580), (1512, 570), (1549, 557)], 9, 24
 # the lights that stay on when the opening screen dims the street (assets/street/lights.png): whole lit
 # windows, the overpass lamps, the chai stall's bulbs, the stars and the moon. Nothing partial: a window
 # counts only if it is a clean rectangle, and the lamp cones, the trees and the shop fronts are left out.
@@ -111,7 +112,6 @@ for i, sl in enumerate(nd.find_objects(lab)):
         keep[y0:y1, x0:x1] = True                                   # the whole pane, frame bars and all
 round_lights = np.zeros_like(keep)
 round_lights[296:332, 640:1180] = True                              # the overpass lamps
-round_lights[556:622, 1430:1575] = True                             # the chai stall's bulbs
 sky = np.zeros_like(keep)
 sky[:335, 500:1310] = True                                          # the open sky between the rooftops
 sky[60:128, 1318:1384] = True                                       # ...and the star above the right-hand hoarding
@@ -121,6 +121,12 @@ lab, n = nd.label(glow & (sky | round_lights))
 size = nd.sum(glow & (sky | round_lights), lab, range(1, n + 1))
 keep |= nd.binary_dilation(np.isin(lab, [i + 1 for i in range(n) if size[i] >= 12]), iterations=2)
 al = nd.gaussian_filter(keep.astype(float), 0.8)
+# the chai stall's three bulbs are cut by hand as soft discs (a colour pick there also caught half the steam,
+# the cups and strips of the awning): fully lit to the glass, fading out through the halo
+yy, xx = np.mgrid[:o.shape[0], :o.shape[1]]
+for cx, cy in CHAI_BULBS:
+    d = np.hypot(xx - cx, yy - cy)
+    al = np.maximum(al, np.clip((BULB_HALO - d) / (BULB_HALO - BULB_CORE), 0, 1) ** 1.5)
 Image.fromarray(np.dstack([o, np.clip(al * 255, 0, 255)]).astype(np.uint8)).save(ROOT / "assets/street/lights.png", optimize=True)
 Image.open(ROOT / "assets/street/lights.png").save(ROOT / "assets/street/lights.webp", quality=88, method=6)   # what 1x screens load
 
