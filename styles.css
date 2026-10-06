@@ -347,7 +347,8 @@ body::after {
 .ride #street .bg-img { -webkit-mask-image: linear-gradient(#000 calc(100% - var(--fade, 0px)), transparent); mask-image: linear-gradient(#000 calc(100% - var(--fade, 0px)), transparent); }
 .ride #street { z-index: 2; }
 .ride #drain { z-index: 1; }
-.ride #subway { z-index: 0; } /* the drain's grate covers the subway ceiling */
+.ride #subway { z-index: 0; overflow: visible; overflow-x: visible; overflow-y: clip; } /* the drain's grate covers the subway ceiling; sideways it is open, so the last card can reach over the stairs */
+.ride #stairwell { z-index: -1; } /* ...and the last project card, held mid-screen, may reach over the stairs */
 
 /* billboards in the art: content is laid out in art px, then projected onto the board */
 .ride .bb-map { left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
