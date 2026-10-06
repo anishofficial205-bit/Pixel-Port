@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791277739" />
+  <link rel="stylesheet" href="project.css?v=1791279366" />
 </head>
 <body>
   <header class="bar">
@@ -48,8 +48,8 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791277739"></script>
-  <script src="js/flow.js?v=1791277739"></script>
+  <script src="js/data.js?v=1791279366"></script>
+  <script src="js/flow.js?v=1791279366"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -99,18 +99,28 @@
         if (b.t === "h") e = el(b.big ? "h2" : "h3", b.big ? "sec" : "", b.tx);
         else if (b.t === "p") e = el("p", b.narrow ? "narrow" : "", b.tx);
         else if (b.t === "rule") e = el("hr", "rule");
-        else if (b.t === "list") {
-          e = el("ol", "features");
+        else if (b.t === "quote") e = el("blockquote", "pull", b.tx);
+        else if (b.t === "table") {
+          e = el("div", "tablewrap"); const t = el("table"); e.append(t);
+          if (b.head) { const tr = el("tr"); b.head.forEach((c) => tr.append(el("th", null, c))); t.append(tr); }
+          b.rows.forEach((r) => { const tr = el("tr"); r.forEach((c, k) => tr.append(el(k ? "td" : "th", null, c))); t.append(tr); });
+          if (!b.head) t.classList.add("facts-table");
+        } else if (b.t === "swatches") {
+          e = el("ul", "swatches");
+          b.inks.forEach(([name, hex, use]) => { const li = el("li"); const chip = el("i"); chip.style.background = hex; li.append(chip, el("b", null, name), el("code", null, hex), el("span", null, use)); e.append(li); });
+        } else if (b.t === "list") {
+          e = el("ol", "features" + (b.plain ? " plain" : ""));
           b.items.forEach(([t, d]) => { const li = el("li"); li.append(el("b", null, t), el("span", null, d)); e.append(li); });
         } else if (b.t === "lead") {                       // the big statement
           // its first sentence is set large; the rest follows as an ordinary paragraph
-          const cut = p.lead.search(/[.!?]\s/), first = cut > 40 ? p.lead.slice(0, cut + 1) : p.lead, rest = cut > 40 ? p.lead.slice(cut + 2) : "";
+          const cut = p.lead.search(/[.!?]\s/), first = cut > 20 ? p.lead.slice(0, cut + 1) : p.lead, rest = cut > 20 ? p.lead.slice(cut + 2) : "";
           e = el("p", "lead", first);
           if (rest) { root.append(e); if (b.chapter) chapter(b.chapter, e); root.append(el("p", null, rest)); return; }
         } else if (b.t === "row") {
           e = el("div", "row" + (b.bleed ? " bleed" : "") + (b.tight ? " tight" : "") + (b.snug ? " snug" : "") + (b.photos ? " photos" : ""));
           e.style.setProperty("--rh", Math.max(...b.imgs.map((c) => c.w / c.ar)).toFixed(2));   // its height, in % of its width
           b.imgs.forEach((c) => e.append(shot(c, c.w > 40 ? 2048 : 1024)));
+          if (b.cap) { root.append(e); if (b.chapter) chapter(b.chapter, e); root.append(el("p", "cap", b.cap)); return; }
         } else if (b.t === "video") {
           e = el("figure", "shot"); e.style.setProperty("--ar", b.ar);
           const v = el("video"); v.src = b.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute("aria-label", p.title + " video");
@@ -136,7 +146,7 @@
         if (b.chapter) chapter(b.chapter, e); else if (b.t === "h") chapter(b.tx, e);
       });
       // the index follows the scroll: the chapter in view is lit; it shows only between the opening and the end
-      const pictures = [...document.querySelectorAll(".case > .row, .case > .shot, .case > .ticker, .case > .tiles")];
+      const pictures = [...document.querySelectorAll(".case > .row, .case > .shot, .case > .ticker, .case > .tiles, .case > .swatches")];
       const follow = () => {
         const y = innerHeight * 0.4; let on = 0;
         chapters.forEach(([e], k) => { if (e.getBoundingClientRect().top < y) on = k; });

@@ -634,6 +634,23 @@ window.SITE = {
       "lead": "For our production design project, we were given a script titled Bhayānaka, a word rooted in the Sanskrit rasa of fear. The assignment called for designing and dressing an environment to evoke dread and unease, using props, textures, lighting, and surface treatments to suggest a history of violence and ritual. The real challenge lay in transforming a familiar, everyday space into something ancient, abandoned, and deeply unsettling, where every detail left behind tells a story without a single word of dialogue. What we built was a room that felt occupied by something that had already happened.",
       "meta": {"year": "March 2026", "tools": "Premiere Pro, After Effects, DaVinci Resolve, Acrylic Paint", "category": "Production Design", "collaboration": "Classroom Project"},
       "blocks": []
+    },
+    {
+      // how this site was made. Written in tools/making.py (from the user's own write-up), pictures by tools/build_making.py
+      "id": "making",
+      "featured": false,
+      "title": "The Ride",
+      "line": "Line 6",
+      "blurb": "How this portfolio was built with Claude",
+      "shape": "wide",
+      "band": "#FFC24A",
+      "cover": "assets/projects/making/shot-hero.webp",
+      "source": "index.html",
+      "sourceLabel": "Take the ride",
+      "intro": "Building my portfolio with Claude: a side-scrolling night in an Indian city, where every place is a section of the site.",
+      "lead": "My portfolio is a 2D side-scrolling game. A small version of me walks through one night in an Indian city, and every place he enters is a section of the site: projects on subway billboards, reels in a single-screen cinema, photography in a gallery, and contact details on a rooftop. I wrote no code by hand. My role was game designer and art director: inventing the world, then writing prompts precise enough for Claude Code to build it and an image model to draw it.",
+      "meta": {"year": "2026", "timeframe": "8 Days", "tools": "Claude, Claude Code, AI image generation", "category": "Process", "collaboration": "Individual Project"},
+      "blocks": []
     }
   ],
 

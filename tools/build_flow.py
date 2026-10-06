@@ -16,6 +16,8 @@ above "see also". Items:
   {t:"embed", src, ar, tight}  a film or a flip-book from another site, in a frame
   {t:"ticker", h, imgs:[{id, ar}]}    a strip of photos that slides sideways
   {t:"tiles", imgs:[id]}              a tilted wall of tiles that drifts
+  {t:"table", head:[..]|null, rows:[[..]]}   {t:"quote", tx}   {t:"swatches", inks:[[name, hex, use]]}
+  a row may carry cap: a caption under it; a list may be plain: bullets, not numbers
 Any item may carry chapter: "Name": a chapter of the page starts there (see CHAPTERS below).
 """
 import json
@@ -159,6 +161,19 @@ flow["bali"] = {"hero": 1.778, "items": [
     embed("https://player.vimeo.com/video/1191321738?title=0&byline=0&portrait=0&badge=0&controls=1&color=ffffff", 16, 9),
 ]}
 
+# The "Making of" page: written in tools/making.py, pictures and their shapes from tools/build_making.py
+import sys
+sys.path.insert(0, str(ROOT / "tools"))
+import making
+MSH, MPIC = json.loads((ROOT / "tools/framer/making-shapes.json").read_text()), "assets/projects/making/"
+def making_row(it):
+    names, total = it["pics"], sum(MSH[n] for n in it["pics"])
+    gap = 1.0; free = 100 - gap * (len(names) - 1)
+    row = {"t": "row", "bleed": False, "tight": False, "imgs": [{"id": MPIC + n + ".webp", "l": gap if i else 0, "w": round(free * MSH[n] / total, 2), "ar": MSH[n], "fit": "cover"} for i, n in enumerate(names)]}
+    if it["cap"]: row["cap"] = it["cap"]
+    return row
+flow["making"] = {"hero": 1.778, "items": [making_row(it) if "pics" in it else it for it in making.ITEMS]}
+
 # Chapters: the names in each page's small index (the list that stays at the left while the page scrolls).
 # Headings name themselves; where a page has few or none, a chapter starts at the item named here: "lead",
 # the start of an image's file name, or the start of a paragraph.
@@ -168,6 +183,7 @@ CHAPTERS = {
     "parde-ke-peeche": [("lead", "Overview"), ("JOKsFJWZ", "The magazine"), ("Most of the magazine", "Grid"), ("C6Hu12Ur", "Spreads")],
     "haven": [("lead", "Overview")],
     "bali": [("lead", "Overview")],
+    "making": [("lead", "Overview")],
 }
 def starts(it, key):
     if key == "lead": return it["t"] == "lead"
