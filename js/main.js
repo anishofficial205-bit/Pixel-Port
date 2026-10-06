@@ -991,7 +991,19 @@
     // --- gallery (reached from the back stairs, below) ---
     const G = GALLERY, gs = exhibition.s, gty = L.gty, gx = (x) => exhibition.x + x * gs, gk = (G.tall * gs) / (Sprite.STAND * L.cs);
     const gIn = [gx(G.enter[0]), exhibition.y + G.enter[1] * gs], gOut = [gx(G.exit[0]), exhibition.y + G.exit[1] * gs];
-    const gCam = (x) => ({ x: Math.min(Math.max(x - vw * 0.4, exhibition.x), exhibition.x + exhibition.w - vw), y: exhibition.y });
+    // the gallery's camera follows him, but each frame draws it in: as he nears one, the view eases over until
+    // the frame sits in the middle of the screen, and lets go as he walks on (it never loses sight of him)
+    const gMid = G.frames.map(([fx, , fw]) => exhibition.x + (fx + fw / 2) * gs), gPull = G.reach * gs;
+    const gCam = (x) => {
+      let cx = x - vw * 0.4;
+      const k = gMid.reduce((b, m, i) => (Math.abs(x - m) < Math.abs(x - gMid[b]) ? i : b), 0), d = Math.abs(x - gMid[k]);
+      if (d < gPull) {
+        const u = 1 - d / gPull, w = u * u * (3 - 2 * u);
+        const want = Math.min(Math.max(gMid[k] - vw / 2, x - vw * 0.86), x - vw * 0.14);
+        cx += (want - cx) * w;
+      }
+      return { x: Math.min(Math.max(cx, exhibition.x), exhibition.x + exhibition.w - vw), y: exhibition.y };
+    };
     // --- back stairs, between the hall and the gallery: in by the door under the landing, along the floor
     // past the staircase to its foot, up the first flight (right to left), behind the balustrade to the
     // second flight, up it and along the top landing to the door ---
@@ -1191,7 +1203,7 @@
       const ax = p.x - L.exhibition.x, near = (i) => Math.abs(ax - (L.frames[i].x + L.frames[i].w / 2));
       L.frames.forEach((f, i) => { if (near(i) < GALLERY.reach * L.exhibition.s && (litP < 0 || near(i) < near(litP))) litP = i; });
     }
-    if (litP !== litPhoto) { litPhoto = litP; photoEls.forEach((el, i) => el.classList.toggle("lit", i === litP)); }
+    if (litP !== litPhoto) { litPhoto = litP; photoEls.forEach((el, i) => el.classList.toggle("lit", i === litP)); $("#exhibition").classList.toggle("has-lit", litP >= 0); }   // ...and the room falls darker around it
     // the logo: large in the middle of the hero until he sets off, then it travels to its navbar corner
     {
       const g = segs[1], u = Math.min(1, Math.max(0, (cur - g.start) / (g.len * LOGO_HERO.over))), e = 1 - u * u * (3 - 2 * u);

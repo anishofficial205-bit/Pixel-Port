@@ -782,10 +782,13 @@ body::after {
 /* the room is dim; a picture light falls on each photo, brightest on the one he is standing at */
 .gal-dim { display: none; }
 .ride .gal-dim { display: block; position: absolute; inset: 0; background: linear-gradient(rgba(6, 4, 20, 0.3), rgba(6, 4, 20, 0.08) 30%, rgba(6, 4, 20, 0.08) 72%, rgba(6, 4, 20, 0.34)); pointer-events: none; }
-.ride .photo { filter: brightness(0.94); transition: filter 0.4s ease, box-shadow 0.4s ease; box-shadow: 0 0 40px rgba(255, 228, 170, 0.14); }
-.ride .photo::before { content: ""; position: absolute; left: 12%; right: 12%; bottom: 100%; height: 70%; pointer-events: none; opacity: 0.4; transition: opacity 0.4s ease;
-  background: linear-gradient(rgba(255, 236, 190, 0), rgba(255, 236, 190, 0.2)); clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); }
-.ride .photo.lit, .ride .photo:hover, .ride .photo:focus-within { filter: none; box-shadow: 0 0 0 2px rgba(255, 194, 74, 0.85), 0 0 90px rgba(255, 224, 160, 0.45); }
+.ride .gal-dim::after { content: ""; position: absolute; inset: 0; background: rgba(5, 3, 18, 0.62); opacity: 0; transition: opacity 0.6s ease; }   /* the house lights go down when he stops at a photo */
+.ride #exhibition.has-lit .gal-dim::after { opacity: 1; }
+.ride .photo { filter: brightness(0.7) saturate(0.85); transition: filter 0.5s ease, box-shadow 0.5s ease; box-shadow: 0 0 40px rgba(255, 228, 170, 0.1); }
+.ride #exhibition.has-lit .photo:not(.lit) { filter: brightness(0.42) saturate(0.7); }
+.ride .photo::before { content: ""; position: absolute; left: 6%; right: 6%; bottom: 100%; height: 80%; pointer-events: none; opacity: 0; transition: opacity 0.5s ease;
+  background: linear-gradient(rgba(255, 236, 190, 0), rgba(255, 236, 190, 0.3)); clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); }
+.ride .photo.lit, .ride .photo:hover, .ride .photo:focus-within { filter: brightness(1.06); box-shadow: 0 0 0 2px rgba(255, 194, 74, 0.9), 0 0 60px rgba(255, 224, 160, 0.5), 0 0 180px 40px rgba(255, 200, 120, 0.3); }
 .ride .photo.lit::before, .ride .photo:hover::before { opacity: 1; }
 /* each photo fills a blank frame in the art; its title is engraved on the brass plaque below */
 .photo { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); margin: 0; }
