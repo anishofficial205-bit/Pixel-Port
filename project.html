@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791266598" />
+  <link rel="stylesheet" href="project.css?v=1791267441" />
 </head>
 <body>
   <header class="bar">
@@ -40,8 +40,8 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791266598"></script>
-  <script src="js/flow.js?v=1791266598"></script>
+  <script src="js/data.js?v=1791267441"></script>
+  <script src="js/flow.js?v=1791267441"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -96,7 +96,7 @@
           Object.entries(labels).forEach(([k, label]) => { if (!p.meta[k]) return; const d = el("div"); d.append(el("dt", null, label), el("dd", null, p.meta[k])); dl.append(d); });
           e.append(el("p", "lead-text", p.lead), dl);
         } else if (b.t === "row") {
-          e = el("div", "row" + (b.bleed ? " bleed" : "") + (b.tight ? " tight" : ""));
+          e = el("div", "row" + (b.bleed ? " bleed" : "") + (b.tight ? " tight" : "") + (b.snug ? " snug" : "") + (b.photos ? " photos" : ""));
           b.imgs.forEach((c) => e.append(shot(c, b.bleed || c.w > 60 ? 2048 : 1024)));
         } else if (b.t === "video") {
           e = el("figure", "shot"); e.style.setProperty("--ar", b.ar);

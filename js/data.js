@@ -618,7 +618,7 @@ window.SITE = {
       ]
     },
     {
-      // from behance.net/gallery/248967119 (a team project; the boards there carry their own text)
+      // from behance.net/gallery/248967119 (a team project). Its page is laid out in tools/build_flow.py; photos in assets/projects/bhayanaka
       "id": "bhayanaka",
       "featured": false,
       "title": "Bhayanaka",
@@ -631,8 +631,8 @@ window.SITE = {
       "source": "https://www.behance.net/gallery/248967119/A-production-design-project",
       "sourceLabel": "View this project on Behance",
       "intro": "A production design project: designing and dressing a room to evoke dread and unease, for a script titled Bhayānaka.",
-      "lead": "For our production design project, we were given a script titled Bhayānaka, a word rooted in the Sanskrit rasa of fear. The assignment called for designing and dressing an environment to evoke dread and unease, using props, textures, lighting, and surface treatments to suggest a history of violence and ritual. What we built was a room that felt occupied by something that had already happened.",
-      "meta": {"year": "2026", "tools": "Premiere Pro, After Effects, DaVinci Resolve, Acrylic Paint", "category": "Production Design", "collaboration": "Classroom project, team of 8"},
+      "lead": "For our production design project, we were given a script titled Bhayānaka, a word rooted in the Sanskrit rasa of fear. The assignment called for designing and dressing an environment to evoke dread and unease, using props, textures, lighting, and surface treatments to suggest a history of violence and ritual. The real challenge lay in transforming a familiar, everyday space into something ancient, abandoned, and deeply unsettling, where every detail left behind tells a story without a single word of dialogue. What we built was a room that felt occupied by something that had already happened.",
+      "meta": {"year": "March 2026", "tools": "Premiere Pro, After Effects, DaVinci Resolve, Acrylic Paint", "category": "Production Design", "collaboration": "Classroom Project"},
       "blocks": []
     }
   ],

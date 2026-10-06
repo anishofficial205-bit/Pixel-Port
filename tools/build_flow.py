@@ -11,7 +11,7 @@ above "see also". Items:
   {t:"rule"}                  a hairline between parts
   {t:"row", bleed, tight, imgs:[{id, l, w, ar, fit}]}   images side by side: l = space before it and
                               w = its width, in % of the column (or of the screen when bleed); ar = w / h;
-                              tight: it sits flush under the row above
+                              tight: it sits flush under the row above; snug: only a hairline of space above
   {t:"video", src, ar}
   {t:"embed", src, ar, tight}  a film or a flip-book from another site, in a frame
   {t:"ticker", h, imgs:[{id, ar}]}    a strip of photos that slides sideways
@@ -100,17 +100,45 @@ for slug, pid in PAGES.items():
     flow[pid] = {"hero": round(hero["r"][2] / hero["r"][3], 3), "items": seq}
     print(pid, len(seq), " ".join(i["t"] + (str(len(i["imgs"])) if i["t"] == "row" else "") + ("*" if i.get("bleed") else "") + ("^" if i.get("tight") else "") for i in seq))
 
-# Bhayanaka is not on the Framer site: its flow follows its Behance page (behance.net/gallery/248967119), where
-# the film opens the page (see heroEmbed in js/data.js) and three long boards carry the text.
-BE = "https://mir-s3-cdn-cf.behance.net/project_modules/"
-board = lambda f, w, h: {"t": "row", "bleed": False, "tight": True, "imgs": [{"id": BE + "fs_webp/" + f, "l": 0, "w": 100, "ar": round(w / h, 3), "fit": "cover"}]}
-embed = lambda src, w, h: {"t": "embed", "src": src, "ar": round(w / h, 3), "tight": True}
+# Bhayanaka is not on the Framer site. Its words and pictures come from the boards on its Behance page
+# (behance.net/gallery/248967119): the text is typed out here, and the photos are cut from the boards by
+# tools/build_bhayanaka.py, which also writes their shapes. The film opens the page (heroEmbed in js/data.js).
+SH = json.loads((ROOT / "tools/framer/bhayanaka-shapes.json").read_text())
+PIC = "assets/projects/bhayanaka/"
+def photo_rows(names, gap=1.0, fill=4.3):
+    """rows of photos of equal height that fill the column, a small gap between them"""
+    rows, row = [], []
+    for n in names:
+        row.append(n)
+        if sum(SH[x] for x in row) >= fill: rows.append(row); row = []
+    if row: rows.append(row) if sum(SH[x] for x in row) > fill * 0.55 or not rows else rows[-1].extend(row)
+    out = []
+    for k, r in enumerate(rows):
+        total, free = sum(SH[x] for x in r), 100 - gap * (len(r) - 1)
+        out.append({"t": "row", "bleed": False, "tight": False, "snug": k > 0, "photos": len(r) > 3,
+                    "imgs": [{"id": PIC + x + ".webp", "l": gap if i else 0, "w": round(free * SH[x] / total, 2), "ar": SH[x], "fit": "cover"} for i, x in enumerate(r)]})
+    return out
+embed = lambda src, w, h: {"t": "embed", "src": src, "ar": round(w / h, 3)}
+H = lambda tx: {"t": "h", "tx": tx, "big": False}
+P = lambda tx, narrow=True: {"t": "p", "tx": tx, "narrow": narrow}
 flow["bhayanaka"] = {"hero": 1.778, "items": [
-    board("a45819248967119.6a026d8c40739.png", 1400, 794),
+    {"t": "lead"},
+    {"t": "rule"},
+    H("Moodboards"),
     embed("https://heyzine.com/flip-book/15f25d6fbc.html#page/2", 831, 464),
-    board("3ec7fd248967119.6a026536c3a97.png", 1400, 1530),
+    P("The moodboards establish the film's visual language through ritualistic imagery like havan kunds, kumkum, and Kali iconography, with genre and cinematography references drawn from Indian and Western horror emphasizing deep shadow and practical light sources. A palette of cobalt blue, muted violet, teal, blood red, and ochre ties it into a cohesive, brooding identity."),
+    {"t": "rule"},
+    H("Layouting the Scene"),
+    *photo_rows(["plan-3d", "plan-sketch", "plan-reference"], gap=1.5, fill=2.5),
+    P("A hand sketched top view, a 3D render and an AI generated reference were made to plan and visualize the space. All three show a room built around a central havan kund, with the kund as the focal point of the layout. Key set elements include a stool, a rope/jute coil, and a constructed wall, each placed with intention to guide the camera and build the ritual atmosphere of the space."),
+    {"t": "rule"},
+    H("Storyboarding"),
     embed("https://heyzine.com/flip-book/1c703810ea.html#page/2", 831, 551),
-    board("bd7cc8248967119.6a026536c264e.png", 1400, 2191),
+    P("21 frames across 3 pages, rendered in the 3D model. The shots reveal the set through close-up details rather than wide establishing shots, building dread slowly. Moving from the jute coil and bloodied machette, through the havan kund, hand prints, ritual lines, and finally the Kali painting before cutting to blackout. Every frame stays intimate with the space, letting the props tell the story."),
+    {"t": "rule"},
+    H("Set Construction & BTS"),
+    P("Us trying to structure the chaos that we are :)", narrow=False),
+    *photo_rows([f"bts-{i:02d}" for i in range(1, 24)]),
     embed("https://player.vimeo.com/video/1191321738?title=0&byline=0&portrait=0&badge=0&controls=1&color=ffffff", 16, 9),
 ]}
 
