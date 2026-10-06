@@ -18,8 +18,8 @@ body {
   margin: 0; min-height: 100vh; color: var(--cream); font: 500 17px/1.65 var(--text); -webkit-font-smoothing: antialiased;
   /* a night sky that warms toward the lamps at the top */
   background:
-    radial-gradient(ellipse 70% 520px at 50% -80px, rgba(255, 170, 70, 0.2), transparent 70%),
-    radial-gradient(ellipse 90% 900px at 50% 0, #1B1756, transparent 75%),
+    radial-gradient(ellipse 70% 520px at 50% -80px, var(--glow-a, rgba(255, 170, 70, 0.2)), transparent 70%),
+    radial-gradient(ellipse 90% 900px at 50% 0, var(--glow-b, #1B1756), transparent 75%),
     var(--night);
   background-repeat: no-repeat;
 }
@@ -40,7 +40,7 @@ h1, h2, p, dl, dd, ul, ol, figure { margin: 0; padding: 0; }
 .bar-logo { justify-self: start; line-height: 0; filter: drop-shadow(0 0 14px rgba(216, 38, 28, 0.55)); transition: transform 0.25s ease; }
 .bar-logo img { height: 58px; width: auto; }
 .bar-logo:hover { transform: rotate(-4deg) scale(1.05); }
-.pill { border-radius: 24px; background: rgba(14, 10, 40, 0.78); box-shadow: inset 0 0 0 1px var(--faint), 0 10px 30px rgba(4, 2, 16, 0.5); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.pill { border-radius: 24px; background: var(--pill, rgba(14, 10, 40, 0.78)); box-shadow: inset 0 0 0 1px var(--faint), 0 10px 30px rgba(4, 2, 16, 0.5); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .bar-links { justify-self: end; display: flex; gap: 2px; padding: 4px; }
 .bar-links a { padding: 9px 14px; border-radius: 20px; font-weight: 700; font-size: 11.5px; line-height: 1; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: var(--soft); transition: color 0.2s ease, background-color 0.2s ease; }
 .bar-links a:hover { color: var(--cream); }
@@ -57,7 +57,7 @@ h1, h2, p, dl, dd, ul, ol, figure { margin: 0; padding: 0; }
 .line a:hover { color: var(--cream); } .line a:hover i { transform: scale(1.2); }
 .line a.done i { background: var(--amber); box-shadow: 0 0 0 2px var(--amber); }
 .line a.here { color: var(--amber); }
-.line a.here i { background: var(--red); box-shadow: 0 0 0 2px var(--amber), 0 0 0 6px rgba(255, 194, 74, 0.28); }
+.line a.here i { background: var(--here, var(--red)); box-shadow: 0 0 0 2px var(--amber), 0 0 0 6px rgba(255, 194, 74, 0.28); }
 
 /* ---------------- the page: the flow of the Framer site (title, brief, main image, then js/flow.js) ----------------
    One column, 1272 px wide at most, with every image placed in it by percentages measured from that site. */
@@ -137,10 +137,93 @@ h1 { margin-top: 18px; font: 400 clamp(54px, 9vw, 124px)/0.95 var(--display); le
 .also img { flex: none; height: 100%; width: clamp(120px, 23.7%, 302px); object-fit: cover; filter: brightness(0.8); transition: filter 0.25s ease; }
 .also-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .also small { font-weight: 700; font-size: 11px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--soft); }
-.also b { font: 400 clamp(22px, 2.4vw, 32px)/1 var(--display); }
+.also b { font-weight: 500; font-size: clamp(20px, 2.1vw, 28px); line-height: 1.1; letter-spacing: -0.01em; }
 .also i { font-style: normal; font-size: 22px; color: var(--amber); transition: transform 0.25s ease; }
 .also a:hover, .also a:focus-visible { background: var(--navy-2); box-shadow: inset 0 0 0 1px var(--amber); }
 .also a:hover img { filter: none; } .also a:hover i { transform: translate(3px, -3px); }
+
+
+/* ================= each project's own character =================
+   A project page wears its project: its ground, its ink, one accent, and a heading face chosen for it.
+   The set is keyed by data-project, on <body> for the page and on each "see also" band for a glimpse of the others.
+     thrive            calm and minimal: deep teal, sage, a light lowercase serif
+     krumble           festive and rich: maroon, cream and gold, an italic didone
+     parde-ke-peeche   a film magazine: black, white and red, tall condensed capitals
+     haven             a soft app: violet, lilac to pink, a round geometric sans, rounded pictures
+     bali              ritual and dread: near-black, bone and blood red, engraved capitals */
+[data-project] { --pill: color-mix(in srgb, var(--night) 82%, transparent); --here: var(--amber); }
+[data-project="thrive"] { --ink: #050F11; --night: #0A1C1F; --navy: #10282C; --navy-2: #16353A; --cream: #E6EFEC; --soft: rgba(230, 239, 236, 0.66); --faint: rgba(230, 239, 236, 0.14); --amber: #9DBDB6; --glow-a: rgba(120, 180, 170, 0.1); --glow-b: #0F2A2E;
+  --display: "Fraunces", Georgia, serif; --h1: 300 clamp(64px, 11.5vw, 168px)/0.92 var(--display); --h1-case: lowercase; --h1-track: -0.035em; --h: 300 clamp(26px, 2.5vw, 36px)/1.15 var(--display); --h-case: none; --h-track: -0.01em; }
+[data-project="krumble"] { --ink: #140203; --night: #2A0507; --navy: #3A090C; --navy-2: #4B0D11; --cream: #F7EBD8; --soft: rgba(247, 235, 216, 0.7); --faint: rgba(231, 190, 110, 0.22); --amber: #E3B565; --glow-a: rgba(227, 160, 70, 0.16); --glow-b: #4A0A0E;
+  --display: "Playfair Display", Georgia, serif; --h1: italic 500 clamp(60px, 10.5vw, 150px)/0.95 var(--display); --h1-case: none; --h1-track: -0.02em; --h: italic 500 clamp(26px, 2.5vw, 36px)/1.15 var(--display); --h-case: none; --h-track: 0; }
+[data-project="parde-ke-peeche"] { --ink: #000; --night: #060606; --navy: #131313; --navy-2: #1E1E1E; --cream: #F4F1EC; --soft: rgba(244, 241, 236, 0.66); --faint: rgba(244, 241, 236, 0.16); --amber: #E3261F; --glow-a: rgba(227, 38, 31, 0.12); --glow-b: #151515;
+  --display: "Anton", "Arial Narrow", sans-serif; --h1: 400 clamp(70px, 13.5vw, 200px)/0.86 var(--display); --h1-case: uppercase; --h1-track: 0; --h: 400 clamp(24px, 2.3vw, 34px)/1.1 var(--display); --h-case: uppercase; --h-track: 0.04em; }
+[data-project="haven"] { --ink: #0B0114; --night: #150424; --navy: #210838; --navy-2: #2D0D4B; --cream: #F1EAFB; --soft: rgba(241, 234, 251, 0.7); --faint: rgba(190, 160, 255, 0.2); --amber: #BFA2FF; --glow-a: rgba(214, 120, 255, 0.16); --glow-b: #2A0B4A;
+  --display: "Sora", system-ui, sans-serif; --h1: 600 clamp(58px, 10.5vw, 150px)/0.95 var(--display); --h1-case: lowercase; --h1-track: -0.05em; --h: 600 clamp(22px, 2.1vw, 30px)/1.2 var(--display); --h-case: none; --h-track: -0.02em; }
+[data-project="bali"] { --ink: #040202; --night: #0B0606; --navy: #160C0B; --navy-2: #221110; --cream: #E9E1D6; --soft: rgba(233, 225, 214, 0.64); --faint: rgba(233, 225, 214, 0.14); --amber: #B8261C; --glow-a: rgba(184, 38, 28, 0.2); --glow-b: #1C0907;
+  --display: "Cinzel", Georgia, serif; --h1: 500 clamp(54px, 10vw, 150px)/0.95 var(--display); --h1-case: uppercase; --h1-track: 0.06em; --h: 500 clamp(19px, 1.8vw, 25px)/1.25 var(--display); --h-case: uppercase; --h-track: 0.16em; }
+
+/* shared refinements on a themed page: lighter touch, more air, the theme's face on title and headings */
+body[data-project] h1 { font: var(--h1); text-transform: var(--h1-case); letter-spacing: var(--h1-track); }
+body[data-project] .case > h3, body[data-project] .case > h2.sec { font: var(--h); text-transform: var(--h-case); letter-spacing: var(--h-track); }
+body[data-project] .case > h2.sec { color: var(--amber); }
+body[data-project] .kicker { font-weight: 500; letter-spacing: 0.26em; }
+body[data-project] .brief { font-weight: 300; color: var(--soft); }
+body[data-project] .lead-text { font-weight: 400; }
+body[data-project] .case > * { margin-top: clamp(26px, 3.2vw, 46px); }
+body[data-project] .case > h3 { margin-top: clamp(48px, 5.5vw, 84px); }
+body[data-project] .case > h3 + p, body[data-project] .case > h3 + .features, body[data-project] .case > h2.sec + h3 { margin-top: 14px; }
+body[data-project] .row.tight, body[data-project] .case > .shot.tight { margin-top: 0; }
+body[data-project] .row.snug { margin-top: calc(var(--col) * 0.01); }
+body[data-project] .bar-logo { filter: none; }
+body[data-project] .line ol::after { background: var(--amber); }
+body[data-project] .also a { background: var(--night); box-shadow: inset 0 0 0 1px var(--faint); color: var(--cream); }
+body[data-project] .also a:hover, body[data-project] .also a:focus-visible { background: var(--navy); box-shadow: inset 0 0 0 1px var(--amber); }
+
+/* thrive: quiet. A thin sage line under the title, wide-set labels, nothing shouts */
+body[data-project="thrive"] .kicker { color: var(--amber); }
+body[data-project="thrive"] .brief { font-style: normal; font-family: var(--display); font-weight: 300; letter-spacing: -0.01em; }
+body[data-project="thrive"] .lead-text { font-family: var(--display); font-weight: 300; line-height: 1.4; letter-spacing: -0.01em; }
+
+/* krumble: a gift box. Gold hairlines with a small diamond at their middle, serif statement */
+body[data-project="krumble"] .rule { position: relative; border-top-color: rgba(227, 181, 101, 0.4); overflow: visible; }
+body[data-project="krumble"] .rule::after { content: ""; position: absolute; left: 50%; top: -5px; width: 9px; height: 9px; margin-left: -5px; background: var(--amber); transform: rotate(45deg); box-shadow: 0 0 0 6px var(--night); }
+body[data-project="krumble"] .brief { font-family: var(--display); font-weight: 400; }
+body[data-project="krumble"] .lead-text { font-family: var(--display); font-style: italic; font-weight: 400; line-height: 1.42; }
+body[data-project="krumble"] .facts dt { color: var(--amber); }
+
+/* parde ke peeche: a magazine. The title in red, a slab of a rule, headings like cover lines */
+body[data-project="parde-ke-peeche"] h1 { color: var(--amber); }
+body[data-project="parde-ke-peeche"] .kicker { color: var(--cream); }
+body[data-project="parde-ke-peeche"] .kicker::after { height: 3px; background: var(--amber); opacity: 1; }
+body[data-project="parde-ke-peeche"] .brief { font-style: normal; font-weight: 500; color: var(--cream); margin-left: 0; max-width: 24em; font-size: clamp(20px, 2.4vw, 34px); line-height: 1.25; }
+body[data-project="parde-ke-peeche"] .top + .rule { border-top: 6px solid var(--cream); }
+body[data-project="parde-ke-peeche"] .case > h3::before { content: ""; display: block; width: 44px; height: 4px; margin-bottom: 14px; background: var(--amber); }
+body[data-project="parde-ke-peeche"] .facts dt { color: var(--amber); }
+
+/* haven: an app. Title in a lilac-to-pink wash, pictures and facts with soft round corners */
+body[data-project="haven"] h1 { width: max-content; max-width: 100%; background: linear-gradient(100deg, #9E8CFF, #D58CFF 55%, #FF9BD2); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.08em; }
+body[data-project="haven"] .shot { border-radius: clamp(14px, 1.8vw, 26px); }
+body[data-project="haven"] .ticker .shot { border-radius: clamp(12px, 1.4vw, 20px); }
+body[data-project="haven"] .facts div, body[data-project="haven"] .facts div + div { margin-bottom: 8px; padding: 12px 16px 13px; border: 0; border-radius: 14px; background: rgba(190, 160, 255, 0.09); }
+body[data-project="haven"] .features li { margin-top: 10px; padding: 14px 18px; border-radius: 16px; background: rgba(190, 160, 255, 0.08); }
+body[data-project="haven"] .also a { border-radius: 16px; overflow: hidden; }
+body[data-project="haven"] .case > h2.sec { color: #D9A6FF; }
+
+/* bali: a room where something happened. Engraved capitals in bone, red labels, the dark closing in at the edges */
+body[data-project="bali"] h1 { text-shadow: 0 0 80px rgba(184, 38, 28, 0.45); }
+body[data-project="bali"]::before { content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.6)); }
+body[data-project="bali"] main, body[data-project="bali"] .bar { position: relative; z-index: 2; }
+body[data-project="bali"] .bar { position: fixed; z-index: 60; }
+body[data-project="bali"] .case > h3 { color: var(--cream); }
+body[data-project="bali"] .case > h3::after { content: ""; display: block; width: 28px; height: 1px; margin-top: 16px; background: var(--amber); }
+body[data-project="bali"] .brief { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+body[data-project="bali"] .lead-text { font-family: Georgia, "Times New Roman", serif; line-height: 1.5; }
+
+/* see also: each band in its own project's colours */
+.also li[data-project] a { background: var(--night); color: var(--cream); box-shadow: inset 0 0 0 1px var(--faint); }
+.also li[data-project] a:hover, .also li[data-project] a:focus-visible { background: var(--navy); box-shadow: inset 0 0 0 1px var(--amber); }
+.also li[data-project] small { color: var(--amber); } .also li[data-project] i { color: var(--amber); }
 
 /* a soft curtain of night on arrival */
 .fade { position: fixed; inset: 0; z-index: 90; pointer-events: none; background: var(--ink); animation: lift 0.6s ease forwards; }

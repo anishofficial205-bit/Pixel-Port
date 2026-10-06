@@ -9,7 +9,9 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791268782" />
+  <!-- each project's heading face (see "each project's own character" in project.css); only the one in use is fetched -->
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@500&family=Fraunces:opsz,wght@9..144,300&family=Playfair+Display:ital,wght@0,400;1,400;1,500&family=Sora:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="project.css?v=1791269567" />
 </head>
 <body>
   <header class="bar">
@@ -40,8 +42,8 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791268782"></script>
-  <script src="js/flow.js?v=1791268782"></script>
+  <script src="js/data.js?v=1791269567"></script>
+  <script src="js/flow.js?v=1791269567"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -52,6 +54,7 @@
       const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
       document.title = p.title + " · Anish Shah";
+      document.body.dataset.project = p.id;                  // the page takes on this project's character (project.css)
       // the bar's metro line: one stop per project, this one lit
       list.forEach((q, k) => {
         const li = el("li"), a = el("a", k < i ? "done" : k === i ? "here" : "");
@@ -123,7 +126,7 @@
 
       // see also: the other projects
       list.filter((q) => q.id !== p.id).forEach((q) => {
-        const li = el("li"), a = el("a"); a.href = "project.html?p=" + q.id;
+        const li = el("li"), a = el("a"); a.href = "project.html?p=" + q.id; li.dataset.project = q.id;
         const im = el("img"); im.src = SITE.img(q.cover, 512); im.alt = ""; im.loading = "lazy";
         const tx = el("span", "also-text"); tx.append(el("small", null, q.meta.category || ""), el("b", null, q.title));
         a.append(im, tx, el("i", null, "↗")); li.append(a); $("#also").append(li);
