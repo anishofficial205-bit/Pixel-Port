@@ -144,24 +144,22 @@ h1 { margin-top: 18px; font: 400 clamp(54px, 9vw, 124px)/0.95 var(--display); le
 
 
 /* ================= each project's own character =================
-   A project page wears its project: its ground, its ink, one accent, and a heading face chosen for it.
+   A project page wears its project: its ground, its ink, one accent and a few details (the type stays the same).
    The set is keyed by data-project, on <body> for the page and on each "see also" band for a glimpse of the others.
-     thrive            calm and minimal: deep teal, sage, a light lowercase serif
-     krumble           festive and rich: maroon, cream and gold, an italic didone
-     parde-ke-peeche   a film magazine: black, white and red, tall condensed capitals
-     haven             a soft app: violet, lilac to pink, a round geometric sans, rounded pictures
-     bali              ritual and dread: near-black, bone and blood red, engraved capitals */
+     thrive            calm and minimal: deep teal and sage
+     krumble           festive and rich: maroon, cream and gold, a diamond on its rules
+     parde-ke-peeche   a film magazine: black, white and red, bars like cover lines
+     haven             a soft app: violet, lilac to pink, rounded pictures and cards
+     bali              ritual and dread: near-black, bone and blood red, dark edges */
 [data-project] { --pill: color-mix(in srgb, var(--night) 82%, transparent); --here: var(--amber); }
-[data-project="thrive"] { --ink: #050F11; --night: #0A1C1F; --navy: #10282C; --navy-2: #16353A; --cream: #E6EFEC; --soft: rgba(230, 239, 236, 0.66); --faint: rgba(230, 239, 236, 0.14); --amber: #9DBDB6; --glow-a: rgba(120, 180, 170, 0.1); --glow-b: #0F2A2E;
-  --display: "Fraunces", Georgia, serif; --h1: 300 clamp(64px, 11.5vw, 168px)/0.92 var(--display); --h1-case: lowercase; --h1-track: -0.035em; --h: 300 clamp(26px, 2.5vw, 36px)/1.15 var(--display); --h-case: none; --h-track: -0.01em; }
-[data-project="krumble"] { --ink: #140203; --night: #2A0507; --navy: #3A090C; --navy-2: #4B0D11; --cream: #F7EBD8; --soft: rgba(247, 235, 216, 0.7); --faint: rgba(231, 190, 110, 0.22); --amber: #E3B565; --glow-a: rgba(227, 160, 70, 0.16); --glow-b: #4A0A0E;
-  --display: "Playfair Display", Georgia, serif; --h1: italic 500 clamp(60px, 10.5vw, 150px)/0.95 var(--display); --h1-case: none; --h1-track: -0.02em; --h: italic 500 clamp(26px, 2.5vw, 36px)/1.15 var(--display); --h-case: none; --h-track: 0; }
-[data-project="parde-ke-peeche"] { --ink: #000; --night: #060606; --navy: #131313; --navy-2: #1E1E1E; --cream: #F4F1EC; --soft: rgba(244, 241, 236, 0.66); --faint: rgba(244, 241, 236, 0.16); --amber: #E3261F; --glow-a: rgba(227, 38, 31, 0.12); --glow-b: #151515;
-  --display: "Anton", "Arial Narrow", sans-serif; --h1: 400 clamp(70px, 13.5vw, 200px)/0.86 var(--display); --h1-case: uppercase; --h1-track: 0; --h: 400 clamp(24px, 2.3vw, 34px)/1.1 var(--display); --h-case: uppercase; --h-track: 0.04em; }
-[data-project="haven"] { --ink: #0B0114; --night: #150424; --navy: #210838; --navy-2: #2D0D4B; --cream: #F1EAFB; --soft: rgba(241, 234, 251, 0.7); --faint: rgba(190, 160, 255, 0.2); --amber: #BFA2FF; --glow-a: rgba(214, 120, 255, 0.16); --glow-b: #2A0B4A;
-  --display: "Sora", system-ui, sans-serif; --h1: 600 clamp(58px, 10.5vw, 150px)/0.95 var(--display); --h1-case: lowercase; --h1-track: -0.05em; --h: 600 clamp(22px, 2.1vw, 30px)/1.2 var(--display); --h-case: none; --h-track: -0.02em; }
-[data-project="bali"] { --ink: #040202; --night: #0B0606; --navy: #160C0B; --navy-2: #221110; --cream: #E9E1D6; --soft: rgba(233, 225, 214, 0.64); --faint: rgba(233, 225, 214, 0.14); --amber: #B8261C; --glow-a: rgba(184, 38, 28, 0.2); --glow-b: #1C0907;
-  --display: "Cinzel", Georgia, serif; --h1: 500 clamp(54px, 10vw, 150px)/0.95 var(--display); --h1-case: uppercase; --h1-track: 0.06em; --h: 500 clamp(19px, 1.8vw, 25px)/1.25 var(--display); --h-case: uppercase; --h-track: 0.16em; }
+/* type is the same on every project page, and the same as the rest of the site: Talina for the title and
+   headings, Satoshi for everything else. Only colour and detail change from project to project. */
+body[data-project] { --h1: 400 clamp(54px, 9.4vw, 132px)/0.95 var(--display); --h1-case: none; --h1-track: -0.01em; --h: 400 clamp(24px, 2.3vw, 32px)/1.2 var(--display); --h-case: none; --h-track: 0; }
+[data-project="thrive"] { --ink: #050F11; --night: #0A1C1F; --navy: #10282C; --navy-2: #16353A; --cream: #E6EFEC; --soft: rgba(230, 239, 236, 0.66); --faint: rgba(230, 239, 236, 0.14); --amber: #9DBDB6; --glow-a: rgba(120, 180, 170, 0.1); --glow-b: #0F2A2E; }
+[data-project="krumble"] { --ink: #140203; --night: #2A0507; --navy: #3A090C; --navy-2: #4B0D11; --cream: #F7EBD8; --soft: rgba(247, 235, 216, 0.7); --faint: rgba(231, 190, 110, 0.22); --amber: #E3B565; --glow-a: rgba(227, 160, 70, 0.16); --glow-b: #4A0A0E; }
+[data-project="parde-ke-peeche"] { --ink: #000; --night: #060606; --navy: #131313; --navy-2: #1E1E1E; --cream: #F4F1EC; --soft: rgba(244, 241, 236, 0.66); --faint: rgba(244, 241, 236, 0.16); --amber: #E3261F; --glow-a: rgba(227, 38, 31, 0.12); --glow-b: #151515; }
+[data-project="haven"] { --ink: #0B0114; --night: #150424; --navy: #210838; --navy-2: #2D0D4B; --cream: #F1EAFB; --soft: rgba(241, 234, 251, 0.7); --faint: rgba(190, 160, 255, 0.2); --amber: #BFA2FF; --glow-a: rgba(214, 120, 255, 0.16); --glow-b: #2A0B4A; }
+[data-project="bali"] { --ink: #040202; --night: #0B0606; --navy: #160C0B; --navy-2: #221110; --cream: #E9E1D6; --soft: rgba(233, 225, 214, 0.64); --faint: rgba(233, 225, 214, 0.14); --amber: #B8261C; --glow-a: rgba(184, 38, 28, 0.2); --glow-b: #1C0907; }
 
 /* shared refinements on a themed page: lighter touch, more air, the theme's face on title and headings */
 body[data-project] h1 { font: var(--h1); text-transform: var(--h1-case); letter-spacing: var(--h1-track); }
@@ -182,21 +180,16 @@ body[data-project] .also a:hover, body[data-project] .also a:focus-visible { bac
 
 /* thrive: quiet. A thin sage line under the title, wide-set labels, nothing shouts */
 body[data-project="thrive"] .kicker { color: var(--amber); }
-body[data-project="thrive"] .brief { font-style: normal; font-family: var(--display); font-weight: 300; letter-spacing: -0.01em; }
-body[data-project="thrive"] .lead-text { font-family: var(--display); font-weight: 300; line-height: 1.4; letter-spacing: -0.01em; }
 
 /* krumble: a gift box. Gold hairlines with a small diamond at their middle, serif statement */
 body[data-project="krumble"] .rule { position: relative; border-top-color: rgba(227, 181, 101, 0.4); overflow: visible; }
 body[data-project="krumble"] .rule::after { content: ""; position: absolute; left: 50%; top: -5px; width: 9px; height: 9px; margin-left: -5px; background: var(--amber); transform: rotate(45deg); box-shadow: 0 0 0 6px var(--night); }
-body[data-project="krumble"] .brief { font-family: var(--display); font-weight: 400; }
-body[data-project="krumble"] .lead-text { font-family: var(--display); font-style: italic; font-weight: 400; line-height: 1.42; }
 body[data-project="krumble"] .facts dt { color: var(--amber); }
 
 /* parde ke peeche: a magazine. The title in red, a slab of a rule, headings like cover lines */
 body[data-project="parde-ke-peeche"] h1 { color: var(--amber); }
 body[data-project="parde-ke-peeche"] .kicker { color: var(--cream); }
 body[data-project="parde-ke-peeche"] .kicker::after { height: 3px; background: var(--amber); opacity: 1; }
-body[data-project="parde-ke-peeche"] .brief { font-style: normal; font-weight: 500; color: var(--cream); margin-left: 0; max-width: 24em; font-size: clamp(20px, 2.4vw, 34px); line-height: 1.25; }
 body[data-project="parde-ke-peeche"] .top + .rule { border-top: 6px solid var(--cream); }
 body[data-project="parde-ke-peeche"] .case > h3::before { content: ""; display: block; width: 44px; height: 4px; margin-bottom: 14px; background: var(--amber); }
 body[data-project="parde-ke-peeche"] .facts dt { color: var(--amber); }
@@ -217,8 +210,6 @@ body[data-project="bali"] main, body[data-project="bali"] .bar { position: relat
 body[data-project="bali"] .bar { position: fixed; z-index: 60; }
 body[data-project="bali"] .case > h3 { color: var(--cream); }
 body[data-project="bali"] .case > h3::after { content: ""; display: block; width: 28px; height: 1px; margin-top: 16px; background: var(--amber); }
-body[data-project="bali"] .brief { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
-body[data-project="bali"] .lead-text { font-family: Georgia, "Times New Roman", serif; line-height: 1.5; }
 
 /* see also: each band in its own project's colours */
 .also li[data-project] a { background: var(--night); color: var(--cream); box-shadow: inset 0 0 0 1px var(--faint); }
