@@ -637,7 +637,10 @@ body::after {
 .ride #stairwell .bg-img { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); }
 .ride #cinema-front { background: #070410; }
 /* the hall is kept dark, so the screen and the reel posters carry it; the screen spills a little light */
-.ride .front-art .bg-img, .ride .front-row img { filter: brightness(0.55) saturate(0.9); }
+.ride .front-art .bg-img, .ride .front-row img, .ride .hall-ext { filter: brightness(0.55) saturate(0.9); }
+.hall-ext { display: none; }
+.ride .hall-ext { display: block; position: absolute; left: 0; width: 100%; height: calc(100% * 460 / 941); pointer-events: none; }   /* 460 of the painting's 941 rows, each way */
+.ride .hall-top { bottom: calc(100% - 1px); } .ride .hall-bottom { top: calc(100% - 1px); }
 .screen-glow { pointer-events: none; box-shadow: 0 0 calc(var(--u, 1) * 120px) calc(var(--u, 1) * 10px) rgba(255, 236, 200, 0.2); }
 .ride .front-art { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); }
 .ride .front-art .bg-img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }   /* the screen behind its cut-out takes the clicks */
