@@ -80,7 +80,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-img { display: block; }
+img { display: block; height: auto; }   /* (the height attribute only tells the browser the shape: audit P2-4) */
 a { color: var(--accent); }
 button { font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; letter-spacing: 0; }
