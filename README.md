@@ -35,6 +35,7 @@ Then open http://localhost:8080.
 | `assets/character/` | `source-sheet.webp` and `climb-source.webp` (original art); `sheet.webp` is packed by `tools/pack_sprite.py`, then `tools/pack_climb.py` appends the stair frames |
 | `styles.css` | Tokens from the style guide plus all UI components |
 | `project.html` / `project.css` | Project detail page ("arriving at the station") |
+| `thrive.html`, `krumble.html`, … | One page per public project, **generated** from `project.html` by `node tools/build-meta.mjs` (title, description and preview image baked into the head for link previews). Committed, not built on Vercel: run the script again after editing `project.html` or a project's title, intro or cover. `python tools/build_og.py` remakes the preview images in `assets/og/`. The same script writes `robots.txt` and `sitemap.xml`; the site address lives in `BASE_URL` there |
 | `projects.html` | All projects: every entry in `SITE.projects`, filterable by category. Projects with `featured: true` also get a subway billboard (first 4) |
 
 ## How the scroll works
