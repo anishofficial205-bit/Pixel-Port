@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791355512" />
+  <link rel="stylesheet" href="project.css?v=1791357249" />
 </head>
 <body class="all">
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -33,20 +33,19 @@
     </div>
   </header>
 
-  <main>
-    <!-- the same language as a project page: a quiet title, then each project as a wide panel in its own colours -->
-    <header class="top">
-      <p class="kicker"><span id="count"></span><span class="hi">सभी प्रोजेक्ट्स</span></p>
-      <h1>All projects</h1>
-      <div class="filters" role="group" aria-label="Filter by category" id="filters"></div>
-    </header>
-
-    <ul class="panels" id="grid"></ul>
+  <main class="genres">
+    <!-- the domains are the page's menu, like genres: pick one and the stills on the right are only those projects -->
+    <aside class="side">
+      <h1 class="sr-only">All projects</h1>
+      <p class="kicker">Filter by domain</p>
+      <div class="filters" role="group" aria-label="Filter by domain" id="filters"></div>
+    </aside>
+    <ul class="stage" id="grid"></ul>
   </main>
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791355512"></script>
+  <script src="js/data.js?v=1791357249"></script>
   <script>
     (function () {
       const S = SITE, $ = (s) => document.querySelector(s);
@@ -60,37 +59,34 @@
       let active = new URLSearchParams(location.search).get("c") || "All";
       if (active !== "All" && !cats.includes(active)) active = "All";
 
+      const count = (c) => S.projects.filter((p) => c === "All" || p.meta.category === c).length;
       $("#filters").innerHTML = ["All", ...cats].map((c) =>
-        `<button class="chip" type="button" data-c="${c}" aria-pressed="${c === active}">${c}</button>`).join("");
+        `<button class="genre" type="button" data-c="${c}" aria-pressed="${c === active}">${c === "All" ? "All projects" : c}<small>${count(c)}</small></button>`).join("");
 
       $("#grid").innerHTML = S.projects.map((p, k) => `
-        <li class="panel" data-c="${p.meta.category || ""}" data-project="${p.id}">
+        <li class="still" data-c="${p.meta.category || ""}">
           <a href="project.html?p=${p.id}">
-            <img src="${S.img(p.hero || p.cover, 2048)}" alt="" loading="${k < 2 ? "eager" : "lazy"}" decoding="async" />
-            <span class="panel-in">
-              <span class="panel-meta">${String(k + 1).padStart(2, "0")}<i></i>${[p.meta.category, p.meta.year].filter(Boolean).join(" · ")}</span>
-              <span class="panel-title">${p.title}</span>
-              <span class="panel-blurb">${p.blurb}</span>
+            <img src="${S.img(p.hero || p.cover, 2048)}" alt="" loading="${k < 3 ? "eager" : "lazy"}" decoding="async" />
+            <span class="still-in">
+              <span class="still-meta">${[p.meta.category, p.meta.year].filter(Boolean).join(" · ")}</span>
+              <span class="still-title">${p.title}</span>
+              <span class="still-blurb">${p.blurb}</span>
             </span>
-            <span class="panel-go" aria-hidden="true">View project <b>→</b></span>
+            <span class="still-go" aria-hidden="true">View project <b>→</b></span>
           </a>
         </li>`).join("");
 
-      const apply = () => {
-        let n = 0;
-        document.querySelectorAll(".panel").forEach((li) => {
-          const show = active === "All" || li.dataset.c === active;
-          li.hidden = !show; if (show) n++;
-        });
-        document.querySelectorAll(".chip").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.c === active)));
-        $("#count").textContent = `${n} project${n === 1 ? "" : "s"}${active === "All" ? "" : " · " + active}`;
+      const apply = (jump) => {
+        document.querySelectorAll(".still").forEach((li) => (li.hidden = !(active === "All" || li.dataset.c === active)));
+        document.querySelectorAll(".genre").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.c === active)));
         const u = new URL(location.href);
         active === "All" ? u.searchParams.delete("c") : u.searchParams.set("c", active);
         history.replaceState(null, "", u);
+        if (jump) scrollTo({ top: 0, behavior: "smooth" });
       };
       $("#filters").addEventListener("click", (e) => {
-        const b = e.target.closest(".chip"); if (!b) return;
-        active = b.dataset.c; apply();
+        const b = e.target.closest(".genre"); if (!b) return;
+        active = b.dataset.c; apply(true);
       });
       apply();
     })();
