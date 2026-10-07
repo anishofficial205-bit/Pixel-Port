@@ -656,10 +656,12 @@ window.SITE = {
 
   /* Cinema reels. Add `src: "media/reel.mp4"` to play a real file. */
   reels: [
-    { id: "showreel", title: "Showreel 2026", length: "1:30", poster: "https://picsum.photos/seed/pp-reel1/1280/720", src: null },
-    { id: "motion", title: "Motion Bits", length: "0:45", poster: "https://picsum.photos/seed/pp-reel2/1280/720", src: null },
-    { id: "brand-films", title: "Brand Films", length: "2:10", poster: "https://picsum.photos/seed/pp-reel3/1280/720", src: null },
+    // the user's own films (sent 2026-10-08), re-encoded for the web from 1080p masters: 1920 wide, about 5 Mbit/s
+    { id: "marine-drive", title: "Marine Drive", length: "0:42", poster: "assets/reels/marine-drive.webp", src: "assets/reels/marine-drive.mp4" },
+    { id: "udaipur", title: "Udaipur", length: "0:29", poster: "assets/reels/udaipur.webp", src: "assets/reels/udaipur.mp4" },
+    { id: "fort", title: "Fort", length: "0:25", poster: "assets/reels/fort.webp", src: "assets/reels/fort.mp4" },
   ],
+
 
   /* Exhibition photos. w/h is the aspect ratio of the photo. */
   /* Exhibition photos (4, one per frame). Frame 2 is portrait, the others landscape. */
