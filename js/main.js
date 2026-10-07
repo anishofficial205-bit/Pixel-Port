@@ -1191,6 +1191,10 @@
     const flips = ["walk", "run", "idle"].includes(anim);   // side-on frames face the way he's going
     const grounded = !["fall", "fallStart", "fallEnd", "stepoff", "cheer", "sit"].includes(anim);
 
+    // his other sheets load a scene ahead: the drain's as soon as he sets off down the street (or after a moment's
+    // wait there), the stairs' once he is in the drain
+    if (loc === "street" ? cur > 4 || now > 3500 : true) Sprite.need("drain");
+    if (loc !== "street") Sprite.need("stairs");
     // location
     if (loc !== lastLoc) {
       if (lastLoc === "cinema") pauseReel();              // leaving the cinema stops the reel

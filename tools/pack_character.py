@@ -110,7 +110,7 @@ def pack(frames, name):
         y = CH - f.height if top is None else top
         assert y >= 0 and ax <= CW // 2 and f.width - ax <= CW // 2, (name, i, f.size, ax, y)
         sheet.alpha_composite(f, ((i % COLS) * CW + CW // 2 - ax, (i // COLS) * CH + y))
-    sheet.save(ROOT / f"assets/character/{name}{'-2x' if SCALE > 1 else ''}.webp", quality=88 if SCALE > 1 else 90, method=6 if SCALE == 1 else 4)
+    sheet.save(ROOT / f"assets/character/{name}{'-2x' if SCALE > 1 else ''}.webp", quality=70, alpha_quality=80, method=6)   # (audit P1-4: 70 keeps the painted grain without visible artefacts)
     print(name, len(frames), "frames", sheet.size)
 
 
