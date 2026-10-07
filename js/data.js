@@ -651,6 +651,36 @@ window.SITE = {
       "lead": "A portfolio you walk through, with a plain view for anyone in a hurry. Scrolling moves a small version of me through one night in an Indian city, and each place is a section: projects on subway billboards, reels in a cinema, photos in a gallery, contact on a rooftop. I set the concept, the experience and the art direction, and made every call; Claude Code wrote the code and an image model drew the art to my brief.",
       "meta": {"year": "2026", "timeframe": "8 Days", "tools": "Claude, Claude Code, AI image generation", "category": "UI/UX", "collaboration": "Solo Project"},
       "blocks": []
+    },
+    // two pieces of work under NDA. nda: true = the page shows only the cover and a note; nothing of the work
+    // itself is in the project. Covers are pixelated and stamped by tools/build_nda.py.
+    {
+      "id": "please-see",
+      "featured": false, "nda": true,
+      "title": "Please See x Anish Shah",
+      "line": "Line 7",
+      "blurb": "Internship work, under NDA",
+      "shape": "wide",
+      "band": "#E8331F",
+      "cover": "assets/projects/nda/please-see.webp",
+      "intro": "Work from my internship at Please See.",
+      "lead": "This work is under a non-disclosure agreement, so I can’t show it here. I’m happy to walk through my role and process in a conversation.",
+      "meta": {"category": "Internship", "collaboration": "Please See"},
+      "blocks": []
+    },
+    {
+      "id": "miso",
+      "featured": false, "nda": true,
+      "title": "Miso.Inc x Anish Shah",
+      "line": "Line 8",
+      "blurb": "Website design, under NDA",
+      "shape": "wide",
+      "band": "#E8B81F",
+      "cover": "assets/projects/nda/miso.webp",
+      "intro": "A website design project with Miso.Inc.",
+      "lead": "This work is under a non-disclosure agreement, so I can’t show it here. I’m happy to walk through my role and process in a conversation.",
+      "meta": {"category": "UI/UX", "collaboration": "Miso.Inc"},
+      "blocks": []
     }
   ],
 

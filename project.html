@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791397348" />
+  <link rel="stylesheet" href="project.css?v=1791397856" />
 </head>
 <body>
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -62,19 +62,19 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791397348"></script>
-  <script src="js/flow.js?v=1791397348"></script>
+  <script src="js/data.js?v=1791397856"></script>
+  <script src="js/flow.js?v=1791397856"></script>
   <script>
     (function () {
       const list = SITE.projects;
       const id = new URLSearchParams(location.search).get("p");
       const i = Math.max(0, list.findIndex((p) => p.id === id));
-      const p = list[i], F = FLOW[p.id] || { hero: 1.5, items: [] };
+      const p = list[i], F = FLOW[p.id] || { hero: 1.5, items: p.nda ? [{ t: "lead" }, { t: "nda" }] : [] };
       const $ = (s) => document.querySelector(s);
       const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
       document.title = p.title + " · Anish Shah";
-      document.body.dataset.project = p.id;                  // the page takes on this project's character (project.css)
+      document.body.dataset.project = p.id; document.body.classList.toggle("is-nda", !!p.nda);                  // the page takes on this project's character (project.css)
       // Ride | Simple, as on the home page: shows the view in use, and choosing one opens the home page in that view, at the hero
       const view = (() => { try { return localStorage.getItem("view-mode"); } catch (e) { return null; } })() === "static" ? "static" : "ride";
       document.querySelectorAll(".view-switch button").forEach((b) => {
@@ -90,7 +90,7 @@
       $("#p-hero").src = SITE.img(hero); $("#p-hero").alt = p.title + ": " + p.blurb;
       const labels = { year: "Year", timeframe: "Timeframe", tools: "Tools", collaboration: "Collaboration" };
       Object.entries(labels).forEach(([k, label]) => { if (!p.meta[k]) return; const d = el("div"); d.append(el("dt", null, label), el("dd", null, p.meta[k])); $("#p-facts").append(d); });
-      $("#p-source").href = p.source;
+      if (p.source) $("#p-source").href = p.source; else $(".source").hidden = true;
       if (p.sourceLabel) $("#p-source").firstChild.textContent = p.sourceLabel + " ";
 
       const root = $("#p-case");
@@ -112,6 +112,7 @@
         else if (b.t === "p") e = el("p", b.narrow ? "narrow" : "", b.tx);
         else if (b.t === "rule") e = el("hr", "rule");
         else if (b.t === "quote") e = el("blockquote", "pull", b.tx);
+        else if (b.t === "nda") { e = el("p", "nda-note"); const a = el("a", null, "Get in touch"); a.href = "mailto:" + SITE.email + "?subject=" + encodeURIComponent(p.title); e.append(el("b", null, "NDA"), el("span", null, "Under non-disclosure. Details on request."), a); }
         else if (b.t === "table") {
           e = el("div", "tablewrap"); const t = el("table"); e.append(t);
           if (b.head) { const tr = el("tr"); b.head.forEach((c) => tr.append(el("th", null, c))); t.append(tr); }
@@ -125,7 +126,7 @@
           b.items.forEach(([t, d]) => { const li = el("li"); li.append(el("b", null, t), el("span", null, d)); e.append(li); });
         } else if (b.t === "lead") {                       // the big statement
           // its first sentence is set large; the rest follows as an ordinary paragraph
-          const cut = p.lead.search(/[.!?]\s/), first = cut > 20 ? p.lead.slice(0, cut + 1) : p.lead, rest = cut > 20 ? p.lead.slice(cut + 2) : "";
+          const cut = p.nda ? -1 : p.lead.search(/[.!?]\s/), first = cut > 20 ? p.lead.slice(0, cut + 1) : p.lead, rest = cut > 20 ? p.lead.slice(cut + 2) : "";
           e = el("p", "lead", first);
           if (rest) { root.append(e); if (b.chapter) chapter(b.chapter, e); root.append(el("p", null, rest)); return; }
         } else if (b.t === "row") {
