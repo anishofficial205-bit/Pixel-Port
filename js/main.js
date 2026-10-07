@@ -75,7 +75,7 @@
   // the subway's boards are wide: a project whose cover is tall shows its wide ad picture there instead
   const boardImg = (p) => (p.shape === "tall" && p.ads && p.ads.wide && p.ads.wide[0]) || p.cover;
   // a photo's second line: where and when, or for an album how many pictures it holds
-  const photoSub = (p, sep = " · ") => (p.album ? `Album${sep}${p.album.length} photographs` : `${p.place}${sep}${p.year}`);
+  const photoSub = (p, sep = " · ") => (p.album ? `Album${sep}${p.album.length} ${p.note ? "pictures" : "photographs"}` : `${p.place}${sep}${p.year}`);
   function fillContent() {
     $("#site-name").textContent = `${S.name[0]}${S.name.slice(1).toLowerCase()} Shah, ${S.role}`;
     $("#site-intro").textContent = S.intro;
@@ -1450,14 +1450,17 @@
     function openAlbum(k) {
       const p = S.photos[k], list = p.album.map((src, n) => ({ p, k, src, n }));
       albumFocus = document.activeElement;
-      $("#album-kick").textContent = `Album · ${list.length} photographs`; $("#album-title").textContent = p.title;
-      $("#album-grid").innerHTML = list.map((x, n) => `<button type="button" data-n="${n}" style="--i:${n}" aria-label="Enlarge photo ${n + 1} of ${list.length}"><img src="${x.src}" alt="" loading="${n < 6 ? "eager" : "lazy"}" decoding="async" draggable="false" /></button>`).join("");
+      $("#album-kick").textContent = `${p.note ? p.note + " · " : ""}Album · ${list.length} ${p.note ? "pictures" : "photographs"}`; $("#album-title").textContent = p.title;
+      const cells = list.map((x, n) => `<button type="button" data-n="${n}" style="--i:${n}" aria-label="Enlarge picture ${n + 1} of ${list.length}"><img src="${x.src}" alt="" loading="${n < 6 ? "eager" : "lazy"}" decoding="async" draggable="false" /></button>`);
+      // an album with a feature: its first picture stands large in a column of its own, the rest are the grid beside it
+      $("#album-grid").classList.toggle("has-feature", !!p.feature);
+      $("#album-grid").innerHTML = p.feature ? `<div class="album-feature">${cells[0]}</div><div class="album-rest">${cells.slice(1).join("")}</div>` : cells.join("");
       $$("#album-grid button").forEach((b) => b.addEventListener("click", () => enlarge(list, +b.dataset.n)));
       al.hidden = false; al.scrollTop = 0; body.classList.add("lb-open"); $(".album-close").focus();
     }
     function closeAlbum() { al.hidden = true; body.classList.remove("lb-open"); albumFocus?.focus(); }
     $(".album-close").addEventListener("click", closeAlbum);
-    al.addEventListener("click", (e) => { if (e.target === al || e.target.id === "album-grid") closeAlbum(); });
+    al.addEventListener("click", (e) => { if (e.target === al || e.target.id === "album-grid" || e.target.classList.contains("album-rest")) closeAlbum(); });
     $(".lb-close").addEventListener("click", close);
     $(".lb-prev").addEventListener("click", () => show(li - 1));
     $(".lb-next").addEventListener("click", () => show(li + 1));

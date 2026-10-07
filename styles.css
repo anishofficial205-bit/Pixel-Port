@@ -817,7 +817,16 @@ body::after {
 .album-grid:hover img { filter: brightness(0.62); }
 .album-grid button:hover img, .album-grid button:focus-visible img { filter: none; transform: scale(1.04); }
 .album-grid button:focus-visible { outline: 2px solid #FFC24A; outline-offset: 3px; }
+/* an album with a feature (a poster, say): it stands large at the left and stays in view; the rest is the grid */
+.album-grid.has-feature { columns: auto; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); gap: 14px; align-items: start; }
+.album-feature { position: sticky; top: clamp(110px, 12vw, 150px); }
+.album-feature button { margin: 0; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55); }
+.album-feature img { max-height: calc(100vh - 190px); object-fit: contain; background: #F2EBDD; }
+.album-rest { columns: 3; column-gap: 14px; }
+.album-grid.has-feature:hover .album-feature img { filter: none; }
 @media (max-width: 1100px) { .album-grid { columns: 3; } }
+@media (max-width: 1100px) { .album-rest { columns: 2; } }
+@media (max-width: 700px) { .album-grid.has-feature { grid-template-columns: 1fr; gap: 8px; } .album-feature { position: static; } .album-feature img { max-height: none; } .album-rest { column-gap: 8px; } }
 @media (max-width: 700px) { .album-grid { columns: 2; column-gap: 8px; } .album-grid button { margin-bottom: 8px; } .album-head { align-items: flex-start; } }
 @media (hover: none) { .album-grid:hover img { filter: none; } }
 

@@ -676,6 +676,10 @@ window.SITE = {
     // the user's photographs of friends (sent 2026-10-08), as an album
     { title: "Friends", w: 3, h: 2, src: "assets/photos/friends/01.webp",
       album: Array.from({ length: 20 }, (_, i) => `assets/photos/friends/${String(i + 1).padStart(2, "0")}.webp`) },
-    { title: "Tea Estate", place: "Munnar", year: "2023", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph6/1200/800" },
+    // "Second Chance", a short film the user directed: its poster, the shoot, the screenings (sent 2026-10-08).
+    // feature: true gives the first picture (the poster) a large column of its own beside the grid.
+    // 04, 05 and 07 are clips from the set, as silent looping animated WebP.
+    { title: "Second Chance", note: "Short film", w: 3, h: 2, src: "assets/photos/second-chance/02.webp", feature: true,
+      album: ["poster", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"].map((n) => `assets/photos/second-chance/${n}.webp`) },
   ],
 };
