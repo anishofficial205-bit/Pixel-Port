@@ -112,7 +112,7 @@
     $("#photos").innerHTML = S.photos.map((p, i) => `
       <figure class="photo" style="--ar:${p.w / p.h}">
         <button class="photo-frame${p.album ? " is-album" : ""}" type="button" data-i="${i}" aria-label="Open ${p.album ? "album" : "photo"}: ${p.title}, ${photoSub(p, ", ")}">
-          <img class="work-media" src="${p.src}" alt="${p.title}" decoding="async" />
+          <span class="covers">${(p.covers || [p.src]).map((c) => `<img class="work-media" src="${c}" alt="" decoding="async" onload="this.style.flex=(this.naturalWidth/this.naturalHeight)+' 1 0'" />`).join("")}</span>
           ${p.album ? `<span class="album-tag" aria-hidden="true">${p.album.length} photos</span>` : ""}
         </button>
         <figcaption class="plaque"><b>${p.title}</b><span>${photoSub(p)}</span></figcaption>

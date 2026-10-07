@@ -667,19 +667,20 @@ window.SITE = {
   /* Exhibition photos (4, one per frame). Frame 2 is portrait, the others landscape. */
   photos: [
     // the user's own photographs of Jodhpur (sent 2026-10-08), as an album
-    { title: "Jodhpur", w: 3, h: 2, src: "assets/photos/jodhpur/01.webp",
+    { title: "Jodhpur", w: 3, h: 2, src: "assets/photos/jodhpur/01.webp", covers: ["assets/photos/jodhpur/01.webp", "assets/photos/jodhpur/05.webp"],
       album: Array.from({ length: 25 }, (_, i) => `assets/photos/jodhpur/${String(i + 1).padStart(2, "0")}.webp`) },
-    // an album: one frame in the gallery (src is its cover), every picture in the viewer that opens from it.
+    // an album: one frame in the gallery, every picture in the viewer that opens from it. In the frame its
+    // preview is never cropped: `covers` (default: just src) are shown whole, side by side on a dark mount.
     // The street portraits from the Photography section of anishah.framer.website/about-me
     { title: "Street Portraits", w: 4, h: 5, src: "assets/photos/street-portraits/01.webp",
       album: Array.from({ length: 11 }, (_, i) => `assets/photos/street-portraits/${String(i + 1).padStart(2, "0")}.webp`) },
     // the user's photographs of friends (sent 2026-10-08), as an album
-    { title: "Friends", w: 3, h: 2, src: "assets/photos/friends/01.webp",
+    { title: "Friends", w: 3, h: 2, src: "assets/photos/friends/01.webp", covers: ["assets/photos/friends/01.webp", "assets/photos/friends/11.webp"],
       album: Array.from({ length: 20 }, (_, i) => `assets/photos/friends/${String(i + 1).padStart(2, "0")}.webp`) },
     // "Second Chance", a short film the user directed: its poster, the shoot, the screenings (sent 2026-10-08).
     // feature: true gives the first picture (the poster) a large column of its own beside the grid.
     // 04, 05 and 07 are clips from the set, as silent looping animated WebP.
-    { title: "Second Chance", note: "Short film", w: 3, h: 2, src: "assets/photos/second-chance/02.webp", feature: true,
+    { title: "Second Chance", note: "Short film", w: 3, h: 2, src: "assets/photos/second-chance/02.webp", covers: ["assets/photos/second-chance/poster.webp", "assets/photos/second-chance/02.webp"], feature: true,
       album: ["poster", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"].map((n) => `assets/photos/second-chance/${n}.webp`) },
   ],
 };
