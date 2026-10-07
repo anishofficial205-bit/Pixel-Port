@@ -427,25 +427,25 @@
     $("#plain").style.cssText = ["spark", "star", "heart"].map((k) => `--px-${k}:${pxArt(PX[k], C.amber)};--px-${k}-ink:${pxArt(PX[k], C.navy)};--px-${k}-cream:${pxArt(PX[k], C.cream)}`).join(";")
       + `;--px-cursor:${pxArt(PX.cursor, C.navy)}`;
     $("#plain").innerHTML = `
-      <section class="plain-hero z-split" id="plain-street" data-loc="street" aria-label="Home">
-        <!-- left: the ride's title card on navy, with him standing in front of the logo (he starts the ride) -->
-        <div class="z-split-l">
-          <div class="z-bits" aria-hidden="true">${bit("star", 10, 74, 34)}${bit("spark", 84, 20, 20, "--px:var(--px-spark-cream)")}${bit("spark", 12, 22, 16, "--px:var(--px-spark-cream)")}</div>
-          <div class="zl">
+      <section class="plain-hero n-hero" id="plain-street" data-loc="street" aria-label="Home">
+        <div class="z-bits" aria-hidden="true">${bit("star", 8, 20, 22)}${bit("spark", 46, 14, 12)}${bit("spark", 30, 70, 10)}${bit("star", 94, 62, 16)}${bit("spark", 57, 46, 9)}</div>
+        <div class="plain-wrap n-hero-grid">
+          <div class="n-hero-text">
+            <p class="n-kick">Design portfolio · ${S.year}</p>
+            <h1 class="z-hello"><span>Hello,</span><span>I’m <em>${first}.</em></span></h1>
+            <p class="z-intro">I design things for screens and streets: brands, packaging, interfaces and print.</p>
+            <p class="n-status"><i></i>Looking for a grad project</p>
+          </div>
+          <!-- a crescent moon, the logo glowing across it, and him beneath (he starts the ride) -->
+          <div class="n-hero-art">
+            <i class="n-moon" aria-hidden="true"></i>
             <span class="zl-logo" aria-hidden="true"><img src="assets/brand/logo-source.png" alt="" /><span class="crt"><i></i></span></span>
-            <span class="zl-t zl-port" aria-hidden="true"><b class="ht-in ht-port">Portfolio <small>'26</small></b></span>
-            <span class="zl-t zl-hey" aria-hidden="true"><b class="ht-in ht-hey"><i></i>Looking for a grad project</b></span>
             <button class="z-him z-guide take-ride" type="button" aria-label="Take the ride: travel through the portfolio as a scrolling journey"></button>
-            <i class="z-bub pxb z-bub-c" aria-hidden="true">Psst, click me!</i>
+            <i class="z-bub z-bub-c" aria-hidden="true">Psst, click me!</i>
           </div>
         </div>
-        <i class="z-split-edge" aria-hidden="true"></i>
-        <!-- right: set in type alone -->
-        <div class="z-split-r">
-          <h1 class="z-hello"><span>Hello,</span><span>I’m</span><span><em>${first}.</em></span></h1>
-          <p class="z-intro">I design things for <mark>screens</mark> and <mark>streets</mark>: brands, packaging, interfaces and print.</p>
-        </div>
-        <p class="z-ticker" aria-hidden="true"><span>${Array(4).fill("Scroll for the work &#9733; About &#9733; Projects &#9733; Reels &#9733; Photos &#9733; Say hello &#9733; ").join("")}</span></p>
+        <i class="n-skyline" aria-hidden="true"></i>
+        <p class="n-scroll" aria-hidden="true"><i></i>Scroll</p>
       </section>
 
       <section class="z-sec z-about" id="plain-drain" data-loc="drain" aria-labelledby="plain-about-h">
@@ -546,7 +546,7 @@
             <figure class="z-roof" data-rv>${win("rooftop.png", `<span class="z-roof-art"><span class="z-him z-sitter" aria-hidden="true"></span></span>`)}<figcaption class="z-cap">${S.location}</figcaption></figure>
           </div>
         </div>
-        <i class="z-skyline" style="background-image:${pxSkyline("#B31A12", "#FFC24A", 29)}" aria-hidden="true"></i>
+        <i class="n-skyline" aria-hidden="true"></i>
         <div class="z-foot"><div class="plain-wrap">
           <p>© ${S.year} ${first} Shah</p>
           <p><a class="pxbtn sm alt" href="#plain-street" data-stop="street">Back to top</a><button class="pxbtn sm take-ride" type="button"><b>&#9654;</b> Take the ride</button></p>
@@ -627,6 +627,25 @@
     showPhoto(0);
 
     if (reduceMotion) return;
+    // scroll transitions: each section arrives through an iris that opens from the bottom of the screen, in the
+    // colour of the section before it (--p runs 0 -> 1 as the section's top climbs the screen), and the one being
+    // left sinks back and dims a little (--out). See "Night print" in styles.css.
+    const zsecs = $$("#plain > section");
+    let tick = 0;
+    const wipe = () => {
+      tick = 0;
+      if (body.classList.contains("ride")) return;
+      const vh = innerHeight;
+      zsecs.forEach((el, k) => {
+        const r = el.getBoundingClientRect();
+        if (r.bottom < -vh || r.top > vh * 2) return;
+        if (k) { el.style.setProperty("--p", Math.min(1, Math.max(0, (vh - r.top) / (vh * 0.85))).toFixed(3)); el.style.setProperty("--cy", Math.round(vh - r.top) + "px"); }   // --cy: the bottom of the screen, measured from the section's top (the iris opens from there)
+        el.style.setProperty("--out", Math.min(1, Math.max(0, (vh * 0.9 - r.bottom) / (vh * 0.7))).toFixed(3));
+      });
+    };
+    plain.classList.add("wipe-on");
+    addEventListener("scroll", () => { if (!tick) tick = requestAnimationFrame(wipe); }, { passive: true });
+    addEventListener("resize", wipe); plainSize = wipe; wipe();
     // things pop in as they arrive
     plain.classList.add("rv-on");
     const rv = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("rv-in"); rv.unobserve(e.target); } }), { rootMargin: "0px 0px -10% 0px" });
