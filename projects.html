@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791355102" />
+  <link rel="stylesheet" href="project.css?v=1791355512" />
 </head>
 <body class="all">
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -34,19 +34,19 @@
   </header>
 
   <main>
-    <section class="top">
-      <span class="star" style="left:6%;top:22%"></span><span class="star s2" style="right:9%;top:16%"></span><span class="star s3" style="right:22%;bottom:18%"></span>
-      <p class="kicker"><span class="hi">सभी प्रोजेक्ट्स</span> <span id="count"></span></p>
+    <!-- the same language as a project page: a quiet title, then each project as a wide panel in its own colours -->
+    <header class="top">
+      <p class="kicker"><span id="count"></span><span class="hi">सभी प्रोजेक्ट्स</span></p>
       <h1>All projects</h1>
       <div class="filters" role="group" aria-label="Filter by category" id="filters"></div>
-    </section>
+    </header>
 
-    <ul class="grid" id="grid"></ul>
+    <ul class="panels" id="grid"></ul>
   </main>
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791355102"></script>
+  <script src="js/data.js?v=1791355512"></script>
   <script>
     (function () {
       const S = SITE, $ = (s) => document.querySelector(s);
@@ -63,19 +63,22 @@
       $("#filters").innerHTML = ["All", ...cats].map((c) =>
         `<button class="chip" type="button" data-c="${c}" aria-pressed="${c === active}">${c}</button>`).join("");
 
-      $("#grid").innerHTML = S.projects.map((p) => `
-        <li class="card" data-c="${p.meta.category || ""}">
+      $("#grid").innerHTML = S.projects.map((p, k) => `
+        <li class="panel" data-c="${p.meta.category || ""}" data-project="${p.id}">
           <a href="project.html?p=${p.id}">
-            <span class="board"><img src="${S.img(p.cover, 1024)}" alt="${p.title}: ${p.blurb}" loading="lazy" decoding="async" /></span>
-            <span class="card-meta"><i></i>${[p.line, p.meta.category, p.meta.year].filter(Boolean).join(" · ")}</span>
-            <span class="card-title">${p.title}</span>
-            <span class="card-blurb">${p.blurb}</span>
+            <img src="${S.img(p.hero || p.cover, 2048)}" alt="" loading="${k < 2 ? "eager" : "lazy"}" decoding="async" />
+            <span class="panel-in">
+              <span class="panel-meta">${String(k + 1).padStart(2, "0")}<i></i>${[p.meta.category, p.meta.year].filter(Boolean).join(" · ")}</span>
+              <span class="panel-title">${p.title}</span>
+              <span class="panel-blurb">${p.blurb}</span>
+            </span>
+            <span class="panel-go" aria-hidden="true">View project <b>→</b></span>
           </a>
         </li>`).join("");
 
       const apply = () => {
         let n = 0;
-        document.querySelectorAll(".card").forEach((li) => {
+        document.querySelectorAll(".panel").forEach((li) => {
           const show = active === "All" || li.dataset.c === active;
           li.hidden = !show; if (show) n++;
         });
