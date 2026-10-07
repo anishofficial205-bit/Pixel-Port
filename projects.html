@@ -10,22 +10,21 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791353617" />
+  <link rel="stylesheet" href="project.css?v=1791355102" />
 </head>
 <body class="all">
-  <!-- the same bar as the home page: logo, the six stops, all projects, and the Ride | Simple switch -->
+  <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
   <header class="bar">
     <a class="bar-logo" href="index.html" aria-label="Anish Shah, home"><img src="assets/brand/logo.png" alt="" width="229" height="160" /></a>
     <nav class="route pill" aria-label="Sections">
-      <span class="route-track" aria-hidden="true"></span>
       <ol>
-        <li><a href="index.html#street"><i></i>Start</a></li>
-        <li><a href="index.html#drain"><i></i>About</a></li>
-        <li><a href="index.html#subway"><i></i>Projects</a></li>
-        <li><a href="index.html#cinema"><i></i>Reels</a></li>
-        <li><a href="index.html#exhibition"><i></i>Photos</a></li>
-        <li><a href="index.html#rooftop"><i></i>Contact</a></li>
-        <li><a class="all here" href="projects.html" aria-current="page"><i></i><span class="l">All projects</span><span class="s">All</span></a></li>
+        <li><a href="index.html#street">Home</a></li>
+        <li><a href="index.html#drain">About</a></li>
+        <li><a href="index.html#subway">Projects</a></li>
+        <li><a href="index.html#cinema">Play</a></li>
+        <li><a href="index.html#rooftop">Contact</a></li>
+        <li class="sep" aria-hidden="true"></li>
+        <li><a class="all here" href="projects.html" aria-current="page"><span class="l">All projects</span><span class="s">All</span></a></li>
       </ol>
     </nav>
     <div class="view-switch pill" role="group" aria-label="View">
@@ -47,7 +46,7 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791353617"></script>
+  <script src="js/data.js?v=1791355102"></script>
   <script>
     (function () {
       const S = SITE, $ = (s) => document.querySelector(s);

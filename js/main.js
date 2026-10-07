@@ -1517,10 +1517,9 @@
 
   // Highlight the current section in the nav; the pill slides to it (hidden on the street / home)
   function markSection(loc) {
-    const links = $$(".route a[data-stop]"), at = links.findIndex((a) => a.dataset.stop === loc);
+    const links = $$(".route a[data-stop]"), at = links.findIndex((a) => a.dataset.stop === loc || a.dataset.also === loc);   // Play covers the cinema and the gallery
     links.forEach((a, i) => {
       a.classList.toggle("here", i === at);
-      a.classList.toggle("done", i < at);                 // stops already passed
       i === at ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current");
     });
   }
