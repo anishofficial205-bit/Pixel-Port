@@ -5,6 +5,8 @@
 ------------------------------------------------------------------- */
 window.SITE = {
   featured() { return this.projects.filter((p) => p.featured); },
+  // the projects shown on the home page: the featured four, then those marked home (no subway billboard of their own)
+  home() { return [...this.featured(), ...this.projects.filter((p) => p.home && !p.featured)]; },
   // A project picture at a sensible size. The case-study pictures live in assets/projects/<project>/ in four
   // widths (tools/localise_framer.py): full, 1280, 640 and a 32 px one used blurred behind things.
   img(id, size = 2048) {
@@ -622,7 +624,7 @@ window.SITE = {
     {
       // from behance.net/gallery/248967119 (a team project). Its page is laid out in tools/build_flow.py; photos in assets/projects/bhayanaka
       "id": "bali",
-      "featured": false,
+      "featured": false, "home": true,
       "title": "Bali",
       "line": "Line 5",
       "blurb": "Production design for a short horror film",
@@ -640,7 +642,7 @@ window.SITE = {
     {
       // how this site was made. Written in tools/making.py (from the user's own write-up), pictures by tools/build_making.py
       "id": "making",
-      "featured": false,
+      "featured": false, "home": true,
       "title": "The Ride",
       "line": "Line 6",
       "blurb": "Turning my portfolio into a place you walk through",
