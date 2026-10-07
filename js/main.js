@@ -1432,25 +1432,38 @@
     const awake = () => { player.classList.add("awake"); clearTimeout(wake); wake = setTimeout(() => player.classList.remove("awake"), 2200); };
     ["pointermove", "pointerdown", "focusin"].forEach((e) => player.addEventListener(e, awake));
 
-    // lightbox
-    const lb = $("#lightbox");
-    let li = 0, lastFocus = null, tx = null;
-    // every picture in order: a single photo is one slide, an album is one slide per picture
-    const slides = S.photos.flatMap((p, k) => (p.album || [p.src]).map((src, n, all) => ({ p, k, src, n, of: all.length })));
+    // lightbox: one picture, large. It steps through a set: the gallery's frames (an album shows as its cover),
+    // or, when opened from inside an album, that album's pictures.
+    const lb = $("#lightbox"), al = $("#album");
+    let li = 0, set = [], lastFocus = null, albumFocus = null, tx = null;
+    const frames = S.photos.map((p, k) => ({ p, k, src: p.src }));
     function show(i) {
-      li = (i + slides.length) % slides.length;
-      const { p, src, n, of } = slides[li];
-      $("#lb-img").src = src; $("#lb-img").alt = p.album ? `${p.title}, ${n + 1} of ${of}` : `${p.title}, ${p.place}`;
-      $("#lb-cap").innerHTML = `<b>${p.title}</b><span>${p.album ? `${n + 1} / ${of}` : photoSub(p)}</span>`;
+      li = (i + set.length) % set.length;
+      const { p, src, n } = set[li];
+      $("#lb-img").src = src; $("#lb-img").alt = n != null ? `${p.title}, ${n + 1} of ${set.length}` : p.title;
+      $("#lb-cap").innerHTML = `<b>${p.title}</b><span>${n != null ? `${n + 1} / ${set.length}` : photoSub(p)}</span>`;
     }
-    function openLightbox(photo) { lastFocus = document.activeElement; show(slides.findIndex((x) => x.k === photo)); lb.hidden = false; body.classList.add("lb-open"); $(".lb-close").focus(); }
-    function close() { lb.hidden = true; body.classList.remove("lb-open"); lastFocus?.focus(); }
+    function enlarge(list, i) { lastFocus = document.activeElement; set = list; show(i); lb.hidden = false; body.classList.add("lb-open"); $(".lb-close").focus(); }
+    function close() { lb.hidden = true; if (al.hidden) body.classList.remove("lb-open"); lastFocus?.focus(); }
+    // a frame was clicked: an album opens as a grid, a single photo opens large
+    function openLightbox(photo) { S.photos[photo].album ? openAlbum(photo) : enlarge(frames, photo); }
+    function openAlbum(k) {
+      const p = S.photos[k], list = p.album.map((src, n) => ({ p, k, src, n }));
+      albumFocus = document.activeElement;
+      $("#album-kick").textContent = `Album · ${list.length} photographs`; $("#album-title").textContent = p.title;
+      $("#album-grid").innerHTML = list.map((x, n) => `<button type="button" data-n="${n}" style="--i:${n}" aria-label="Enlarge photo ${n + 1} of ${list.length}"><img src="${x.src}" alt="" loading="${n < 6 ? "eager" : "lazy"}" decoding="async" draggable="false" /></button>`).join("");
+      $$("#album-grid button").forEach((b) => b.addEventListener("click", () => enlarge(list, +b.dataset.n)));
+      al.hidden = false; al.scrollTop = 0; body.classList.add("lb-open"); $(".album-close").focus();
+    }
+    function closeAlbum() { al.hidden = true; body.classList.remove("lb-open"); albumFocus?.focus(); }
+    $(".album-close").addEventListener("click", closeAlbum);
+    al.addEventListener("click", (e) => { if (e.target === al || e.target.id === "album-grid") closeAlbum(); });
     $(".lb-close").addEventListener("click", close);
     $(".lb-prev").addEventListener("click", () => show(li - 1));
     $(".lb-next").addEventListener("click", () => show(li + 1));
-    lb.addEventListener("click", (e) => { if (e.target === lb) close(); });
+    lb.addEventListener("click", (e) => { if (e.target === lb || e.target.classList.contains("lb-frame")) close(); });
     addEventListener("keydown", (e) => {
-      if (lb.hidden) return;
+      if (lb.hidden) { if (!al.hidden && e.key === "Escape") closeAlbum(); return; }
       if (e.key === "Escape") close();
       if (e.key === "ArrowLeft") show(li - 1);
       if (e.key === "ArrowRight") show(li + 1);
@@ -1587,7 +1600,7 @@
     let x = -200, y = -200, tx = x, ty = y, target = null, raf = 0;
     const onCity = () => {
       if (!target || !$("#lightbox").hidden || body.classList.contains("preloading")) return false;
-      if (target.closest("a, button, input, .hud, .lightbox")) return false;
+      if (target.closest("a, button, input, .hud, .lightbox, .album")) return false;
       if (body.classList.contains("ride")) return lastLoc === "street" || lastLoc === "";
       return !!target.closest(".plain-hero");
     };

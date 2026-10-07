@@ -796,21 +796,43 @@ body::after {
 }
 .plaque b { font-family: var(--font-label); font-weight: 700; font-size: 12px; }
 
-.lightbox {
-  position: fixed; inset: 0; z-index: 80;
-  background: rgba(18, 10, 38, 0.94);
-  display: grid; place-items: center; padding: 72px 16px;
-}
+/* shared controls of the two overlays: a cream capsule to close, round arrows to step */
+.x-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: 0; border-radius: 999px; cursor: pointer; background: #F2EBDD; color: #0A0908; font-family: var(--font-label); font-weight: 700; font-size: 13px; line-height: 1; letter-spacing: -0.2px; text-transform: none; transition: background-color 0.2s ease, transform 0.2s ease; }
+.x-btn:hover, .x-btn:focus-visible { background: #FFC24A; transform: scale(1.04); }
+.x-btn span { font-size: 11px; }
+.x-round { width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(242, 235, 221, 0.35); background: rgba(10, 9, 8, 0.5); color: #F2EBDD; font-size: 18px; line-height: 1; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.x-round:hover, .x-round:focus-visible { background: #F2EBDD; color: #0A0908; border-color: #F2EBDD; }
+
+/* the album: a quiet, dark page of its own, the pictures in a masonry grid */
+.album { position: fixed; inset: 0; z-index: 78; overflow-y: auto; overscroll-behavior: contain; background: rgba(8, 7, 7, 0.97); color: #F2EBDD; text-transform: none; animation: album-in 0.35s ease both; }
+.album[hidden] { display: none; }
+@keyframes album-in { from { opacity: 0; } }
+.album-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; max-width: 1400px; margin: 0 auto; padding: clamp(22px, 3.4vw, 44px) clamp(18px, 3.4vw, 48px) clamp(16px, 2vw, 26px); background: linear-gradient(rgba(8, 7, 7, 0.97) 72%, rgba(8, 7, 7, 0)); }
+.album-kick { margin: 0 0 10px; font-family: var(--font-label); font-weight: 700; font-size: 11.5px; line-height: 1; letter-spacing: 0.2em; text-transform: uppercase; color: #FFC24A; }
+.album-head h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 5vw, 72px); line-height: 0.92; letter-spacing: 0; }
+.album-grid { max-width: 1400px; margin: 0 auto; padding: 6px clamp(18px, 3.4vw, 48px) clamp(50px, 7vw, 100px); columns: 4; column-gap: 14px; }
+.album-grid button { display: block; width: 100%; margin: 0 0 14px; padding: 0; border: 0; background: #151312; cursor: zoom-in; overflow: hidden; break-inside: avoid; animation: album-item 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 45ms + 80ms); }
+@keyframes album-item { from { opacity: 0; transform: translateY(22px); } }
+.album-grid img { display: block; width: 100%; height: auto; transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.35s ease; }
+.album-grid:hover img { filter: brightness(0.62); }
+.album-grid button:hover img, .album-grid button:focus-visible img { filter: none; transform: scale(1.04); }
+.album-grid button:focus-visible { outline: 2px solid #FFC24A; outline-offset: 3px; }
+@media (max-width: 1100px) { .album-grid { columns: 3; } }
+@media (max-width: 700px) { .album-grid { columns: 2; column-gap: 8px; } .album-grid button { margin-bottom: 8px; } .album-head { align-items: flex-start; } }
+@media (hover: none) { .album-grid:hover img { filter: none; } }
+
+/* one picture, large: nothing but the picture, a line of caption, the arrows and Close */
+.lightbox { position: fixed; inset: 0; z-index: 80; background: rgba(6, 5, 5, 0.97); display: grid; place-items: center; padding: 70px 76px 30px; text-transform: none; animation: album-in 0.25s ease both; }
 .lightbox[hidden] { display: none; }
-.lb-frame { margin: 0; display: flex; flex-direction: column; align-items: center; max-width: 100%; }
-.lb-frame img {
-  max-width: min(1100px, 100%); max-height: calc(100vh - 220px); width: auto; height: auto;
-  box-shadow: 0 0 0 12px var(--paper), 0 0 0 16px var(--brass), 0 0 0 20px var(--outline);
-}
-.lb-frame .plaque { margin-top: 36px; }
-.lb-prev, .lb-next { position: fixed; top: 50%; }
-.lb-prev { left: calc(var(--frame) + 14px); } .lb-next { right: calc(var(--frame) + 14px); }
-.lb-close { position: fixed; top: calc(var(--frame) + 14px); right: calc(var(--frame) + 14px); }
+.lb-frame { margin: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.lb-frame img { max-width: 100%; max-height: calc(100vh - 160px); width: auto; height: auto; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); }
+.lb-cap { display: flex; align-items: baseline; gap: 14px; color: #F2EBDD; font-size: 14px; line-height: 1; }
+.lb-cap b { font-family: var(--font-display); font-weight: 400; font-size: 20px; letter-spacing: 0; }
+.lb-cap span { font-family: var(--font-label); font-weight: 700; font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #FFC24A; }
+.lb-prev, .lb-next { position: fixed; top: 50%; margin-top: -23px; }
+.lb-prev { left: calc(var(--frame) + 16px); } .lb-next { right: calc(var(--frame) + 16px); }
+.lb-close { position: fixed; top: calc(var(--frame) + 16px); right: calc(var(--frame) + 16px); }
+@media (max-width: 700px) { .lightbox { padding: 64px 10px 84px; } .lb-prev, .lb-next { top: auto; bottom: 22px; } .lb-prev { left: calc(50% - 56px); } .lb-next { right: calc(50% - 56px); } }
 .lb-open { overflow: hidden; }
 
 /* ---------------- 6. rooftop: the finale ----------------
