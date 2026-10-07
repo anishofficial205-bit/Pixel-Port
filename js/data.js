@@ -668,7 +668,7 @@ window.SITE = {
   photos: [
     // the user's own photographs of Jodhpur (sent 2026-10-08), as an album
     { title: "Jodhpur", w: 3, h: 2, src: "assets/photos/jodhpur/01.webp",
-      album: Array.from({ length: 21 }, (_, i) => `assets/photos/jodhpur/${String(i + 1).padStart(2, "0")}.webp`) },
+      album: Array.from({ length: 25 }, (_, i) => `assets/photos/jodhpur/${String(i + 1).padStart(2, "0")}.webp`) },
     // an album: one frame in the gallery (src is its cover), every picture in the viewer that opens from it.
     // The street portraits from the Photography section of anishah.framer.website/about-me
     { title: "Street Portraits", w: 4, h: 5, src: "assets/photos/street-portraits/01.webp",
