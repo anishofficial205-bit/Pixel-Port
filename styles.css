@@ -1214,22 +1214,22 @@ body::after {
 .plain-hero.z-split { display: grid; grid-template-columns: 46fr 54fr; align-items: stretch; padding: 0 0 54px; min-height: 100vh; }
 .z-split-l { position: relative; background: var(--ink); display: grid; place-items: center; padding: 110px 4vw 40px; }
 .z-split-edge { position: absolute; z-index: 2; left: 46%; top: 0; bottom: 54px; width: 16px; margin-left: -1px; background: repeating-linear-gradient(var(--ink) 0 16px, transparent 16px 32px); }
-.z-split .zl { width: min(100%, 560px); aspect-ratio: 1.1; margin: 0; }
-.z-split .zl-logo { left: 46%; top: 44%; width: 92%; }
-.z-split .zl-port { left: -2%; top: 3%; --r: -9deg; }
-.z-split .zl-hey { left: 2%; right: auto; bottom: 6%; --r: -4deg; z-index: 3; }
-/* he stands in front of the logo's lower right, overlapping it */
-.z-split .z-guide { left: auto; right: -13%; bottom: -9%; height: 74%; z-index: 2; }
-.z-split .z-bub-c { left: auto; right: -4%; bottom: 66%; z-index: 4; }
-.z-split-r { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 110px max(32px, calc((100vw - 1180px) / 2)) 40px clamp(48px, 6vw, 96px); }
-.z-split .z-tag { margin: 0 0 clamp(22px, 3.4vh, 38px) 4px; }
-.z-hello { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(64px, 8.4vw, 136px); line-height: 0.86; letter-spacing: 0; color: var(--cream); text-shadow: 4px 4px 0 var(--ink), 8px 8px 0 var(--ink); }
-.z-hello span { display: block; animation: z-drop 0.5s steps(6) both; } .z-hello span + span { animation-delay: 0.15s; margin-left: 0.55em; }
+.z-split .zl { width: min(100%, 600px); aspect-ratio: 1.12; margin: 0; }
+/* he stands at the left, in front of the logo's first letters; the logo sits to the right of him */
+.z-split .zl-logo { left: 58%; top: 45%; width: 86%; }
+.z-split .z-guide { left: -12%; right: auto; bottom: -7%; height: 76%; z-index: 2; }
+.z-split .z-bub-c { left: 2%; right: auto; bottom: 70%; z-index: 4; }
+.z-split .zl-port { left: auto; right: -2%; top: 1%; --r: 7deg; }
+.z-split .zl-hey { left: auto; right: -3%; bottom: 7%; --r: -4deg; z-index: 3; }
+/* right: three stepped lines of type and one sentence, centred as a block in the panel */
+.z-split-r { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 110px max(32px, calc((100vw - 1180px) / 2)) 50px clamp(56px, 7vw, 120px); }
+.z-hello { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(72px, 10.2vw, 168px); line-height: 0.84; letter-spacing: 0; color: var(--cream); text-shadow: 5px 5px 0 var(--ink), 10px 10px 0 var(--ink); }
+.z-hello span { display: block; animation: z-drop 0.5s steps(6) both; }
+.z-hello span:nth-child(2) { margin-left: 1.05em; animation-delay: 0.12s; }
+.z-hello span:nth-child(3) { margin-left: 0.3em; animation-delay: 0.24s; }
 .z-hello em { font-style: normal; color: var(--amber); }
-.z-split .z-intro { margin: clamp(26px, 4vh, 44px) 0 0; max-width: 27ch; font-size: clamp(19px, 1.75vw, 25px); line-height: 1.45; }
-.z-does { list-style: none; margin: clamp(26px, 4vh, 44px) 0 0; padding: 18px 0 0; width: 100%; max-width: 560px; display: grid; grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 10px 18px; border-top: 4px solid var(--cream); }
-.z-does li { font-family: var(--font-display); font-size: clamp(15px, 1.35vw, 20px); line-height: 1.1; letter-spacing: 0; }
-.z-does small { display: block; margin-bottom: 6px; font-family: var(--font-label); font-weight: 700; font-size: 11.5px; letter-spacing: 0.14em; color: var(--amber); }
+.z-split .z-intro { position: relative; margin: clamp(40px, 6.5vh, 70px) 0 0 0.3em; padding-top: clamp(22px, 3vh, 30px); max-width: 25ch; font-size: clamp(20px, 1.9vw, 28px); line-height: 1.4; }
+.z-split .z-intro::before { content: ""; position: absolute; left: 0; top: 0; width: 96px; height: 6px; background: var(--amber); box-shadow: 4px 4px 0 var(--ink); }
 .z-ticker { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; height: 54px; margin: 0; display: flex; align-items: center; overflow: hidden; background: var(--amber); color: var(--ink); border-top: 4px solid var(--ink); font-family: var(--font-label); font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; }
 .z-ticker span { display: inline-block; padding-left: 16px; animation: z-tick 44s linear infinite; }
 @keyframes z-tick { to { transform: translateX(-50%); } }
@@ -1260,8 +1260,8 @@ body::after {
   .z-split-edge { display: none; }
   .z-split-l { padding: 96px 28px 46px; }
   .z-split .zl { width: min(86%, 420px); }
-  .z-split-r { padding: 44px 28px 60px; }
-  .z-does { grid-template-columns: 1fr 1fr; }
+  .z-split-r { padding: 50px 28px 70px; }
+  .z-hello { font-size: clamp(64px, 13.5vw, 116px); }
   .z-viewer { grid-template-columns: 1fr; }
   .z-thumbs { grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .z-about-grid { grid-template-columns: 1fr; }
@@ -1271,6 +1271,7 @@ body::after {
 }
 @media (min-width: 600px) and (max-width: 860px) { .z-desk { grid-template-columns: 1fr 1fr; gap: 34px 30px; } .z-photo:nth-child(n) { margin: 0; } }
 @media (max-width: 700px) {
+  .z-hello { font-size: 19vw; }
   .z-head { flex-wrap: wrap; gap: 14px; padding-bottom: 16px; }
   .z-projects { grid-template-columns: 1fr; }
   .z-facts { grid-template-columns: 1fr; }

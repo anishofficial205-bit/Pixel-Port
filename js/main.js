@@ -439,10 +439,8 @@
         <i class="z-split-edge" aria-hidden="true"></i>
         <!-- right: set in type alone -->
         <div class="z-split-r">
-          <p class="z-tag pxb">Designer · ${S.location}</p>
-          <h1 class="z-hello"><span>Hello,</span><span>I’m <em>${first}.</em></span></h1>
+          <h1 class="z-hello"><span>Hello,</span><span>I’m</span><span><em>${first}.</em></span></h1>
           <p class="z-intro">I design things for <mark>screens</mark> and <mark>streets</mark>: brands, packaging, interfaces and print.</p>
-          <ol class="z-does">${A.tags.map((t, i) => `<li><small>${String(i + 1).padStart(2, "0")}</small>${t}</li>`).join("")}</ol>
         </div>
         <p class="z-ticker" aria-hidden="true"><span>${Array(4).fill("Scroll for the work &#9733; About &#9733; Projects &#9733; Reels &#9733; Photos &#9733; Say hello &#9733; ").join("")}</span></p>
       </section>
