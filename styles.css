@@ -1148,6 +1148,88 @@ body::after {
 .z-foot .plain-wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
 .z-foot p { margin: 0; }
 
+/* ================= Simple view: composition =================
+   Every section sits on one 1180 px column with the same rhythm: a head (number, title, a short note at the right
+   on a rule), then one composed block. Windows are larger and line up to the column's edges. */
+.z-sec { padding: clamp(84px, 12vh, 132px) 0 clamp(120px, 17vh, 180px); }
+.z-head { display: flex; flex-wrap: nowrap; align-items: flex-end; justify-content: space-between; gap: 30px; margin-bottom: clamp(40px, 6vh, 64px); padding-bottom: 22px; border-bottom: 4px solid currentColor; }
+.z-head h2 { font-size: clamp(46px, 6.6vw, 98px); line-height: 0.86; }
+.z-head .z-kick { margin-bottom: 12px; }
+.z-note { margin: 0 0 4px; max-width: 30ch; text-align: right; font-size: 16px; line-height: 1.45; font-weight: 500; opacity: 0.85; }
+.z-head .z-hint { margin: 0 0 4px; }
+
+/* about: the portrait a full third of the column, the words beside it, the facts on a rule below them */
+.z-about-grid { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(40px, 7vw, 110px); align-items: center; }
+.z-facefig { justify-self: start; width: min(100%, 360px); }
+.z-about-copy p { max-width: 30ch; margin-bottom: 34px; font-size: clamp(22px, 2.3vw, 32px); line-height: 1.42; }
+.z-disc { gap: 14px 16px; }
+.z-facts { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0 clamp(28px, 4vw, 60px); margin: 40px 0 0; padding-top: 22px; border-top: 2px solid rgba(246, 233, 207, 0.28); }
+.z-facts dt { font-family: var(--font-label); font-weight: 700; font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); }
+.z-facts dd { margin: 8px 0 0; font-weight: 700; font-size: 17px; }
+.z-facts a { color: inherit; text-decoration: none; border-bottom: 2px solid var(--amber); }
+
+/* work: the first project leads across the column; the others share a row of three beneath it */
+.z-projects { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(54px, 8vh, 84px) clamp(26px, 3.4vw, 46px); }
+.z-proj.lead { grid-column: 1 / -1; }
+.z-proj a, .z-proj:nth-child(even) a { display: flex; flex-direction: column; gap: 26px; height: 100%; }
+.z-proj.lead a { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(34px, 5vw, 76px); align-items: center; }
+.z-proj:nth-child(even) .z-picWin { order: 0; }
+.z-proj:nth-child(n) .z-picWin { rotate: 0deg; box-shadow: 10px 10px 0 var(--band); }
+.z-proj.lead .z-picWin { rotate: -1deg; box-shadow: 14px 14px 0 var(--band); }
+.z-proj.lead .z-pic { aspect-ratio: 16 / 10; }
+.z-proj-text { gap: 12px; flex: 1; }
+.z-proj .pxbtn { margin-top: auto; }
+.z-proj.lead .pxbtn { margin-top: 8px; }
+.z-proj-title { font-size: clamp(30px, 3vw, 42px); }
+.z-proj.lead .z-proj-title { font-size: clamp(48px, 6vw, 88px); }
+.z-proj-blurb { font-size: 16.5px; max-width: 30ch; }
+.z-proj.lead .z-proj-blurb { font-size: 18px; max-width: 34ch; }
+.z-more { position: relative; z-index: 1; margin: clamp(54px, 8vh, 84px) 0 0; display: flex; align-items: center; gap: 22px; }
+.z-more::before, .z-more::after { content: ""; flex: 1; height: 4px; background: var(--ink); }
+
+/* reels: the screen takes two thirds; the programme sits to its right on the same baseline */
+.z-cinema { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: clamp(34px, 4.6vw, 66px); align-items: end; }
+.z-reel-list { gap: 18px; padding-bottom: 6px; }
+
+/* photos: a composed desk. One large print, a tall one beside it, two more tucked beneath, overlapping on purpose */
+.z-desk { height: auto; aspect-ratio: 1180 / 990; }
+.z-photo:nth-child(4n + 1) { left: 0; top: 0; width: 55%; z-index: 1; rotate: -1.2deg; }
+.z-photo:nth-child(4n + 2) { left: 62%; top: 4%; width: 30%; z-index: 3; rotate: 1.6deg; }
+.z-photo:nth-child(4n + 3) { left: 9%; top: 59%; width: 38%; z-index: 2; rotate: 1.2deg; }
+.z-photo:nth-child(4n + 4) { left: 53%; top: 55%; width: 44%; z-index: 2; rotate: -1deg; }
+.z-gallery { padding-bottom: clamp(150px, 20vh, 220px); }
+
+/* contact: one statement, set large, with the way to reach me directly under it; the rooftop beside */
+.z-contact { padding-top: clamp(96px, 14vh, 150px); }
+.z-contact-grid { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(34px, 5vw, 76px); align-items: center; }
+.z-contact .z-kick { display: flex; align-items: baseline; gap: 12px; margin-bottom: 26px; font-size: 20px; letter-spacing: 0; text-transform: none; }
+.z-contact .z-kick b { background: var(--amber); color: var(--ink); padding: 2px 8px; }
+.z-pre { margin: 0 0 12px !important; font-family: var(--font-label); font-weight: 700; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; }
+.z-big { margin: 0 0 22px; font-weight: 400; font-size: clamp(54px, 8.4vw, 124px); line-height: 0.88; text-shadow: 5px 5px 0 var(--ink); }
+.z-line { margin-bottom: 30px !important; font-size: 19px; }
+.z-roof figcaption { margin-top: 26px; text-align: right; }
+.z-contact .z-skyline { margin-top: clamp(60px, 10vh, 110px); }
+
+@media (max-width: 1000px) {
+  .z-projects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .z-proj.lead a { grid-template-columns: 1fr; gap: 30px; }
+  .z-note { display: none; }
+}
+@media (max-width: 860px) {
+  .z-about-grid { grid-template-columns: 1fr; }
+  .z-facefig { width: min(70%, 300px); }
+  .z-facts { grid-template-columns: 1fr 1fr; gap: 20px 28px; }
+  .z-desk { aspect-ratio: auto; align-items: start; }
+}
+@media (min-width: 600px) and (max-width: 860px) { .z-desk { grid-template-columns: 1fr 1fr; gap: 34px 30px; } .z-photo:nth-child(n) { margin: 0; } }
+@media (max-width: 700px) {
+  .z-head { flex-wrap: wrap; gap: 14px; padding-bottom: 16px; }
+  .z-projects { grid-template-columns: 1fr; }
+  .z-facts { grid-template-columns: 1fr; }
+  .z-more::before { display: none; }
+  .z-big { font-size: 15vw; }
+}
+
 @media (max-width: 860px) {
   .z-cinema, .z-contact-grid { grid-template-columns: 1fr; }
   /* no room to scatter windows: they sit in a column */

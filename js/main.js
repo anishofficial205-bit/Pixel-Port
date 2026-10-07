@@ -415,7 +415,7 @@
     const C = { red: "#D8261C", navy: "#14103A", cream: "#F6E9CF", blue: "#2C49A8", amber: "#FFC24A" };
     const edge = (c, seed) => `<i class="z-edge" style="background-image:${pxEdge(c, seed)}"></i>`;
     const head = (n, label, hindi, extra = "") => `
-      <header class="z-head" data-rv><p class="z-kick"><b>${n}</b><span class="hi">${hindi}</span></p><h2>${label}</h2>${extra}</header>`;
+      <header class="z-head" data-rv><div><p class="z-kick"><b>${n}</b><span class="hi">${hindi}</span></p><h2>${label}</h2></div>${extra}</header>`;
     const bit = (kind, x, y, s, extra = "") => `<i class="px px-${kind}" style="left:${x}%;top:${y}%;--s:${s}px;${extra}"></i>`;
     const win = (title, body, cls = "", attrs = "") => `<span class="win ${cls}" ${attrs}><span class="win-bar"><i></i><b>${title}</b></span>${body}</span>`;
     const file = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
@@ -477,9 +477,14 @@
               ${win("anish.gif", `<button class="z-face" type="button" aria-label="Portrait of ${first}. Click for another expression"><span class="z-face-img"></span></button>`)}
               <figcaption class="z-cap"><i class="px px-cursor"></i>Tap for another face</figcaption>
             </figure>
-            <div>
+            <div class="z-about-main">
               <div class="z-about-copy" data-rv>${A.text.map((t) => `<p>${marked(t.text)}</p>`).join("")}</div>
               <ul class="z-disc" data-rv>${A.tags.map((t) => `<li class="pxb">${t}</li>`).join("")}</ul>
+              <dl class="z-facts" data-rv>
+                <div><dt>Based in</dt><dd>${S.location}</dd></div>
+                <div><dt>Right now</dt><dd>Looking for a grad project</dd></div>
+                <div><dt>On paper</dt><dd><a href="${S.resume}" target="_blank" rel="noopener">Résumé &#8599;</a></dd></div>
+              </dl>
             </div>
           </div>
         </div>
@@ -488,20 +493,21 @@
       <section class="z-sec z-work" id="plain-subway" data-loc="subway" aria-label="Projects">
         ${edge(C.cream, 7)}
         <div class="plain-wrap">
-          ${head("02", "Selected work", "प्रोजेक्ट्स", `<a class="pxbtn sm alt z-head-link" href="projects.html">All projects</a>`)}
+          ${head("02", "Selected work", "प्रोजेक्ट्स", `<p class="z-note">${S.featured().length} projects across branding, packaging, publication and UI/UX.</p>`)}
           <ol class="z-projects">${S.featured().map((p, i) => `
-            <li class="z-proj" id="card-${p.id}" style="--band:${p.band}" data-rv>
+            <li class="z-proj${i ? "" : " lead"}" id="card-${p.id}" style="--band:${p.band}" data-rv>
               <a href="project.html?p=${p.id}">
-                ${win(`${file(p.line)}/${file(p.title)}`, `<span class="z-pic"><img class="work-media" src="${S.img(p.cover, 1024)}" alt="" loading="lazy" decoding="async" /></span>`, "z-picWin")}
+                ${win(`${file(p.line)}/${file(p.title)}`, `<span class="z-pic"><img class="work-media" src="${S.img(i ? p.cover : p.hero || p.cover, i ? 1024 : 2048)}" alt="" loading="lazy" decoding="async" /></span>`, "z-picWin")}
                 <span class="z-proj-text">
-                  <span class="z-no">Stage ${String(i + 1).padStart(2, "0")} · ${p.meta.category || ""} · ${p.meta.year || ""}</span>
+                  <span class="z-no">${String(i + 1).padStart(2, "0")} · ${p.meta.category || ""} · ${p.meta.year || ""}</span>
                   <span class="z-proj-title">${p.title}</span>
-                  <span class="z-proj-blurb">${p.intro || p.blurb}</span>
+                  <span class="z-proj-blurb">${i ? p.blurb : p.intro || p.blurb}</span>
                   <span class="pxbtn sm">View project <b>&#9654;</b></span>
                 </span>
               </a>
             </li>`).join("")}
           </ol>
+          <p class="z-more" data-rv><a class="pxbtn alt" href="projects.html">All projects <b>&#9654;</b></a></p>
         </div>
       </section>
 
@@ -509,7 +515,7 @@
         ${edge(C.blue, 13)}
         <div class="z-bits" aria-hidden="true">${bit("star", 92, 10, 40, "--px:var(--px-star-cream)")}${bit("spark", 5, 84, 22, "--px:var(--px-spark-cream)")}</div>
         <div class="plain-wrap">
-          ${head("03", "Reels", "रील्स")}
+          ${head("03", "Reels", "रील्स", `<p class="z-note">i make content, i just forget to post it.</p>`)}
           <div class="z-cinema" data-rv>
             ${win("now_showing.mov", `<span class="z-screen" id="plain-screen"></span>`, "z-screenWin")}
             <ul class="z-reel-list">${S.reels.map((r, i) => `
@@ -539,16 +545,16 @@
         ${edge(C.red, 5)}
         <div class="z-bits" aria-hidden="true">${bit("star", 4, 20, 34)}${bit("spark", 94, 12, 22)}${bit("heart", 47, 8, 30)}</div>
         <div class="plain-wrap">
-          ${head("05", "Say hello", "संपर्क")}
           <div class="z-contact-grid">
-            <div>
-              <p class="z-kick" data-rv>${S.footer.kicker}</p>
-              <p class="z-big" data-rv>“${S.footer.title.join(" ")}”</p>
+            <div class="z-contact-main">
+              <p class="z-kick" data-rv><b>05</b><span class="hi">संपर्क</span></p>
+              <p class="z-pre" data-rv>${S.footer.kicker}</p>
+              <h2 class="z-big" data-rv>“${S.footer.title.join(" ")}”</h2>
               <p class="z-line" data-rv>${S.footer.line}</p>
               <p data-rv><a class="pxbtn z-mail" href="mailto:${S.email}${S.mailSubject ? "?subject=" + encodeURIComponent(S.mailSubject) : ""}">${S.email}</a></p>
               <p class="z-socials" data-rv>${S.socials.map((x) => `<a class="pxbtn sm alt" href="${x.url}" target="_blank" rel="noopener">${x.label}</a>`).join("")}</p>
             </div>
-            <figure class="z-roof" data-rv>${win("rooftop.png", `<span class="z-roof-art"><span class="z-him z-sitter" aria-hidden="true"></span></span>`)}</figure>
+            <figure class="z-roof" data-rv>${win("rooftop.png", `<span class="z-roof-art"><span class="z-him z-sitter" aria-hidden="true"></span></span>`)}<figcaption class="z-cap">${S.location}</figcaption></figure>
           </div>
         </div>
         <i class="z-skyline" style="background-image:${pxSkyline("#B31A12", "#FFC24A", 29)}" aria-hidden="true"></i>
