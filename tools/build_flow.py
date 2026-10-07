@@ -26,7 +26,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = {"thrive": "thrive", "krumble": "krumble", "parde-ke-peeche": "parde-ke-peeche", "haven": "haven"}
 COL_X, COL_W, VW = 84, 1272, 1440
-FIX = {"Conclusison": "Conclusion", "Parede ke peeche": "Parde ke peeche"}     # typos on the Framer site
+FIX = {"Conclusison": "Conclusion", "Parede ke peeche": "Parde ke peeche"}     # typos on the Framer site (the audit's copy corrections, P1-1, are made in tools/framer/*.json)     # typos on the Framer site
 
 def clean(tx):
     tx = " ".join(tx.split()).replace(" ,", ",").replace(" .", ".")
@@ -148,11 +148,11 @@ flow["bali"] = {"hero": 1.778, "items": [
     {"t": "rule"},
     H("Layouting the Scene"),
     *photo_rows(["plan-3d", "plan-sketch", "plan-reference"], gap=1.5, fill=2.5),
-    P("A hand sketched top view, a 3D render and an AI generated reference were made to plan and visualize the space. All three show a room built around a central havan kund, with the kund as the focal point of the layout. Key set elements include a stool, a rope/jute coil, and a constructed wall, each placed with intention to guide the camera and build the ritual atmosphere of the space."),
+    P("A hand-sketched top view, a 3D render and an AI-generated reference were made to plan and visualize the space. All three show a room built around a central havan kund, with the kund as the focal point of the layout. Key set elements include a stool, a rope/jute coil, and a constructed wall, each placed with intention to guide the camera and build the ritual atmosphere of the space."),
     {"t": "rule"},
     H("Storyboarding"),
     embed("https://heyzine.com/flip-book/1c703810ea.html#page/2", 831, 551),
-    P("21 frames across 3 pages, rendered in the 3D model. The shots reveal the set through close-up details rather than wide establishing shots, building dread slowly. Moving from the jute coil and bloodied machette, through the havan kund, hand prints, ritual lines, and finally the Kali painting before cutting to blackout. Every frame stays intimate with the space, letting the props tell the story."),
+    P("21 frames across 3 pages, rendered in the 3D model. The shots reveal the set through close-up details rather than wide establishing shots, building dread slowly. Moving from the jute coil and bloodied machete, through the havan kund, hand prints, ritual lines, and finally the Kali painting before cutting to blackout. Every frame stays intimate with the space, letting the props tell the story."),
     {"t": "rule"},
     H("Set Construction & BTS"),
     P("Us trying to structure the chaos that we are :)", narrow=False),
@@ -178,7 +178,7 @@ flow["making"] = {"hero": 1.778, "items": [making_row(it) if "pics" in it else i
 # Headings name themselves; where a page has few or none, a chapter starts at the item named here: "lead",
 # the start of an image's file name, or the start of a paragraph.
 CHAPTERS = {
-    "thrive": [("lead", "Overview"), ("ZXVw8Izx", "Values"), ("The logo process", "Logo"), ("The color palette", "Colour"), ("g8DTqGfD", "Sketches"), ("To explore how Thrive", "Products"), ("Ivsfxoqc", "In the world")],
+    "thrive": [("lead", "Overview"), ("ZXVw8Izx", "Values"), ("The logo process", "Logo"), ("The colour palette", "Colour"), ("g8DTqGfD", "Sketches"), ("To explore how Thrive", "Products"), ("Ivsfxoqc", "In the world")],
     "krumble": [("lead", "Overview"), ("KC3d3gJ7", "Existing packs"), ("oBjMqgJS", "Sketches"), ("ZjxXNCTb", "Palette"), ("a5bqlwAD", "Dieline"), ("Fcppa449", "Final box")],
     "parde-ke-peeche": [("lead", "Overview"), ("JOKsFJWZ", "The magazine"), ("Most of the magazine", "Grid"), ("C6Hu12Ur", "Spreads")],
     "haven": [("lead", "Overview")],

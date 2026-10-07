@@ -177,7 +177,7 @@ window.SITE = {
           "h": "Colour"
         },
         {
-          "p": "The color palette for Thrive uses muted teal tones that feel modern and naturally grounded. Chosen to convey calm, clarity, and subtle luxury, the deeper teal adds depth and sophistication while the lighter tone brings balance and softness. Together, they create a clean, refined aesthetic that reflects Thrive’s affordable premium workspace identity."
+          "p": "The colour palette for Thrive uses muted teal tones that feel modern and naturally grounded. Chosen to convey calm, clarity, and subtle luxury, the deeper teal adds depth and sophistication while the lighter tone brings balance and softness. Together, they create a clean, refined aesthetic that reflects Thrive’s affordable premium workspace identity."
         },
         {
           "img": "wnQbvHpWhf9LQ5YFNSFSXWlzHw.gif",
@@ -213,7 +213,7 @@ window.SITE = {
           "h": "Products"
         },
         {
-          "p": "To explore how Thrive could exist in the real world, I recreated market products in Blender and applied the brand’s logo and colors. This helped me understand how the identity translates onto physical forms while experimenting with 3D. Alongside this, I created product sketches to study proportions, materials, and design directions. Together, the sketches and renders helped bring Thrive closer to a tangible workspace experience."
+          "p": "To explore how Thrive could exist in the real world, I recreated market products in Blender and applied the brand’s logo and colours. This helped me understand how the identity translates onto physical forms while experimenting with 3D. Alongside this, I created product sketches to study proportions, materials, and design directions. Together, the sketches and renders helped bring Thrive closer to a tangible workspace experience."
         },
         {
           "img": "ImOlC6EPYzz5AQHdQ7Ye8roO04.png",
@@ -303,7 +303,7 @@ window.SITE = {
           "h": "The problem"
         },
         {
-          "p": "The existing Haldiram’s cookie packaging is functional but not memorable. Most designs rely on busy colours, flat layouts, and a strong focus on product display, which works for everyday retail but falls short for gifting. They lack warmth, presence, and a sense of occasion, making the experience feel transactional rather than celebratory. This absence of emotion and visual hierarchy created an opportunity to rethink the packaging as something more thoughtful and gift worthy."
+          "p": "The existing Haldiram’s cookie packaging is functional but not memorable. Most designs rely on busy colours, flat layouts, and a strong focus on product display, which works for everyday retail but falls short for gifting. They lack warmth, presence, and a sense of occasion, making the experience feel transactional rather than celebratory. This absence of emotion and visual hierarchy created an opportunity to rethink the packaging as something more thoughtful and gift-worthy."
         },
         {
           "img": "oBjMqgJSOp2z1VFzyoTtCtZS3I.jpeg",
@@ -324,7 +324,7 @@ window.SITE = {
           "h": "Sketches"
         },
         {
-          "p": "These sketches marked the starting point of the project, where I studied existing cookie packaging and identified gaps such as repetitive structures, plastic heavy formats, and a lack of user experience or sense of occasion. By sketching current systems alongside new ideas, I explored silhouettes, opening mechanisms, materials, and more intentional forms. This phase focused on reimagining the cookie box as premium and gift worthy, laying the foundation for the final packaging structure."
+          "p": "These sketches marked the starting point of the project, where I studied existing cookie packaging and identified gaps such as repetitive structures, plastic-heavy formats, and a lack of user experience or sense of occasion. By sketching current systems alongside new ideas, I explored silhouettes, opening mechanisms, materials, and more intentional forms. This phase focused on reimagining the cookie box as premium and gift-worthy, laying the foundation for the final packaging structure."
         },
         {
           "img": "ZjxXNCTb8vzueAE8Xivo4rWmk.png",
@@ -346,7 +346,7 @@ window.SITE = {
           "h": "Material"
         },
         {
-          "p": "To ensure the cookies remain intact from shelf to celebration, the packaging utilizes Rigid Chipboard. This choice provides superior structural integrity and impact resistance, ensuring that premium aesthetics are matched by a breakage-free experience."
+          "p": "To ensure the cookies remain intact from shelf to celebration, the packaging uses rigid chipboard. This choice provides superior structural integrity and impact resistance, ensuring that premium aesthetics are matched by a breakage-free experience."
         },
         {
           "img": "Fcppa449wpWVPOvtSgmSMZG1k.png",
@@ -383,7 +383,7 @@ window.SITE = {
       "hero": "jKbW15pOCyOKgnwzV0fDkMba6hs.png",
       "source": "https://anishah.framer.website/parde-ke-peeche",
       "intro": "A publication design project exploring the unseen craft, design, and storytelling behind Bollywood.",
-      "lead": "Parde Ke Peeche is a 20-page publication I designed as part of my communication design program. The magazine explores the hidden craftsmanship of Bollywood like cinematography, sound design, choreography, set design, poster art, and motion titles. Instead of focusing on celebrity culture, the publication celebrates the people and processes that shape the visual experience of Indian cinema.",
+      "lead": "Parde Ke Peeche is a 20-page publication I designed as part of my communication design program. The magazine explores the hidden craft of Bollywood, such as cinematography, sound design, choreography, set design, poster art, and motion titles. Instead of focusing on celebrity culture, the publication celebrates the people and processes that shape the visual experience of Indian cinema.",
       "meta": {
         "year": "2025",
         "timeframe": "2 Weeks",
@@ -400,7 +400,7 @@ window.SITE = {
           "h": "Grid"
         },
         {
-          "p": "Most of the magazine is built using 2-column and 3-column grids, which gave the layouts a balanced, readable structure while still allowing room for cinematic visual pacing. These grids form the core of the publication’s rhythm and tight enough to hold long-form content comfortably, but flexible enough to pair with full-bleed images, asymmetrical compositions, and occasional single-column moments. While the overall system is anchored in these two grids, a few spreads intentionally break out of them for visual impact, creating a mix of consistency and expressive variation throughout the magazine."
+          "p": "Most of the magazine is built using 2-column and 3-column grids, which gave the layouts a balanced, readable structure while still allowing room for cinematic visual pacing. These grids form the core of the publication’s rhythm: tight enough to hold long-form content comfortably, but flexible enough to pair with full-bleed images, asymmetrical compositions, and occasional single-column moments. While the overall system is anchored in these two grids, a few spreads intentionally break out of them for visual impact, creating a mix of consistency and expressive variation throughout the magazine."
         },
         {
           "img": "4Umpu6Ucboqnepf3hhR6zYL72BY.png",
@@ -473,8 +473,8 @@ window.SITE = {
       "band": "#FFC21A",
       "cover": "hbqzZsFb5sUFuO3g55Xm4b7K80.png",
       "source": "https://anishah.framer.website/haven",
-      "intro": "A UI/UX project exploring consent as a lived experience for Indian adolescents, designing culturally sensitive ways to practice boundaries across social, digital, and intimate spaces.",
-      "lead": "This project explores consent as a lived experience for Indian youth, revealing gaps between awareness and action shaped by culture and power. It proposes a confidential digital platform that blends expert guidance, peer dialogue, and scenario-based learning to help young people practice boundaries and build respectful relationships.",
+      "intro": "A UI/UX project exploring consent as a lived experience for Indian adolescents, designing culturally sensitive ways to practise boundaries across social, digital, and intimate spaces.",
+      "lead": "This project explores consent as a lived experience for Indian youth, revealing gaps between awareness and action shaped by culture and power. It proposes a confidential digital platform that blends expert guidance, peer dialogue, and scenario-based learning to help young people practise boundaries and build respectful relationships.",
       "meta": {
         "year": "2025",
         "timeframe": "6 Weeks",
@@ -557,7 +557,7 @@ window.SITE = {
           "h": "How Might We"
         },
         {
-          "p": "How might we create engaging and culturally relatable ways for Indian adolescents aged 16–22 to learn and practice consent beyond traditional education systems, so they can confidently assert boundaries and build respectful relationships across social, digital, and intimate spaces?"
+          "p": "How might we create engaging and culturally relatable ways for young people aged 16–22 in India to learn and practise consent beyond traditional education systems, so they can confidently assert boundaries and build respectful relationships across social, digital, and intimate spaces?"
         },
         {
           "h": "Synthesis & Insight Development"
@@ -613,7 +613,7 @@ window.SITE = {
           "h": "Conclusion"
         },
         {
-          "p": "This project reimagines consent education through a human-centered UI/UX lens, treating consent not as a rule to be taught but as a skill to be practiced. By combining participatory research, culturally sensitive design, and emotionally safe interactions, the project bridges the gap between awareness and real-life behavior. Haven demonstrates how thoughtful design can create trust, encourage difficult conversations, and empower young people to navigate relationships with clarity, autonomy, and respect."
+          "p": "This project reimagines consent education through a human-centered UI/UX lens, treating consent not as a rule to be taught but as a skill to be practised. By combining participatory research, culturally sensitive design, and emotionally safe interactions, the project bridges the gap between awareness and real-life behavior. Haven demonstrates how thoughtful design can create trust, encourage difficult conversations, and empower young people to navigate relationships with clarity, autonomy, and respect."
         }
       ]
     },
