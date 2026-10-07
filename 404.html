@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Page not found · Anish Shah</title>
+  <meta name="robots" content="noindex" />
+  <!-- this page is served for any bad address, at any depth, so every path here starts from the site root -->
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#120A26" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/project.css" />
+  <style>
+    /* the street at night, dimmed, with the words over it */
+    .wrong-turn .scene { position: fixed; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+    .wrong-turn::before { content: ""; position: fixed; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(10, 6, 26, 0.92), rgba(10, 6, 26, 0.6) 55%, rgba(10, 6, 26, 0.35)), linear-gradient(rgba(10, 6, 26, 0.5), transparent 30%, rgba(10, 6, 26, 0.7)); }
+    main { position: relative; z-index: 0; }
+    .wrong-turn h1 { max-width: 12ch; }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <a class="bar-logo" href="/index.html" aria-label="Anish Shah, home"><img src="/assets/brand/logo.png" alt="" width="229" height="160" /></a>
+  </header>
+  <main>
+    <section class="lost wrong-turn">
+      <img class="scene" src="/assets/scenes/street.webp" alt="" width="1672" height="941" />
+      <p class="kicker">404 · Page not found</p>
+      <h1>You’ve taken a wrong turn</h1>
+      <p class="lost-links"><a class="x-link solid" href="/index.html">Back to the ride</a><a class="x-link" href="/projects.html">All projects</a></p>
+    </section>
+  </main>
+</body>
+</html>
