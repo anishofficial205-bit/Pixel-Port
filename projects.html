@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791399684" />
+  <link rel="stylesheet" href="project.css?v=1791399905" />
 </head>
 <body class="all">
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -63,7 +63,7 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791399684"></script>
+  <script src="js/data.js?v=1791399905"></script>
   <script>
     (function () {
       const S = SITE, $ = (s) => document.querySelector(s);
@@ -84,7 +84,7 @@
       $("#grid").innerHTML = S.projects.map((p, k) => `
         <li class="still" data-c="${p.meta.category || ""}">
           <a href="project.html?p=${p.id}">
-            <img src="${S.img(p.hero || p.cover, 2048)}" alt="" loading="${k < 3 ? "eager" : "lazy"}" decoding="async" />
+            <img src="${S.img(p.hero || p.cover, 2048)}" alt="${p.title} cover" loading="${k < 3 ? "eager" : "lazy"}" decoding="async" />
             <span class="still-in">
               <span class="still-meta">${[p.meta.category, p.meta.year].filter(Boolean).join(" · ")}</span>
               <span class="still-title">${p.title}</span>

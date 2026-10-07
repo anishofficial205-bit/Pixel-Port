@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791399684" />
+  <link rel="stylesheet" href="project.css?v=1791399905" />
 </head>
 <body>
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -81,8 +81,8 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791399684"></script>
-  <script src="js/flow.js?v=1791399684"></script>
+  <script src="js/data.js?v=1791399905"></script>
+  <script src="js/flow.js?v=1791399905"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -123,7 +123,7 @@
         const f = el("figure", "shot"), img = el("img");
         f.style.setProperty("--ar", c.ar);
         if (c.l != null) { f.style.marginLeft = c.l + "%"; f.style.width = c.w + "%"; }
-        img.src = SITE.img(c.id, size); img.alt = p.title + " image"; img.loading = "lazy"; img.decoding = "async";
+        img.src = SITE.img(c.id, size); img.alt = c.alt || ""; img.loading = "lazy"; img.decoding = "async";
         if (c.fit && c.fit !== "cover") img.style.objectFit = c.fit;
         f.append(img); return f;
       };
@@ -168,13 +168,13 @@
           e.append(frame(b.src, p.title));
         } else if (b.t === "ticker") {                     // a strip of photos sliding sideways (shown twice over, so it loops)
           e = el("div", "ticker"); const track = el("div", "ticker-track");
-          [0, 1].forEach(() => b.imgs.forEach((c) => track.append(shot({ id: c.id, ar: c.ar }, 1024))));
+          [0, 1].forEach((pass) => b.imgs.forEach((c) => track.append(shot({ id: c.id, ar: c.ar, alt: pass ? "" : c.alt }, 1024))));   // (the second pass only makes the loop: described once)
           e.append(track);
         } else if (b.t === "tiles") {                      // a tilted wall of tiles, its columns drifting past each other
           e = el("div", "tiles"); const wall = el("div", "tiles-wall");
           [0, 1, 2].forEach((c) => {
             const col = el("div", "tiles-col"), mine = b.imgs.filter((_, k) => k % 3 === c);
-            [...mine, ...mine, ...mine, ...mine].forEach((id) => { const im = el("img"); im.src = SITE.img(id, 1024); im.alt = ""; im.loading = "lazy"; col.append(im); });
+            [...mine, ...mine, ...mine, ...mine].forEach((id, n) => { const im = el("img"); im.src = SITE.img(id, 1024); im.alt = n < mine.length ? (b.alts || [])[b.imgs.indexOf(id)] || "" : ""; im.loading = "lazy"; col.append(im); });
             wall.append(col);
           });
           e.append(wall);
@@ -203,7 +203,7 @@
       // see also: the other projects
       list.filter((q) => q.id !== p.id).forEach((q) => {
         const li = el("li"), a = el("a"); a.href = "project.html?p=" + q.id; li.dataset.project = q.id;
-        const im = el("img"); im.src = SITE.img(q.cover, 512); im.alt = ""; im.loading = "lazy";
+        const im = el("img"); im.src = SITE.img(q.cover, 512); im.alt = q.title + " cover"; im.loading = "lazy";
         const tx = el("span", "also-text"); tx.append(el("small", null, q.meta.category || ""), el("b", null, q.title));
         a.append(im, tx, el("i", null, "↗")); li.append(a); $("#also").append(li);
       });

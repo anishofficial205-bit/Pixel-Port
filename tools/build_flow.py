@@ -215,4 +215,19 @@ for pid, marks in CHAPTERS.items():
         k = next(i for i, it in enumerate(items) if starts(it, key))
         items[k]["chapter"] = name
 
+# Alt text (audit P1-7): one short, factual line per picture, kept in tools/alt.json and attached here. A picture
+# that appears more than once on a page (the tile wall, the looping strip) is described the first time only.
+ALT = json.loads((ROOT / "tools/alt.json").read_text())
+missing = set()
+for pid, page in flow.items():
+    for it in page["items"]:
+        if it["t"] in ("row", "ticker"):
+            for c in it["imgs"]:
+                c["alt"] = ALT.get(c["id"], "")
+                if not c["alt"]: missing.add(c["id"])
+        if it["t"] == "tiles":
+            it["alts"] = [ALT.get(i, "") for i in it["imgs"]]
+            missing |= {i for i in it["imgs"] if i not in ALT}
+if missing: print("NO ALT TEXT FOR:", sorted(missing))
+
 (ROOT / "js/flow.js").write_text("/* Each project page's flow, as laid out on anishah.framer.website. Built by tools/build_flow.py; see it for the item types. */\nwindow.FLOW = " + json.dumps(flow, ensure_ascii=False, separators=(",", ":")) + ";\n")
