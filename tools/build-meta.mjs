@@ -68,12 +68,26 @@ export const writeProjectPages = () => {
     console.log("page ->", path);
   }
 };
+/** who the site is about, for search engines (audit P2-7): a schema.org Person block in index.html */
+export const personBlock = (site = loadSite()) => `  <!-- person:start (written by tools/build-meta.mjs; edit there) -->
+  <script type="application/ld+json">
+${JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: "Anish Shah", jobTitle: "Visual & Product Designer", url: `${BASE_URL}/`,
+    address: { "@type": "PostalAddress", addressLocality: "Mumbai", addressCountry: "IN" }, sameAs: site.socials.filter((x) => /linkedin\.com/.test(x.url)).map((x) => x.url) }, null, 2).replace(/</g, "\\u003c").replace(/^/gm, "  ")}
+  </script>
+  <!-- person:end -->
+`;
+export const stampPerson = (html) => {
+  html = html.replace(/ {2}<!-- person:start[\s\S]*?<!-- person:end -->\n/, "");
+  const at = html.indexOf('  <link rel="icon"');
+  return html.slice(0, at) + personBlock() + html.slice(at);
+};
 const PAGES = [
   { file: "index.html", path: "", title: "Anish Shah · Design Portfolio", description: "Design portfolio of Anish Shah: an illustrated ride through one night in the city." },
   { file: "projects.html", path: "projects.html", title: "All projects · Anish Shah", description: "Every project by Anish Shah: branding, packaging, UI/UX and editorial design." },
 ];
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   for (const p of PAGES) { writeFileSync(ROOT + p.file, stamp(readFileSync(ROOT + p.file, "utf8"), metaBlock(p))); console.log("meta ->", p.file); }
+  writeFileSync(ROOT + "index.html", stampPerson(readFileSync(ROOT + "index.html", "utf8"))); console.log("person ->", "index.html");
   writeProjectPages();
   writeCrawlFiles();
 }
