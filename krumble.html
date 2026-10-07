@@ -29,7 +29,7 @@
   <!-- fonts are served from this site; the two used most are fetched early -->
   <link rel="preload" href="assets/fonts/satoshi-500.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/satoshi-700.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="project.css?v=1791401745" />
+  <link rel="stylesheet" href="project.css?v=1791401786" />
 </head>
 <body>
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -82,9 +82,9 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/dims.js?v=1791401745"></script>
-  <script src="js/data.js?v=1791401745"></script>
-  <script src="js/flow.js?v=1791401745"></script>
+  <script src="js/dims.js?v=1791401786"></script>
+  <script src="js/data.js?v=1791401786"></script>
+  <script src="js/flow.js?v=1791401786"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -117,7 +117,7 @@
       $("#p-title").textContent = p.title;
       $("#p-intro").textContent = p.intro;
       const hero = p.hero || p.cover;
-      const frame = (src, title) => { const f = el("iframe"); f.src = src; f.title = title; f.loading = "lazy"; f.allow = "autoplay; fullscreen; picture-in-picture"; f.allowFullscreen = true; return f; };
+      const frame = (src, title) => { const f = el("iframe"); f.loading = "lazy"; f.title = title; f.allow = "autoplay; fullscreen; picture-in-picture"; f.src = src; return f; };   // loads when scrolled near; `allow` already grants full screen
       $("#p-hero").src = SITE.img(hero); $("#p-hero").alt = p.title + ": " + p.blurb;
       const labels = { year: "Year", timeframe: "Timeframe", tools: "Tools", collaboration: "Collaboration" };
       Object.entries(labels).forEach(([k, label]) => { if (!p.meta[k]) return; const d = el("div"); d.append(el("dt", null, label), el("dd", null, p.meta[k])); $("#p-facts").append(d); });
