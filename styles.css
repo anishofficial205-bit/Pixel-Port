@@ -775,10 +775,6 @@ body::after {
 .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
 .photo-frame:hover img { filter: brightness(1.12); }
 .photo-frame:focus-visible { outline-offset: 22px; }
-/* previews are never cropped: each picture is shown whole, side by side when there are two, on a dark mount */
-.covers { display: flex; gap: 3%; width: 100%; height: 100%; padding: 3% 3.5%; background: #0D0B1E; }
-.covers img, .photo-frame .covers img { flex: 1 1 0; min-width: 0; width: auto; height: 100%; object-fit: contain; }
-.z-thumbs img { object-fit: contain; }
 /* an album: its cover in the frame, with a small tag saying how many pictures are inside */
 .photo-frame.is-album, .z-thumbs button, .z-view .photo-frame { position: relative; }
 .album-tag { position: absolute; right: 6px; bottom: 6px; padding: 4px 7px 5px; background: #14103A; color: #F6E9CF; font-family: var(--font-label); font-weight: 700; font-size: 10px; line-height: 1; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 0 0 1.5px #FFC24A; pointer-events: none; }
