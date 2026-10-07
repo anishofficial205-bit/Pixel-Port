@@ -673,7 +673,9 @@ window.SITE = {
     // The street portraits from the Photography section of anishah.framer.website/about-me
     { title: "Street Portraits", w: 4, h: 5, src: "assets/photos/street-portraits/01.webp",
       album: Array.from({ length: 11 }, (_, i) => `assets/photos/street-portraits/${String(i + 1).padStart(2, "0")}.webp`) },
-    { title: "Ghats at Dawn", place: "Varanasi", year: "2025", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph3/1200/800" },
+    // the user's photographs of friends (sent 2026-10-08), as an album
+    { title: "Friends", w: 3, h: 2, src: "assets/photos/friends/01.webp",
+      album: Array.from({ length: 20 }, (_, i) => `assets/photos/friends/${String(i + 1).padStart(2, "0")}.webp`) },
     { title: "Tea Estate", place: "Munnar", year: "2023", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph6/1200/800" },
   ],
 };
