@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791357249" />
+  <link rel="stylesheet" href="project.css?v=1791363660" />
 </head>
 <body class="all">
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -45,7 +45,7 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791357249"></script>
+  <script src="js/data.js?v=1791363660"></script>
   <script>
     (function () {
       const S = SITE, $ = (s) => document.querySelector(s);
@@ -61,7 +61,7 @@
 
       const count = (c) => S.projects.filter((p) => c === "All" || p.meta.category === c).length;
       $("#filters").innerHTML = ["All", ...cats].map((c) =>
-        `<button class="genre" type="button" data-c="${c}" aria-pressed="${c === active}">${c === "All" ? "All projects" : c}<small>${count(c)}</small></button>`).join("");
+        `<button class="genre" type="button" data-c="${c}" aria-pressed="${c === active}">${c === "All" ? "All<span> projects</span>" : c.replace(" Design", "")}<small>${count(c)}</small></button>`).join("");
 
       $("#grid").innerHTML = S.projects.map((p, k) => `
         <li class="still" data-c="${p.meta.category || ""}">
