@@ -10,13 +10,28 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791348163" />
+  <link rel="stylesheet" href="project.css?v=1791353617" />
 </head>
 <body class="all">
+  <!-- the same bar as the home page: logo, the six stops, all projects, and the Ride | Simple switch -->
   <header class="bar">
-    <a class="bar-logo" href="index.html#subway" aria-label="Anish Shah, back to the ride"><img src="assets/brand/logo.png" alt="" width="229" height="160" /></a>
-    <span></span>
-    <div class="bar-links pill"><a href="index.html#subway">Back to the ride</a></div>
+    <a class="bar-logo" href="index.html" aria-label="Anish Shah, home"><img src="assets/brand/logo.png" alt="" width="229" height="160" /></a>
+    <nav class="route pill" aria-label="Sections">
+      <span class="route-track" aria-hidden="true"></span>
+      <ol>
+        <li><a href="index.html#street"><i></i>Start</a></li>
+        <li><a href="index.html#drain"><i></i>About</a></li>
+        <li><a href="index.html#subway"><i></i>Projects</a></li>
+        <li><a href="index.html#cinema"><i></i>Reels</a></li>
+        <li><a href="index.html#exhibition"><i></i>Photos</a></li>
+        <li><a href="index.html#rooftop"><i></i>Contact</a></li>
+        <li><a class="all here" href="projects.html" aria-current="page"><i></i><span class="l">All projects</span><span class="s">All</span></a></li>
+      </ol>
+    </nav>
+    <div class="view-switch pill" role="group" aria-label="View">
+      <button type="button" data-view="ride" title="Travel through the world as you scroll">Ride</button>
+      <button type="button" data-view="static" title="A regular page, no journey">Simple</button>
+    </div>
   </header>
 
   <main>
@@ -32,10 +47,16 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791348163"></script>
+  <script src="js/data.js?v=1791353617"></script>
   <script>
     (function () {
       const S = SITE, $ = (s) => document.querySelector(s);
+      // Ride | Simple, as on the home page: shows the view in use, and choosing one goes back there in that view
+      const view = (() => { try { return localStorage.getItem("view-mode"); } catch (e) { return null; } })() === "static" ? "static" : "ride";
+      document.querySelectorAll(".view-switch button").forEach((b) => {
+        b.setAttribute("aria-pressed", String(b.dataset.view === view));
+        b.addEventListener("click", () => { try { localStorage.setItem("view-mode", b.dataset.view); } catch (e) { /* ignore */ } location.href = "index.html#subway"; });
+      });
       const cats = [...new Set(S.projects.map((p) => p.meta.category).filter(Boolean))];
       let active = new URLSearchParams(location.search).get("c") || "All";
       if (active !== "All" && !cats.includes(active)) active = "All";

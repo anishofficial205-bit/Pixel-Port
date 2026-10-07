@@ -247,8 +247,8 @@ body::after {
 
 /* the route: sections as stops on a metro line. The line fills as the journey goes (--route, 0..1),
    passed stops are filled, the current one is marked. */
-.route { --stop: 84px; --line: #FFC24A; position: relative; padding: 10px 8px 9px; border-radius: 24px; }
-.route ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, var(--stop)); position: relative; z-index: 1; }
+.route { --stop: clamp(62px, calc((100vw - 2 * var(--frame) - 330px) / 7), 90px); --line: #FFC24A; position: relative; padding: 10px 8px 9px; border-radius: 24px; }
+.route ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, var(--stop)); position: relative; z-index: 1; }
 .route a {
   display: flex; flex-direction: column; align-items: center; gap: 7px;
   text-decoration: none; font-size: 11px; letter-spacing: 0.07em; line-height: 1; white-space: nowrap;
@@ -265,7 +265,7 @@ body::after {
 .route a.here { color: var(--line); }
 .route a.here i { background: #D8261C; box-shadow: 0 0 0 2px var(--line), 0 0 0 6px rgba(255, 194, 74, 0.28); }
 .route-track {
-  position: absolute; left: calc(8px + var(--stop) / 2); right: calc(8px + var(--stop) / 2); top: 15px; height: 2px;
+  position: absolute; left: calc(8px + var(--stop) / 2); right: calc(8px + var(--stop) * 1.5); top: 15px; height: 2px;   /* the line ends at the sixth stop */
   background: rgba(244, 230, 208, 0.22);
 }
 .route-track::after {
@@ -273,6 +273,12 @@ body::after {
   transform-origin: left; transform: scaleX(var(--route, 0));
 }
 .static .route-track::after { transition: transform 0.45s ease; }
+/* "All projects": the seventh item, a page and not a stop, so it sits past the end of the line with a square mark */
+.route a.all i { border-radius: 3px; background: none; box-shadow: inset 0 0 0 2px rgba(244, 230, 208, 0.6); }
+.route a.all:hover i, .route a.all.here i { background: var(--line); box-shadow: inset 0 0 0 2px var(--line); }
+.route a .s { display: none; }
+@media (max-width: 1080px) { .route a .l { display: none; } .route a .s { display: inline; } }
+
 
 /* Ride | Simple: how to view the site */
 .view-switch { justify-self: end; display: flex; gap: 2px; padding: 4px; }
@@ -930,10 +936,10 @@ body::after {
   .hud-back, .hud-station, .hud-all { font-size: 10px; padding: 9px 11px; }
   .view-switch button { font-size: 10px; padding: 7px 11px; }
   .hud-right { gap: 6px; }
-  .route { --stop: min(60px, calc((100vw - 2 * var(--frame) - 36px) / 6)); position: fixed; left: 50%; bottom: calc(var(--frame) + 12px); transform: translateX(-50%); padding: 9px 6px 8px; border-radius: 20px; }
+  .route { --stop: min(56px, calc((100vw - 2 * var(--frame) - 36px) / 7)); position: fixed; left: 50%; bottom: calc(var(--frame) + 12px); transform: translateX(-50%); padding: 9px 6px 8px; border-radius: 20px; }
   .route a { font-size: 8.5px; letter-spacing: 0.03em; gap: 6px; }
   .route a i { width: 11px; height: 11px; }
-  .route-track { left: calc(6px + var(--stop) / 2); right: calc(6px + var(--stop) / 2); top: 13.5px; }
+  .route-track { left: calc(6px + var(--stop) / 2); right: calc(6px + var(--stop) * 1.5); top: 13.5px; }
   .marquee-text { font-size: 11px; }
 }
 
