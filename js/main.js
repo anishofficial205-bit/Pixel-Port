@@ -424,47 +424,27 @@
     $("#plain").style.cssText = ["spark", "star", "heart"].map((k) => `--px-${k}:${pxArt(PX[k], C.amber)};--px-${k}-ink:${pxArt(PX[k], C.navy)};--px-${k}-cream:${pxArt(PX[k], C.cream)}`).join(";")
       + `;--px-cursor:${pxArt(PX.cursor, C.navy)}`;
     $("#plain").innerHTML = `
-      <section class="plain-hero" id="plain-street" data-loc="street" aria-label="Home">
-        <div class="z-bits" aria-hidden="true">${bit("star", 6, 16, 42)}${bit("spark", 44, 12, 20)}${bit("spark", 93, 44, 26)}${bit("star", 52, 70, 28)}${bit("spark", 3, 62, 18)}${bit("heart", 88, 14, 34)}</div>
-        <div class="plain-wrap z-hero-grid">
-          <div class="z-hero-text">
-            <h1 class="sr-only">${first} Shah, design portfolio</h1>
-            <!-- the ride's title card, whole: the neon logo on its dark screen, with its stickers and sparkles around it -->
-            <div class="zl" aria-hidden="true">
-              <span class="zl-screen"></span>
-              <span class="zl-logo"><img src="assets/brand/logo-source.png" alt="" /><span class="crt"><i></i></span></span>
-              <span class="zl-t zl-port"><b class="ht-in ht-port">Portfolio <small>'26</small></b></span>
-              <span class="zl-t zl-badge"><b class="ht-in ht-badge">
-                <svg viewBox="0 0 120 120"><defs><path id="zl-ring" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0" /></defs>
-                  <circle cx="60" cy="60" r="58" /><text textLength="266" lengthAdjust="spacing"><textPath href="#zl-ring" textLength="266" lengthAdjust="spacing">DESIGN PORTFOLIO &#9733; ANISH SHAH &#9733; 2026 &#9733;</textPath></text></svg>
-                <i class="hi">नमस्ते</i></b></span>
-              <span class="zl-t zl-hey"><b class="ht-in ht-hey"><i></i>Looking for a grad project</b></span>
-              <span class="zl-t zl-s1"><b class="ht-in ht-star"></b></span><span class="zl-t zl-s2"><b class="ht-in ht-star s2"></b></span><span class="zl-t zl-s3"><b class="ht-in ht-star s3"></b></span>
-            </div>
-            <p class="z-intro">I design things for <mark>screens</mark> and <mark>streets</mark>: brands, packaging, interfaces and print.</p>
-            <div class="z-cta">
-              <button class="pxbtn z-start take-ride" type="button"><b>&#9654;</b> Press start<small>take the ride</small></button>
-              <a class="pxbtn alt" href="#plain-subway" data-stop="subway">See the work</a>
-            </div>
-          </div>
-          <div class="z-hero-art">
-            ${win("one_night_in_the_city.png", `
-              <span class="plain-hero-bg" aria-hidden="true">
-                <span class="plain-art">
-                  <img src="assets/scenes/street.webp" srcset="assets/scenes/street.webp 1672w, assets/scenes/street-2x.webp 3344w" sizes="(max-width: 1100px) 50vw, 100vw" alt="" />
-                  <span class="train-track" style="--x:${T.track[0]}px;--y:${T.track[1]}px;--w:${T.track[2]}px;--h:${T.track[3]}px;--len:${T.len}px;--rest:${T.rest - T.len}px"><img src="assets/street/train.png" srcset="assets/street/train.png 1x, assets/street/train-2x.webp 2x" alt="" /></span>
-                  <img class="train-posts" src="assets/street/posts.png" srcset="assets/street/posts.png 1x, assets/street/posts-2x.webp 2x" alt="" style="--x:${T.posts[0]}px;--y:${T.posts[1]}px;--w:${T.posts[2]}px;--h:${T.posts[3]}px" />
-                  <a class="bb-map bb-ad bb-left" data-quad="left" data-start="0" tabindex="-1"></a>
-                  <a class="bb-map bb-ad bb-led" data-quad="led" data-start="1" tabindex="-1"></a>
-                  <a class="bb-map bb-ad bb-mid" data-quad="mid" data-start="2" tabindex="-1"></a>
-                  <img class="bb-leaves" src="assets/street/leaves.png" srcset="assets/street/leaves.png 1x, assets/street/leaves-2x.webp 2x" alt="" style="left:${STREET.leaves[0]}px;top:${STREET.leaves[1]}px;width:${STREET.leaves[2]}px;height:${STREET.leaves[3]}px" />
-                </span>
-              </span>`, "z-heroWin")}
+      <section class="plain-hero z-split" id="plain-street" data-loc="street" aria-label="Home">
+        <!-- left: the ride's title card on navy, with him standing in front of the logo (he starts the ride) -->
+        <div class="z-split-l">
+          <div class="z-bits" aria-hidden="true">${bit("star", 10, 74, 34)}${bit("spark", 84, 20, 20, "--px:var(--px-spark-cream)")}${bit("spark", 12, 22, 16, "--px:var(--px-spark-cream)")}</div>
+          <div class="zl">
+            <span class="zl-logo" aria-hidden="true"><img src="assets/brand/logo-source.png" alt="" /><span class="crt"><i></i></span></span>
+            <span class="zl-t zl-port" aria-hidden="true"><b class="ht-in ht-port">Portfolio <small>'26</small></b></span>
+            <span class="zl-t zl-hey" aria-hidden="true"><b class="ht-in ht-hey"><i></i>Looking for a grad project</b></span>
             <button class="z-him z-guide take-ride" type="button" aria-label="Take the ride: travel through the portfolio as a scrolling journey"></button>
             <i class="z-bub pxb z-bub-c" aria-hidden="true">Psst, click me!</i>
           </div>
         </div>
-        <i class="z-skyline" style="background-image:${pxSkyline("#B31A12", "#FFC24A", 11)}" aria-hidden="true"></i>
+        <i class="z-split-edge" aria-hidden="true"></i>
+        <!-- right: set in type alone -->
+        <div class="z-split-r">
+          <p class="z-tag pxb">Designer · ${S.location}</p>
+          <h1 class="z-hello"><span>Hello,</span><span>I’m <em>${first}.</em></span></h1>
+          <p class="z-intro">I design things for <mark>screens</mark> and <mark>streets</mark>: brands, packaging, interfaces and print.</p>
+          <ol class="z-does">${A.tags.map((t, i) => `<li><small>${String(i + 1).padStart(2, "0")}</small>${t}</li>`).join("")}</ol>
+        </div>
+        <p class="z-ticker" aria-hidden="true"><span>${Array(4).fill("Scroll for the work &#9733; About &#9733; Projects &#9733; Reels &#9733; Photos &#9733; Say hello &#9733; ").join("")}</span></p>
       </section>
 
       <section class="z-sec z-about" id="plain-drain" data-loc="drain" aria-labelledby="plain-about-h">
@@ -530,13 +510,21 @@
       <section class="z-sec z-gallery" id="plain-exhibition" data-loc="exhibition" aria-label="Photos">
         ${edge(C.amber, 21)}
         <div class="plain-wrap">
-          ${head("04", "Photos", "प्रदर्शनी", `<p class="z-cap z-hint"><i class="px px-cursor"></i>Drag the windows around</p>`)}
-          <div class="z-desk">${S.photos.map((p, i) => `
-            <figure class="win z-photo" data-rv style="--ar:${p.w / p.h}">
-              <span class="win-bar"><i></i><b>${file(p.title)}.jpg</b></span>
-              <button class="photo-frame" type="button" data-i="${i}" aria-label="Open photo: ${p.title}, ${p.place}"><img class="work-media" src="${p.src}" alt="${p.title}, ${p.place}" loading="lazy" draggable="false" /></button>
-              <figcaption>${p.title} · ${p.place}, ${p.year}</figcaption>
-            </figure>`).join("")}
+          ${head("04", "Photos", "प्रदर्शनी", `<p class="z-note">Pick a photo, or step through them.</p>`)}
+          <div class="z-viewer" data-rv>
+            <figure class="win z-view">
+              <span class="win-bar"><i></i><b id="pv-file"></b></span>
+              <button class="photo-frame" type="button" id="pv-open" data-i="0"><img class="work-media" id="pv-img" alt="" draggable="false" /></button>
+            </figure>
+            <div class="z-view-side">
+              <p class="z-no" id="pv-n"></p>
+              <h3 class="z-view-title" id="pv-title"></h3>
+              <p class="z-view-place" id="pv-place"></p>
+              <ul class="z-thumbs">${S.photos.map((p, i) => `
+                <li><button type="button" data-i="${i}" aria-label="Show ${p.title}, ${p.place}"><img src="${p.src}" alt="" loading="lazy" draggable="false" /></button></li>`).join("")}
+              </ul>
+              <p class="z-view-nav"><button class="pxbtn sm alt" type="button" id="pv-prev" aria-label="Previous photo">&#9664;</button><button class="pxbtn sm alt" type="button" id="pv-next" aria-label="Next photo">&#9654;</button><span class="z-cap">Click the photo to see it large</span></p>
+            </div>
           </div>
         </div>
       </section>
@@ -577,8 +565,8 @@
 
   /* The Simple view's behaviour: the navbar follows the section in view, things pop in as they arrive,
      and a few things answer the visitor: he waves and "Press start" begins the ride, the portrait
-     changes face when tapped, the reel buttons change what's on the screen, and the photo windows can be
-     dragged around by their title bars. With reduced motion everything is simply shown. */
+     changes face when tapped, the reel buttons change what's on the screen, and the photo viewer steps
+     through the photos. With reduced motion everything is simply shown. */
   function watchPlain() {
     const plain = $("#plain");
     const secs = $$("#plain [data-loc]");
@@ -619,26 +607,22 @@
     $$(".z-reel").forEach((b) => b.addEventListener("click", () => showReel(+b.dataset.i)));
     showReel(0);
 
-    // photo windows: drag them by the title bar (where there's a mouse and room to move them)
-    const desk = $(".z-desk");
-    if (matchMedia("(hover: hover) and (pointer: fine) and (min-width: 861px)").matches) {
-      let top = 4;
-      $$(".z-photo").forEach((w) => {
-        const bar = $(".win-bar", w);
-        w.addEventListener("pointerdown", () => (w.style.zIndex = ++top));
-        bar.addEventListener("pointerdown", (e) => {
-          e.preventDefault(); try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
-          const d = desk.getBoundingClientRect(), r = w.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top;
-          w.classList.add("held");
-          const move = (m) => {
-            w.style.left = Math.min(d.width - 60, Math.max(60 - r.width, m.clientX - d.left - ox)) + "px";
-            w.style.top = Math.min(d.height - 40, Math.max(0, m.clientY - d.top - oy)) + "px";
-          };
-          const up = () => { w.classList.remove("held"); bar.removeEventListener("pointermove", move); bar.removeEventListener("pointerup", up); bar.removeEventListener("pointercancel", up); };
-          bar.addEventListener("pointermove", move); bar.addEventListener("pointerup", up); bar.addEventListener("pointercancel", up);
-        });
-      });
-    }
+    // photos: one window shows the chosen photo; the thumbnails and the arrows pick it
+    let pv = 0;
+    const showPhoto = (k) => {
+      pv = (k + S.photos.length) % S.photos.length;
+      const p = S.photos[pv], n = (x) => String(x).padStart(2, "0");
+      $("#pv-img").src = p.src; $("#pv-img").alt = `${p.title}, ${p.place}`;
+      $("#pv-open").dataset.i = pv; $("#pv-open").setAttribute("aria-label", `Open photo: ${p.title}, ${p.place}`);
+      $("#pv-file").textContent = p.title.toLowerCase().replace(/[^a-z0-9]+/g, "_") + ".jpg";
+      $("#pv-title").textContent = p.title; $("#pv-place").textContent = `${p.place}, ${p.year}`;
+      $("#pv-n").textContent = `${n(pv + 1)} / ${n(S.photos.length)}`;
+      $$(".z-thumbs button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === pv)));
+    };
+    $$(".z-thumbs button").forEach((b) => b.addEventListener("click", () => showPhoto(+b.dataset.i)));
+    $("#pv-prev").addEventListener("click", () => showPhoto(pv - 1));
+    $("#pv-next").addEventListener("click", () => showPhoto(pv + 1));
+    showPhoto(0);
 
     if (reduceMotion) return;
     // things pop in as they arrive
