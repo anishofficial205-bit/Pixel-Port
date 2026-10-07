@@ -1374,17 +1374,41 @@ body::after {
 .static .plain .z-reels { background: var(--blue); --prev: var(--navy); }
 .static .plain .z-gallery { background: var(--ember); --prev: var(--blue); }
 .static .plain .z-contact { background: var(--navy); --prev: var(--ember); }
+.static .plain { overflow: visible; overflow-x: clip; }   /* (clip, not hidden: the cuts between sections are sticky) */
 .static .plain .z-sec { color: var(--cream); padding: clamp(96px, 14vh, 150px) 0 clamp(110px, 16vh, 170px); }
 .static .plain .z-contact { padding-bottom: 0; }
 
-/* scroll transitions */
+/* scroll transitions (see watchPlain): a cut between every two sections. Shutters close, a title card runs
+   across the dark, shutters open on the next section. */
 .plain > section { position: relative; }
-.wipe-on > section + section::before { content: ""; position: absolute; z-index: 4; left: 0; right: 0; top: 0; height: min(100%, 115vh); pointer-events: none; background: var(--prev);
-  --r: calc(var(--p, 1) * var(--p, 1) * 125vmax);
-  -webkit-mask-image: radial-gradient(circle at 50% var(--cy, 100vh), transparent var(--r), #000 calc(var(--r) + 2px)); mask-image: radial-gradient(circle at 50% var(--cy, 100vh), transparent var(--r), #000 calc(var(--r) + 2px)); }
-.wipe-on > section > .plain-wrap { transform: translateY(calc((1 - var(--p, 1)) * 70px - var(--out, 0) * 46px)) scale(calc(1 - var(--out, 0) * 0.035)); opacity: calc(1 - var(--out, 0) * 0.75); transform-origin: 50% 100%; will-change: transform, opacity; }
-.static .plain.rv-on [data-rv] { transform: translateY(26px); transition: opacity 0.7s ease, transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.n-cut { position: relative; z-index: 7; height: 250vh; margin: -100vh 0; pointer-events: none; --a: 1; --q: 0; --dark: #05030C; }
+.n-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.n-stage::before, .n-stage::after { content: ""; position: absolute; left: 0; right: 0; height: 50.5%; background: var(--dark); will-change: transform; }
+.n-stage::before { top: 0; transform: translateY(calc(var(--a) * -101%)); box-shadow: 0 1px 0 rgba(253, 214, 114, calc((1 - var(--a)) * 0.5)); }
+.n-stage::after { bottom: 0; transform: translateY(calc(var(--a) * 101%)); }
+/* the title card: the next section's name, very large, running right to left, an outline of itself trailing behind */
+.n-word { position: absolute; z-index: 2; left: 0; top: 50%; white-space: nowrap; font-family: var(--font-display); font-weight: 400; font-size: 23vw; line-height: 1; letter-spacing: 0; color: var(--cream);
+  transform: translate(calc((0.9 - var(--q) * 1.75) * 100vw), -54%) skewX(calc((0.5 - var(--q)) * -10deg)); opacity: calc(1 - var(--a) * 2.4); will-change: transform; }
+.n-word em { position: absolute; left: 0.5em; top: 0.1em; font-style: normal; color: transparent; -webkit-text-stroke: 1px rgba(253, 214, 114, 0.5); transform: translateX(calc((var(--q) - 0.5) * 22vw)); }
+.n-rule { position: absolute; z-index: 1; left: 0; right: 0; top: 50%; height: 1px; background: var(--gold); transform: scaleX(calc((1 - var(--a)) * var(--q) * 1.4)); transform-origin: 0 50%; opacity: 0.55; }
+.n-meta, .n-next { position: absolute; z-index: 3; font-family: var(--font-label); font-weight: 700; font-size: 12px; line-height: 1; letter-spacing: 0.24em; text-transform: uppercase; color: var(--cream); opacity: calc(1 - var(--a) * 2.4); }
+.n-meta { right: clamp(20px, 4vw, 60px); bottom: clamp(24px, 5vh, 54px); } .n-meta b { color: var(--gold); }
+.n-next { left: clamp(20px, 4vw, 60px); bottom: clamp(24px, 5vh, 54px); display: flex; align-items: center; gap: 12px; color: var(--gold); }
+.n-next i { width: 40px; height: 1px; background: currentColor; }
+/* the hero as the first shutters close: the words lift, the moon comes toward the camera */
+.wipe-on > .n-hero .n-hero-text { transform: translateY(calc(var(--out, 0) * -120px)); }
+.wipe-on > .n-hero .n-hero-art { transform: translateY(calc(var(--out, 0) * 40px)) scale(calc(1 + var(--out, 0) * 0.22)); transform-origin: 50% 40%; }
+.wipe-on > .n-hero .n-skyline { transform: translateY(calc(var(--out, 0) * 60px)); }
+/* pictures drift inside their mounts as the section passes */
+.wipe-on .z-pic { overflow: hidden; }
+.wipe-on .z-pic img { transform: translateY(calc(var(--v, 0) * -34px)) scale(1.14); transition: none; }
+.static .plain.wipe-on .z-proj a:hover .z-pic img { transform: translateY(calc(var(--v, 0) * -34px)) scale(1.2); transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.wipe-on .z-facefig, .wipe-on .z-roof { translate: 0 calc(var(--v, 0) * -46px); }
+.wipe-on .z-view, .wipe-on .z-screenWin { translate: 0 calc(var(--v, 0) * -30px); }
+.wipe-on .z-bits { transform: translateY(calc(var(--v, 0) * 90px)); }
+.static .plain.rv-on [data-rv] { transform: translateY(40px); transition: opacity 0.8s ease, transform 1.1s cubic-bezier(0.16, 1, 0.3, 1); }
 .static .plain.rv-on [data-rv].rv-in { transform: none; }
+@media (max-width: 700px) { .n-word { font-size: 34vw; } .n-cut { height: 240vh; } }
 
 /* sparkles: four-point stars in gold and cream */
 .static .plain .px { background: var(--gold); image-rendering: auto; clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%); animation: star-glint 3.4s ease-in-out infinite; aspect-ratio: 1; opacity: 0.9; }

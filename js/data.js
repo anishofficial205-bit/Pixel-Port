@@ -657,9 +657,9 @@ window.SITE = {
   /* Cinema reels. Add `src: "media/reel.mp4"` to play a real file. */
   reels: [
     // the user's own films (sent 2026-10-08), re-encoded for the web from 1080p masters: 1920 wide, about 5 Mbit/s
+    { id: "fort", title: "Fort", length: "0:25", poster: "assets/reels/fort.webp", src: "assets/reels/fort.mp4" },
     { id: "marine-drive", title: "Marine Drive", length: "0:42", poster: "assets/reels/marine-drive.webp", src: "assets/reels/marine-drive.mp4" },
     { id: "udaipur", title: "Udaipur", length: "0:29", poster: "assets/reels/udaipur.webp", src: "assets/reels/udaipur.mp4" },
-    { id: "fort", title: "Fort", length: "0:25", poster: "assets/reels/fort.webp", src: "assets/reels/fort.mp4" },
   ],
 
 

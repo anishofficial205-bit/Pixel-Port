@@ -627,25 +627,42 @@
     showPhoto(0);
 
     if (reduceMotion) return;
-    // scroll transitions: each section arrives through an iris that opens from the bottom of the screen, in the
-    // colour of the section before it (--p runs 0 -> 1 as the section's top climbs the screen), and the one being
-    // left sinks back and dims a little (--out). See "Night print" in styles.css.
-    const zsecs = $$("#plain > section");
+    // scroll transitions, cut like a film. Between two sections sits a "cut" (.n-cut): as you scroll into it two
+    // black shutters close over the section you are leaving, like a letterbox closing; in the dark the next
+    // section's name runs across the screen as a title card; then the shutters open on the next section. Each cut
+    // overlaps the sections on both sides by a screen, so it adds little extra scrolling. --a is how far the
+    // shutters are open (1 = fully), --q how far through the cut we are. Pictures also drift a little inside their
+    // mounts as a section passes (--v). See "Night print" in styles.css.
+    const zsecs = $$("#plain > section"), names = { drain: S.about.title, subway: "Selected work", cinema: "Reels", exhibition: "Photos", rooftop: "Say hello" };
+    const cuts = zsecs.slice(1).map((sec, k) => {
+      const c = document.createElement("div"); c.className = "n-cut"; c.setAttribute("aria-hidden", "true");
+      const name = names[sec.dataset.loc] || "", n = String(k + 1).padStart(2, "0");
+      c.innerHTML = `<div class="n-stage"><i class="n-rule"></i><b class="n-word">${name}<em>${name}</em></b><span class="n-meta"><b>${n}</b> / ${String(zsecs.length - 1).padStart(2, "0")}</span><span class="n-next">Next <i></i> ${name}</span></div>`;
+      sec.before(c); return c;
+    });
     let tick = 0;
+    const cl = (x) => Math.min(1, Math.max(0, x)), CLOSE = 0.3, OPEN = 0.78;
     const wipe = () => {
       tick = 0;
       if (body.classList.contains("ride")) return;
       const vh = innerHeight;
+      cuts.forEach((c) => {
+        const r = c.getBoundingClientRect();
+        if (r.bottom < -vh * 0.2 || r.top > vh * 1.2) return;
+        const q = cl(-r.top / (r.height - vh));
+        c.style.setProperty("--q", q.toFixed(4));
+        c.style.setProperty("--a", (q < CLOSE ? 1 - q / CLOSE : q > OPEN ? (q - OPEN) / (1 - OPEN) : 0).toFixed(4));
+      });
       zsecs.forEach((el, k) => {
         const r = el.getBoundingClientRect();
         if (r.bottom < -vh || r.top > vh * 2) return;
-        if (k) { el.style.setProperty("--p", Math.min(1, Math.max(0, (vh - r.top) / (vh * 0.85))).toFixed(3)); el.style.setProperty("--cy", Math.round(vh - r.top) + "px"); }   // --cy: the bottom of the screen, measured from the section's top (the iris opens from there)
-        el.style.setProperty("--out", Math.min(1, Math.max(0, (vh * 0.9 - r.bottom) / (vh * 0.7))).toFixed(3));
+        if (!k) el.style.setProperty("--out", cl(scrollY / vh).toFixed(3));
+        el.style.setProperty("--v", ((r.top + Math.min(r.height, vh) / 2 - vh / 2) / vh).toFixed(3));
       });
     };
     plain.classList.add("wipe-on");
     addEventListener("scroll", () => { if (!tick) tick = requestAnimationFrame(wipe); }, { passive: true });
-    addEventListener("resize", wipe); plainSize = wipe; wipe();
+    addEventListener("resize", wipe); addEventListener("load", wipe); plainSize = wipe; wipe();
     // things pop in as they arrive
     plain.classList.add("rv-on");
     const rv = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("rv-in"); rv.unobserve(e.target); } }), { rootMargin: "0px 0px -10% 0px" });
@@ -1311,7 +1328,10 @@
     } else {
       const el = typeof stop === "string" ? document.getElementById("plain-" + stop) : null;
       if (stop === "street" && instant) scrollTo(0, 0);                 // the very top, at once (a change of view)
-      else if (el) el.scrollIntoView({ behavior: instant || reduceMotion ? "auto" : "smooth" });
+      else if (el) {
+        const top = el.getBoundingClientRect().top + scrollY;
+        scrollTo({ top, behavior: instant || reduceMotion ? "auto" : "smooth" });
+      }
     }
   }
 
