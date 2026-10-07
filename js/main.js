@@ -73,7 +73,7 @@
 
   /* ================= CONTENT ================= */
   // the subway's boards are wide: a project whose cover is tall shows its wide ad picture there instead
-  const boardImg = (p) => (p.shape === "tall" && p.ads && p.ads.wide && p.ads.wide[0]) || p.cover;
+  const boardImg = (p) => p.hero || p.cover;   // the picture on a subway card: the project's wide main image, which fills the card
   // a photo's second line: where and when, or for an album how many pictures it holds
   const photoSub = (p, sep = " · ") => (p.album ? `Album${sep}${p.album.length} ${p.note ? "pictures" : "photographs"}` : `${p.place}${sep}${p.year}`);
   function fillContent() {
@@ -345,7 +345,7 @@
       const tall = board.dataset.quad === "led", strip = board.dataset.quad === "mid";
       const shape = tall ? "tall" : "wide";
       const pics = list.flatMap((p) => ((p.ads && p.ads[shape]) || [p.cover]).map((img) => ({ p, img })));
-      // every ad fits whole (no cropping) over a pixelated, dimmed copy of the project's cover;
+      // every ad fills its board edge to edge;
       // the tall board is laid out like a poster (title, picture, category) and the thin overpass
       // banner as a strip (picture, then title and category beside it)
       board.innerHTML = pics.map(({ p, img }, i) => {

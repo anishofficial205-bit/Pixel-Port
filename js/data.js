@@ -46,13 +46,13 @@ window.SITE = {
      cover/hero/img values are Framer image ids; SITE.img() turns them into sized URLs.
      blocks: {h} heading, {p} paragraph, {img,w,h} image, {list:[[title, text]]} feature list.
      ads (optional): what the street billboards show, per board shape: wide (~2.5:1) and tall (~1:2.2).
-       Framer ids or local paths; animated WebP/GIF work. Without it the cover is used. Images are never
-       cropped: they fit whole, over a pixelated copy of the cover. */
+       Framer ids or local paths; animated WebP/GIF work. Without it the cover is used. Images fill their board
+       (cropped to its shape), so pick ones whose subject sits in the middle. */
   projects: [
     {
       "id": "thrive",
       "featured": true,
-      "ads": {"wide": ["assets/ads/thrive-logo.webp"], "tall": ["dp3u20lqd2b8MqVvTOntq9Bvb54.png"]},
+      "ads": {"wide": ["dp3u20lqd2b8MqVvTOntq9Bvb54.png"], "tall": ["dp3u20lqd2b8MqVvTOntq9Bvb54.png"]},
       "title": "Thrive",
       "line": "Line 1",
       "blurb": "Brand identity for eco-friendly desk accessories",
@@ -373,7 +373,7 @@ window.SITE = {
     {
       "id": "parde-ke-peeche",
       "featured": true,
-      "ads": {"wide": ["assets/ads/parde-logo.webp"], "tall": ["EQutebwwanZebgWET9rGUdtuOrY.png"]},
+      "ads": {"wide": ["jKbW15pOCyOKgnwzV0fDkMba6hs.png"], "tall": ["EQutebwwanZebgWET9rGUdtuOrY.png"]},
       "title": "Parde Ke Peeche",
       "line": "Line 3",
       "blurb": "A magazine on the craft behind Bollywood",
