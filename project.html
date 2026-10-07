@@ -3,7 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Project · Anish Shah</title>
+  <title>Projects · Anish Shah</title>
+  <meta name="description" content="Case studies by Anish Shah: branding, packaging, publication, UI/UX and production design." />
+  <!-- meta:start (written by tools/build-meta.mjs; edit there) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Anish Shah" />
+  <meta property="og:title" content="Projects · Anish Shah" />
+  <meta property="og:description" content="Case studies by Anish Shah: branding, packaging, publication, UI/UX and production design." />
+  <meta property="og:url" content="https://portfolio2026-sable-pi.vercel.app/project.html" />
+  <meta property="og:image" content="https://portfolio2026-sable-pi.vercel.app/assets/og/home.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Projects · Anish Shah" />
+  <meta name="twitter:description" content="Case studies by Anish Shah: branding, packaging, publication, UI/UX and production design." />
+  <meta name="twitter:image" content="https://portfolio2026-sable-pi.vercel.app/assets/og/home.jpg" />
+  <!-- meta:end -->
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -13,7 +28,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791398749" />
+  <link rel="stylesheet" href="project.css?v=1791398783" />
 </head>
 <body>
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -66,13 +81,20 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791398749"></script>
-  <script src="js/flow.js?v=1791398749"></script>
+  <script src="js/data.js?v=1791398783"></script>
+  <script src="js/flow.js?v=1791398783"></script>
   <script>
     (function () {
       const list = SITE.projects;
       const id = new URLSearchParams(location.search).get("p");
-      const i = Math.max(0, list.findIndex((p) => p.id === id));
+      const i = list.findIndex((p) => p.id === id);
+      if (i < 0) {                                         // no such project (or no ?p=): say so, and show nothing of any project
+        document.title = "Project not found · Anish Shah";
+        document.body.classList.add("not-found");
+        document.querySelector(".hero").remove(); document.querySelector(".index").remove();
+        document.querySelector("main").innerHTML = `<section class="lost"><p class="kicker">Project not found</p><h1>There is no project here.</h1><p class="lost-links"><a class="x-link solid" href="projects.html">All projects</a><a class="x-link" href="index.html">Back to the ride</a></p></section>`;
+        return;
+      }
       const p = list[i], F = FLOW[p.id] || { hero: 1.5, items: p.nda ? [{ t: "lead" }, { t: "nda" }] : [] };
       const $ = (s) => document.querySelector(s);
       const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
