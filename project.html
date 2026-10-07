@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791398783" />
+  <link rel="stylesheet" href="project.css?v=1791398797" />
 </head>
 <body>
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -81,12 +81,18 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791398783"></script>
-  <script src="js/flow.js?v=1791398783"></script>
+  <script src="js/data.js?v=1791398797"></script>
+  <script src="js/flow.js?v=1791398797"></script>
   <script>
     (function () {
       const list = SITE.projects;
       const id = new URLSearchParams(location.search).get("p");
+      // Ride | Simple, as on the home page: shows the view in use, and choosing one opens the home page in that view, at the hero
+      const view = (() => { try { return localStorage.getItem("view-mode"); } catch (e) { return null; } })() === "static" ? "static" : "ride";
+      document.querySelectorAll(".view-switch button").forEach((b) => {
+        b.setAttribute("aria-pressed", String(b.dataset.view === view));
+        b.addEventListener("click", () => { try { localStorage.setItem("view-mode", b.dataset.view); } catch (e) { /* ignore */ } location.href = "index.html"; });
+      });
       const i = list.findIndex((p) => p.id === id);
       if (i < 0) {                                         // no such project (or no ?p=): say so, and show nothing of any project
         document.title = "Project not found · Anish Shah";
@@ -101,13 +107,6 @@
 
       document.title = p.title + " · Anish Shah";
       document.body.dataset.project = p.id; document.body.classList.toggle("is-nda", !!p.nda);                  // the page takes on this project's character (project.css)
-      // Ride | Simple, as on the home page: shows the view in use, and choosing one opens the home page in that view, at the hero
-      const view = (() => { try { return localStorage.getItem("view-mode"); } catch (e) { return null; } })() === "static" ? "static" : "ride";
-      document.querySelectorAll(".view-switch button").forEach((b) => {
-        b.setAttribute("aria-pressed", String(b.dataset.view === view));
-        b.addEventListener("click", () => { try { localStorage.setItem("view-mode", b.dataset.view); } catch (e) { /* ignore */ } location.href = "index.html"; });
-      });
-
       $("#p-line").textContent = [p.meta.category, p.meta.year].filter(Boolean).join(" · ");
       $("#p-title").textContent = p.title;
       $("#p-intro").textContent = p.intro;
