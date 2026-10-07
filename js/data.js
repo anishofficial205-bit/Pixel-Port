@@ -48,6 +48,7 @@ window.SITE = {
      (the first 4 featured ones, in order); every project is listed on projects.html.
      shape: "wide" (metal frame, ~2:1 window) or "tall" (cyan LED, ~9:17 window).
      cover/hero/img values are picture paths; SITE.img() picks a size.
+     outcome: paragraphs for an "Outcome and learnings" block at the end of the case study (shown only when filled in).
      blocks: {h} heading, {p} paragraph, {img,w,h} image, {list:[[title, text]]} feature list.
      ads (optional): what the street billboards show, per board shape: wide (~2.5:1) and tall (~1:2.2).
        Framer ids or local paths; animated WebP/GIF work. Without it the cover is used. Images fill their board
@@ -73,6 +74,7 @@ window.SITE = {
         "category": "Branding",
         "collaboration": "Individual Project"
       },
+      "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": [
         {
           "h": "Problem"
@@ -292,6 +294,7 @@ window.SITE = {
         "category": "Packaging",
         "collaboration": "Individual Project"
       },
+      "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": [
         {
           "img": "assets/projects/krumble/04.webp",
@@ -394,6 +397,7 @@ window.SITE = {
         "tools": "InDesign, Photoshop",
         "category": "Publication Design"
       },
+      "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": [
         {
           "img": "assets/projects/parde-ke-peeche/03.webp",
@@ -486,6 +490,7 @@ window.SITE = {
         "category": "UI/UX",
         "collaboration": "Individual Project"
       },
+      "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": [
         {
           "img": "assets/projects/haven/02.webp",
@@ -637,6 +642,7 @@ window.SITE = {
       "intro": "A production design project: designing and dressing a room to evoke dread and unease, for a script titled Bhayānaka.",
       "lead": "For our production design project, we were given a script titled Bhayānaka, a word rooted in the Sanskrit rasa of fear. The assignment called for designing and dressing an environment to evoke dread and unease, using props, textures, lighting, and surface treatments to suggest a history of violence and ritual. The real challenge lay in transforming a familiar, everyday space into something ancient, abandoned, and deeply unsettling, where every detail left behind tells a story without a single word of dialogue. What we built was a room that felt occupied by something that had already happened.",
       "meta": {"year": "March 2026", "tools": "Premiere Pro, After Effects, DaVinci Resolve, Acrylic Paint", "category": "Production Design", "collaboration": "Classroom Project"},
+      "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": []
     },
     {
@@ -654,6 +660,7 @@ window.SITE = {
       "intro": "I turned my portfolio from a page of project cards into a night walk through an Indian city, so the site itself shows how I design.",
       "lead": "A portfolio you walk through, with a plain view for anyone in a hurry. Scrolling moves a small version of me through one night in an Indian city, and each place is a section: projects on subway billboards, reels in a cinema, photos in a gallery, contact on a rooftop. I set the concept, the experience and the art direction, and made every call; Claude Code wrote the code and an image model drew the art to my brief.",
       "meta": {"year": "2026", "timeframe": "8 Days", "tools": "Claude, Claude Code, AI image generation", "category": "UI/UX", "collaboration": "Solo Project"},
+      "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": []
     },
     // two pieces of work under NDA. nda: true = the page shows only the cover and a note; nothing of the work
@@ -670,6 +677,7 @@ window.SITE = {
       "intro": "Work from my internship at Please See.",
       "lead": "This work is under a non-disclosure agreement, so I can’t show it here. I’m happy to walk through my role and process in a conversation.",
       "meta": {"category": "Internship", "collaboration": "Please See"},
+      "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": []
     },
     {
@@ -684,6 +692,7 @@ window.SITE = {
       "intro": "A website design project with Miso.Inc.",
       "lead": "This work is under a non-disclosure agreement, so I can’t show it here. I’m happy to walk through my role and process in a conversation.",
       "meta": {"category": "UI/UX", "collaboration": "Miso.Inc"},
+      "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": []
     }
   ],

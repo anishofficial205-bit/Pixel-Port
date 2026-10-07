@@ -174,13 +174,28 @@ def making_row(it):
     return row
 flow["making"] = {"hero": 1.778, "items": [making_row(it) if "pics" in it else it for it in making.ITEMS]}
 
+# Headings added over what the Framer pages already say (audit P1-6): each goes in front of the item named, the
+# same way chapters are named below ("lead", or the start of a paragraph). No text is added or changed.
+HEADINGS = {
+    "thrive": [("lead", "The identity"), ("The logo process", "Logo exploration"), ("The colour palette", "Colour"), ("To explore how Thrive", "3D and product studies")],
+    "krumble": [("The existing Haldiram", "The problem"), ("These sketches", "Research and sketches"), ("The colour palette follows", "Colour system"), ("To ensure the cookies", "Material")],
+    "parde-ke-peeche": [("lead", "Overview"), ("Most of the magazine", "Grid system")],
+}
+def _starts(it, key):
+    return it["t"] == "lead" if key == "lead" else it["t"] == "p" and it["tx"].startswith(key)
+for pid, marks in HEADINGS.items():
+    items = flow[pid]["items"]
+    for key, name in marks:
+        k = next(i for i, it in enumerate(items) if _starts(it, key))
+        items.insert(k, {"t": "h", "tx": name, "big": False})
+
 # Chapters: the names in each page's small index (the list that stays at the left while the page scrolls).
 # Headings name themselves; where a page has few or none, a chapter starts at the item named here: "lead",
 # the start of an image's file name, or the start of a paragraph.
 CHAPTERS = {
-    "thrive": [("lead", "Overview"), ("ZXVw8Izx", "Values"), ("The logo process", "Logo"), ("The colour palette", "Colour"), ("g8DTqGfD", "Sketches"), ("To explore how Thrive", "Products"), ("Ivsfxoqc", "In the world")],
-    "krumble": [("lead", "Overview"), ("KC3d3gJ7", "Existing packs"), ("oBjMqgJS", "Sketches"), ("ZjxXNCTb", "Palette"), ("a5bqlwAD", "Dieline"), ("Fcppa449", "Final box")],
-    "parde-ke-peeche": [("lead", "Overview"), ("JOKsFJWZ", "The magazine"), ("Most of the magazine", "Grid"), ("C6Hu12Ur", "Spreads")],
+    "thrive": [("g8DTqGfD", "Sketches"), ("Ivsfxoqc", "In the world")],
+    "krumble": [("lead", "Overview"), ("Fcppa449", "Final box")],
+    "parde-ke-peeche": [("JOKsFJWZ", "The magazine"), ("C6Hu12Ur", "Spreads")],
     "haven": [("lead", "Overview")],
     "bali": [("lead", "Overview")],
     "making": [("lead", "Overview")],

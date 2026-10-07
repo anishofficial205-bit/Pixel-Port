@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791399620" />
+  <link rel="stylesheet" href="project.css?v=1791399684" />
 </head>
 <body>
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -81,8 +81,8 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791399620"></script>
-  <script src="js/flow.js?v=1791399620"></script>
+  <script src="js/data.js?v=1791399684"></script>
+  <script src="js/flow.js?v=1791399684"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -183,6 +183,10 @@
         root.append(e);
         if (b.chapter) chapter(b.chapter, e); else if (b.t === "h" && !b.sub) chapter(b.nav || b.tx, e);
       });
+      // outcome and learnings: only when the project has some
+      const outcome = (p.outcome || []).filter((t) => t && t.trim());
+      if (outcome.length) { const h = el("h3", null, "Outcome and learnings"); root.append(h); chapter("Outcome", h); outcome.forEach((t) => root.append(el("p", null, t))); }
+
       // the index follows the scroll: the chapter in view is lit; it shows only between the opening and the end
       const pictures = [...document.querySelectorAll(".case > .row, .case > .shot, .case > .ticker, .case > .tiles, .case > .swatches")];
       const follow = () => {
