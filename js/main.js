@@ -74,6 +74,8 @@
   /* ================= CONTENT ================= */
   // the subway's boards are wide: a project whose cover is tall shows its wide ad picture there instead
   const boardImg = (p) => (p.shape === "tall" && p.ads && p.ads.wide && p.ads.wide[0]) || p.cover;
+  // a photo's second line: where and when, or for an album how many pictures it holds
+  const photoSub = (p, sep = " · ") => (p.album ? `Album${sep}${p.album.length} photographs` : `${p.place}${sep}${p.year}`);
   function fillContent() {
     $("#site-name").textContent = `${S.name[0]}${S.name.slice(1).toLowerCase()} Shah, ${S.role}`;
     $("#site-intro").textContent = S.intro;
@@ -109,10 +111,11 @@
 
     $("#photos").innerHTML = S.photos.map((p, i) => `
       <figure class="photo" style="--ar:${p.w / p.h}">
-        <button class="photo-frame" type="button" data-i="${i}" aria-label="Open photo: ${p.title}, ${p.place}">
-          <img class="work-media" src="${p.src}" alt="${p.title}, ${p.place}" decoding="async" />
+        <button class="photo-frame${p.album ? " is-album" : ""}" type="button" data-i="${i}" aria-label="Open ${p.album ? "album" : "photo"}: ${p.title}, ${photoSub(p, ", ")}">
+          <img class="work-media" src="${p.src}" alt="${p.title}" decoding="async" />
+          ${p.album ? `<span class="album-tag" aria-hidden="true">${p.album.length} photos</span>` : ""}
         </button>
-        <figcaption class="plaque"><b>${p.title}</b><span>${p.place} · ${p.year}</span></figcaption>
+        <figcaption class="plaque"><b>${p.title}</b><span>${photoSub(p)}</span></figcaption>
       </figure>`).join("");
 
     $(".hoardings").innerHTML = ROOFTOP.hoardings.map((_, i) => `<i class="hoarding" style="background-image:url(${S.img(S.projects[i % S.projects.length].cover, 256)})"></i>`).join("");
@@ -519,9 +522,9 @@
               <h3 class="z-view-title" id="pv-title"></h3>
               <p class="z-view-place" id="pv-place"></p>
               <ul class="z-thumbs">${S.photos.map((p, i) => `
-                <li><button type="button" data-i="${i}" aria-label="Show ${p.title}, ${p.place}"><img src="${p.src}" alt="" loading="lazy" draggable="false" /></button></li>`).join("")}
+                <li><button type="button" data-i="${i}" aria-label="Show ${p.title}, ${photoSub(p, ", ")}"><img src="${p.src}" alt="" loading="lazy" draggable="false" />${p.album ? `<span class="album-tag" aria-hidden="true">${p.album.length}</span>` : ""}</button></li>`).join("")}
               </ul>
-              <p class="z-view-nav"><button class="pxbtn sm alt" type="button" id="pv-prev" aria-label="Previous photo">&#9664;</button><button class="pxbtn sm alt" type="button" id="pv-next" aria-label="Next photo">&#9654;</button><span class="z-cap">Click the photo to see it large</span></p>
+              <p class="z-view-nav"><button class="pxbtn sm alt" type="button" id="pv-prev" aria-label="Previous photo">&#9664;</button><button class="pxbtn sm alt" type="button" id="pv-next" aria-label="Next photo">&#9654;</button><span class="z-cap" id="pv-hint">Click the photo to see it large</span></p>
             </div>
           </div>
         </div>
@@ -610,10 +613,11 @@
     const showPhoto = (k) => {
       pv = (k + S.photos.length) % S.photos.length;
       const p = S.photos[pv], n = (x) => String(x).padStart(2, "0");
-      $("#pv-img").src = p.src; $("#pv-img").alt = `${p.title}, ${p.place}`;
-      $("#pv-open").dataset.i = pv; $("#pv-open").setAttribute("aria-label", `Open photo: ${p.title}, ${p.place}`);
+      $("#pv-img").src = p.src; $("#pv-img").alt = p.title;
+      $("#pv-open").dataset.i = pv; $("#pv-open").setAttribute("aria-label", `Open ${p.album ? "album" : "photo"}: ${p.title}`);
+      $(".z-view").classList.toggle("is-album", !!p.album); $("#pv-hint").textContent = p.album ? `Click to open the album (${p.album.length} photos)` : "Click the photo to see it large";
       $("#pv-file").textContent = p.title.toLowerCase().replace(/[^a-z0-9]+/g, "_") + ".jpg";
-      $("#pv-title").textContent = p.title; $("#pv-place").textContent = `${p.place}, ${p.year}`;
+      $("#pv-title").textContent = p.title; $("#pv-place").textContent = photoSub(p, p.album ? " · " : ", ");
       $("#pv-n").textContent = `${n(pv + 1)} / ${n(S.photos.length)}`;
       $$(".z-thumbs button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === pv)));
     };
@@ -1431,13 +1435,15 @@
     // lightbox
     const lb = $("#lightbox");
     let li = 0, lastFocus = null, tx = null;
+    // every picture in order: a single photo is one slide, an album is one slide per picture
+    const slides = S.photos.flatMap((p, k) => (p.album || [p.src]).map((src, n, all) => ({ p, k, src, n, of: all.length })));
     function show(i) {
-      li = (i + S.photos.length) % S.photos.length;
-      const p = S.photos[li];
-      $("#lb-img").src = p.src; $("#lb-img").alt = `${p.title}, ${p.place}`;
-      $("#lb-cap").innerHTML = `<b>${p.title}</b><span>${p.place} · ${p.year}</span>`;
+      li = (i + slides.length) % slides.length;
+      const { p, src, n, of } = slides[li];
+      $("#lb-img").src = src; $("#lb-img").alt = p.album ? `${p.title}, ${n + 1} of ${of}` : `${p.title}, ${p.place}`;
+      $("#lb-cap").innerHTML = `<b>${p.title}</b><span>${p.album ? `${n + 1} / ${of}` : photoSub(p)}</span>`;
     }
-    function openLightbox(i) { lastFocus = document.activeElement; show(i); lb.hidden = false; body.classList.add("lb-open"); $(".lb-close").focus(); }
+    function openLightbox(photo) { lastFocus = document.activeElement; show(slides.findIndex((x) => x.k === photo)); lb.hidden = false; body.classList.add("lb-open"); $(".lb-close").focus(); }
     function close() { lb.hidden = true; body.classList.remove("lb-open"); lastFocus?.focus(); }
     $(".lb-close").addEventListener("click", close);
     $(".lb-prev").addEventListener("click", () => show(li - 1));

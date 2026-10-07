@@ -665,7 +665,10 @@ window.SITE = {
   /* Exhibition photos (4, one per frame). Frame 2 is portrait, the others landscape. */
   photos: [
     { title: "Marine Drive", place: "Mumbai", year: "2026", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph1/1200/800" },
-    { title: "Chor Bazaar", place: "Mumbai", year: "2025", w: 4, h: 5, src: "https://picsum.photos/seed/pp-ph2/960/1200" },
+    // an album: one frame in the gallery (src is its cover), every picture in the viewer that opens from it.
+    // The street portraits from the Photography section of anishah.framer.website/about-me
+    { title: "Street Portraits", w: 4, h: 5, src: "assets/photos/street-portraits/01.webp",
+      album: Array.from({ length: 11 }, (_, i) => `assets/photos/street-portraits/${String(i + 1).padStart(2, "0")}.webp`) },
     { title: "Ghats at Dawn", place: "Varanasi", year: "2025", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph3/1200/800" },
     { title: "Tea Estate", place: "Munnar", year: "2023", w: 3, h: 2, src: "https://picsum.photos/seed/pp-ph6/1200/800" },
   ],

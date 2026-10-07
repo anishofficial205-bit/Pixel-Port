@@ -775,6 +775,11 @@ body::after {
 .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
 .photo-frame:hover img { filter: brightness(1.12); }
 .photo-frame:focus-visible { outline-offset: 22px; }
+/* an album: its cover in the frame, with a small tag saying how many pictures are inside */
+.photo-frame.is-album, .z-thumbs button, .z-view .photo-frame { position: relative; }
+.album-tag { position: absolute; right: 6px; bottom: 6px; padding: 4px 7px 5px; background: #14103A; color: #F6E9CF; font-family: var(--font-label); font-weight: 700; font-size: 10px; line-height: 1; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 0 0 1.5px #FFC24A; pointer-events: none; }
+.ride .photo .album-tag { font-size: max(8px, calc(var(--gs, 1) * 10px)); padding: 3px 5px; right: 4px; bottom: 4px; }
+.z-view.is-album .photo-frame::after { content: "Album"; position: absolute; left: 14px; top: 14px; padding: 6px 10px; background: var(--amber); color: var(--ink); font-family: var(--font-label); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: 0 0 0 3px var(--ink); }
 /* title engraved on the brass plaque under each frame */
 .ride .photo .plaque {
   position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); margin: 0; padding: 0 3px;
