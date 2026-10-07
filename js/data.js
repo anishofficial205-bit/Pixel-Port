@@ -64,7 +64,6 @@ window.SITE = {
       "shape": "wide",
       "band": "#3DF2FF",
       "cover": "assets/projects/thrive/01.webp",
-      "source": "https://anishah.framer.website/thrive",
       "intro": "Brand identity for Thrive, a modular, eco-friendly desk-accessory brand that feels premium but stays affordable.",
       "lead": "Thrive brings a refined, minimalist visual identity to modern workspaces, transforming functional desk accessories into a cohesive, premium yet accessible experience that reflects clarity, intention, and everyday productivity.",
       "meta": {
@@ -284,7 +283,6 @@ window.SITE = {
       "band": "#FF3D9A",
       "cover": "assets/projects/krumble/02.webp",
       "hero": "assets/projects/krumble/01.webp",
-      "source": "https://anishah.framer.website/krumble",
       "intro": "A packaging design project reimagining Haldiram’s cookies as a premium, festive-ready gifting experience.",
       "lead": "In India, cookies rarely make good gifts because their packaging seems too plain and functional. I reimagined Haldiram’s cookies as a festive gift, transforming a familiar product into a special keepsake for celebrations.",
       "meta": {
@@ -388,7 +386,6 @@ window.SITE = {
       "band": "#FF9933",
       "cover": "assets/projects/parde-ke-peeche/02.webp",
       "hero": "assets/projects/parde-ke-peeche/01.webp",
-      "source": "https://anishah.framer.website/parde-ke-peeche",
       "intro": "A publication design project exploring the unseen craft, design, and storytelling behind Bollywood.",
       "lead": "Parde Ke Peeche is a 20-page publication I designed as part of my communication design program. The magazine explores the hidden craft of Bollywood, such as cinematography, sound design, choreography, set design, poster art, and motion titles. Instead of focusing on celebrity culture, the publication celebrates the people and processes that shape the visual experience of Indian cinema.",
       "meta": {
@@ -480,7 +477,6 @@ window.SITE = {
       "shape": "wide",
       "band": "#FFC21A",
       "cover": "assets/projects/haven/01.webp",
-      "source": "https://anishah.framer.website/haven",
       "intro": "A UI/UX project exploring consent as a lived experience for Indian adolescents, designing culturally sensitive ways to practise boundaries across social, digital, and intimate spaces.",
       "lead": "This project explores consent as a lived experience for Indian youth, revealing gaps between awareness and action shaped by culture and power. It proposes a confidential digital platform that blends expert guidance, peer dialogue, and scenario-based learning to help young people practise boundaries and build respectful relationships.",
       "meta": {
