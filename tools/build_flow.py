@@ -185,9 +185,14 @@ CHAPTERS = {
     "bali": [("lead", "Overview")],
     "making": [("lead", "Overview")],
 }
+# the image keys above are the start of the pictures' old Framer file names; tools/localise_framer.py brought the
+# pictures into the project and kept the map from old name to local path
+_map = json.loads((ROOT / "tools/framer/local-map.json").read_text()) if (ROOT / "tools/framer/local-map.json").exists() else {}
+LOCAL = {}
+for old, path in _map.items(): LOCAL.setdefault(old[:8], set()).add(path)
 def starts(it, key):
     if key == "lead": return it["t"] == "lead"
-    if it["t"] == "row": return any(c["id"].split("/")[-1].startswith(key) for c in it["imgs"])
+    if it["t"] == "row": return any(c["id"] in LOCAL.get(key, ()) or c["id"].split("/")[-1].startswith(key) for c in it["imgs"])
     return it["t"] == "p" and it["tx"].startswith(key)
 for pid, marks in CHAPTERS.items():
     items = flow[pid]["items"]

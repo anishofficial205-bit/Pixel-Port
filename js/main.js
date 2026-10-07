@@ -94,7 +94,7 @@
     // each board is an ad for one project: the picture, then its line, title, blurb and a way in
     $("#billboards").innerHTML = S.featured().map((p, i) => `
       <a class="billboard" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="--band:${p.band}">
-        <span class="bb-pic"><span class="ad-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1024)}" alt="" decoding="async" /></span>
+        <span class="bb-pic"><span class="ad-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1280)}" srcset="${SITE.srcset(boardImg(p))}" sizes="(max-width: 700px) 70vw, 40vw" alt="" decoding="async" /></span>
         <span class="bb-info">
           <span class="bb-line">${p.meta.category || p.line}</span>
           <span class="bb-title">${p.title}</span>
@@ -350,7 +350,7 @@
       // banner as a strip (picture, then title and category beside it)
       board.innerHTML = pics.map(({ p, img }, i) => {
         const bg = `<span class="ad-bg" style="background-image:url(${S.img(p.cover, 32)})"></span>`;
-        const pic = `<img class="work-media ad-img" src="${S.img(img, tall ? 768 : 1024)}" alt="" decoding="async" />`;
+        const pic = `<img class="work-media ad-img" src="${S.img(img, 640)}" srcset="${S.srcset(img)}" sizes="${tall ? "12vw" : "22vw"}" alt="" decoding="async" />`;
         return tall
           ? `<span class="ad ad-poster" data-i="${i}">${bg}<span class="ad-title">${p.title}</span><span class="ad-frame">${pic}</span><span class="ad-cat">${p.meta.category || ""}</span></span>`
           : strip
@@ -478,7 +478,7 @@
           <ol class="z-projects">${S.featured().map((p, i) => `
             <li class="z-proj${i ? "" : " lead"}" id="card-${p.id}" style="--band:${p.band}" data-rv>
               <a href="project.html?p=${p.id}">
-                ${win(`${file(p.line)}/${file(p.title)}`, `<span class="z-pic"><img class="work-media" src="${S.img(i ? p.cover : p.hero || p.cover, i ? 1024 : 2048)}" alt="" loading="lazy" decoding="async" /></span>`, "z-picWin")}
+                ${win(`${file(p.line)}/${file(p.title)}`, `<span class="z-pic"><img class="work-media" src="${S.img(i ? p.cover : p.hero || p.cover, 1280)}" srcset="${S.srcset(i ? p.cover : p.hero || p.cover)}" sizes="${i ? "(max-width: 700px) 90vw, 30vw" : "(max-width: 1000px) 90vw, 56vw"}" alt="" loading="lazy" decoding="async" /></span>`, "z-picWin")}
                 <span class="z-proj-text">
                   <span class="z-no">${String(i + 1).padStart(2, "0")} · ${p.meta.category || ""} · ${p.meta.year || ""}</span>
                   <span class="z-proj-title">${p.title}</span>

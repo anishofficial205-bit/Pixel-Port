@@ -4,13 +4,15 @@
    Images use picsum.photos seeds until real work is added.
 ------------------------------------------------------------------- */
 window.SITE = {
-  // Framer-hosted image at a sensible size (GIFs are served as-is so they keep animating)
   featured() { return this.projects.filter((p) => p.featured); },
+  // A project picture at a sensible size. The case-study pictures live in assets/projects/<project>/ in four
+  // widths (tools/localise_framer.py): full, 1280, 640 and a 32 px one used blurred behind things.
   img(id, size = 2048) {
-    if (id.includes("/")) return id;                       // a local file, e.g. assets/ads/…
-    const u = "https://framerusercontent.com/images/" + id;
-    return /\.gif$/i.test(id) ? u : u + "?scale-down-to=" + size;
+    if (!id || !/^assets\/projects\/(thrive|krumble|parde-ke-peeche|haven)\/\d+\.webp$/.test(id)) return id;   // anything else is used as it is
+    return id.replace(/\.webp$/, (size <= 64 ? "-32" : size <= 640 ? "-640" : size <= 1280 ? "-1280" : "") + ".webp");
   },
+  // ...and for a picture shown in a small slot (a billboard, a card): both smaller widths, for the browser to choose from
+  srcset(id) { const a = this.img(id, 640), b = this.img(id, 1280); return a === b ? "" : `${a} 640w, ${b} 1280w`; },
 
   name: "ANISH",
   role: "Visual & Product Designer",
@@ -43,7 +45,7 @@ window.SITE = {
   /* All projects, from anishah.framer.website. featured: true puts a project on a subway billboard
      (the first 4 featured ones, in order); every project is listed on projects.html.
      shape: "wide" (metal frame, ~2:1 window) or "tall" (cyan LED, ~9:17 window).
-     cover/hero/img values are Framer image ids; SITE.img() turns them into sized URLs.
+     cover/hero/img values are picture paths; SITE.img() picks a size.
      blocks: {h} heading, {p} paragraph, {img,w,h} image, {list:[[title, text]]} feature list.
      ads (optional): what the street billboards show, per board shape: wide (~2.5:1) and tall (~1:2.2).
        Framer ids or local paths; animated WebP/GIF work. Without it the cover is used. Images fill their board
@@ -52,13 +54,13 @@ window.SITE = {
     {
       "id": "thrive",
       "featured": true,
-      "ads": {"wide": ["dp3u20lqd2b8MqVvTOntq9Bvb54.png"], "tall": ["dp3u20lqd2b8MqVvTOntq9Bvb54.png"]},
+      "ads": {"wide": ["assets/projects/thrive/01.webp"], "tall": ["assets/projects/thrive/01.webp"]},
       "title": "Thrive",
       "line": "Line 1",
       "blurb": "Brand identity for eco-friendly desk accessories",
       "shape": "wide",
       "band": "#3DF2FF",
-      "cover": "dp3u20lqd2b8MqVvTOntq9Bvb54.png",
+      "cover": "assets/projects/thrive/01.webp",
       "source": "https://anishah.framer.website/thrive",
       "intro": "Brand identity for Thrive, a modular, eco-friendly desk-accessory brand that feels premium but stays affordable.",
       "lead": "Thrive brings a refined, minimalist visual identity to modern workspaces, transforming functional desk accessories into a cohesive, premium yet accessible experience that reflects clarity, intention, and everyday productivity.",
@@ -83,17 +85,17 @@ window.SITE = {
           "p": "Thrive offers a modern, modular, sustainable workspace brand that blends premium aesthetics with everyday affordability. Its warm, relatable identity and thoughtful functionality create a smart, calm ecosystem designed for real productivity."
         },
         {
-          "img": "ZXVw8IzxIRNgEd4tVZiLfPJMu3Y.gif",
+          "img": "assets/projects/thrive/02.webp",
           "w": 1400,
           "h": 70
         },
         {
-          "img": "Q2O7X1dwIY3eJYXmhF9OR4yBxaM.png",
+          "img": "assets/projects/thrive/03.webp",
           "w": 1587,
           "h": 1060
         },
         {
-          "img": "ToNqXPbOGbC4TA3jC4kiHiPzmBY.png",
+          "img": "assets/projects/thrive/04.webp",
           "w": 1587,
           "h": 1185
         },
@@ -104,72 +106,72 @@ window.SITE = {
           "p": "The logo process involved a lot of experimentation with styles, symbols, and treatments. While some directions worked visually, they did not align with what Thrive stood for. Some felt too decorative, others too generic. Feedback from peers and mentors helped me realise I was overcomplicating the design. I stepped back and shifted my focus to simplicity. After refining and testing multiple variations, I arrived at a minimal, modern wordmark that feels confident, quiet, and flexible enough to grow with the brand."
         },
         {
-          "img": "uSHMFiPF7n22w4VCz2JBXyY.gif",
+          "img": "assets/projects/thrive/05.webp",
           "w": 1400,
           "h": 359
         },
         {
-          "img": "69h8BsAsHowI6GZmXdphfqENhGw.png",
+          "img": "assets/projects/thrive/06.webp",
           "w": 22773,
           "h": 5689
         },
         {
-          "img": "9wuysO25VIMSyaQafMQBPj8UMw.png",
+          "img": "assets/projects/thrive/07.webp",
           "w": 1400,
           "h": 450
         },
         {
-          "img": "pC0latKXXwpX6phislJJDSXTQhk.png",
+          "img": "assets/projects/thrive/08.webp",
           "w": 1400,
           "h": 450
         },
         {
-          "img": "Mq9jAwBPsP73qfgREBqBpimVyQ.png",
+          "img": "assets/projects/thrive/09.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "52C3ACJWE1jZTazAgPxcB2MC7sM.png",
+          "img": "assets/projects/thrive/10.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "Plyy5YyVSZa6jpGMPjo6c8ntL64.png",
+          "img": "assets/projects/thrive/11.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "U8XgAV2tHVn8sa15J0gi92NejMM.png",
+          "img": "assets/projects/thrive/12.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "MQ28P43pgkM0rW5YIFf0Pw4rR3w.png",
+          "img": "assets/projects/thrive/13.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "2XbzuMshJWGQyqHWD7086yrgpM.png",
+          "img": "assets/projects/thrive/14.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "00bC59XvIb9KcHLhwrsAjQ1pjg.png",
+          "img": "assets/projects/thrive/15.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "L1j7lh3H0bvP5GVvkoyz1nPtbVo.png",
+          "img": "assets/projects/thrive/16.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "Q6HmzROfxSmBDHhaEwHrox4TcJs.png",
+          "img": "assets/projects/thrive/17.webp",
           "w": 1920,
           "h": 1080
         },
         {
-          "img": "0Kjd1mgBshw6bJnRX5lFymLXO8A.png",
+          "img": "assets/projects/thrive/18.webp",
           "w": 1920,
           "h": 1080
         },
@@ -180,32 +182,32 @@ window.SITE = {
           "p": "The colour palette for Thrive uses muted teal tones that feel modern and naturally grounded. Chosen to convey calm, clarity, and subtle luxury, the deeper teal adds depth and sophistication while the lighter tone brings balance and softness. Together, they create a clean, refined aesthetic that reflects Thrive’s affordable premium workspace identity."
         },
         {
-          "img": "wnQbvHpWhf9LQ5YFNSFSXWlzHw.gif",
+          "img": "assets/projects/thrive/19.webp",
           "w": 1400,
           "h": 200
         },
         {
-          "img": "g8DTqGfDLMdYofaglikIOpTxr8.png",
+          "img": "assets/projects/thrive/20.webp",
           "w": 4032,
           "h": 3024
         },
         {
-          "img": "0tqG4YIXAgoHrb3nzjHnFwcwN2A.png",
+          "img": "assets/projects/thrive/21.webp",
           "w": 4032,
           "h": 3024
         },
         {
-          "img": "3JbzeH173rbbqdLbSus13vQ1xM.png",
+          "img": "assets/projects/thrive/22.webp",
           "w": 4032,
           "h": 3024
         },
         {
-          "img": "OyVQfHCg1xSYDP76qWfNLZqIL1U.png",
+          "img": "assets/projects/thrive/23.webp",
           "w": 4032,
           "h": 3024
         },
         {
-          "img": "WRd0WtkT5NWSFr3AQRxMOgb1I.png",
+          "img": "assets/projects/thrive/24.webp",
           "w": 4032,
           "h": 3024
         },
@@ -216,52 +218,52 @@ window.SITE = {
           "p": "To explore how Thrive could exist in the real world, I recreated market products in Blender and applied the brand’s logo and colours. This helped me understand how the identity translates onto physical forms while experimenting with 3D. Alongside this, I created product sketches to study proportions, materials, and design directions. Together, the sketches and renders helped bring Thrive closer to a tangible workspace experience."
         },
         {
-          "img": "ImOlC6EPYzz5AQHdQ7Ye8roO04.png",
+          "img": "assets/projects/thrive/25.webp",
           "w": 4000,
           "h": 3000
         },
         {
-          "img": "Ivsfxoqci6HtqlDeMC2pRzJN9eY.png",
+          "img": "assets/projects/thrive/26.webp",
           "w": 4000,
           "h": 3000
         },
         {
-          "img": "wvnv1XRNUWuiNeSgJY88E7fCVc.png",
+          "img": "assets/projects/thrive/27.webp",
           "w": 4500,
           "h": 2812
         },
         {
-          "img": "sYGxD28KW5eV7ywhtrx0asqKlx8.png",
+          "img": "assets/projects/thrive/28.webp",
           "w": 5472,
           "h": 3635
         },
         {
-          "img": "az8gvZNx8xMnj1O4o2zCpZQYNE.png",
+          "img": "assets/projects/thrive/29.webp",
           "w": 4184,
           "h": 2414
         },
         {
-          "img": "VniLMVclzWG5ighVsmhIOqgt9G4.png",
+          "img": "assets/projects/thrive/30.webp",
           "w": 4500,
           "h": 3500
         },
         {
-          "img": "YxvxppiVXI7dojejjKAlumkcOA.png",
+          "img": "assets/projects/thrive/31.webp",
           "w": 4500,
           "h": 3003
         },
         {
-          "img": "QkBuyGtVnuTDn5aCemY5jtujOg.png",
+          "img": "assets/projects/thrive/32.webp",
           "w": 4092,
           "h": 2880
         },
         {
-          "img": "503oXYqYxolCDceo29aB43C18s.png",
+          "img": "assets/projects/thrive/33.webp",
           "w": 5000,
           "h": 3336
         },
         {
-          "img": "y2zmsRLD3hsmCrHRKCc8U2qmOPs.png",
+          "img": "assets/projects/thrive/34.webp",
           "w": 2497,
           "h": 1637
         }
@@ -270,14 +272,14 @@ window.SITE = {
     {
       "id": "krumble",
       "featured": true,
-      "ads": {"wide": ["HsNegKWzgrPy1KGooo5JW61CxJo.png"], "tall": ["HvvrYLL9E86iUDCiPFUmJzYsKpU.png", "Fcppa449wpWVPOvtSgmSMZG1k.png"]},
+      "ads": {"wide": ["assets/projects/krumble/01.webp"], "tall": ["assets/projects/krumble/02.webp", "assets/projects/krumble/03.webp"]},
       "title": "Krumble",
       "line": "Line 2",
       "blurb": "Festive gift packaging for Haldiram’s cookies",
       "shape": "tall",
       "band": "#FF3D9A",
-      "cover": "HvvrYLL9E86iUDCiPFUmJzYsKpU.png",
-      "hero": "HsNegKWzgrPy1KGooo5JW61CxJo.png",
+      "cover": "assets/projects/krumble/02.webp",
+      "hero": "assets/projects/krumble/01.webp",
       "source": "https://anishah.framer.website/krumble",
       "intro": "A packaging design project reimagining Haldiram’s cookies as a premium, festive-ready gifting experience.",
       "lead": "In India, cookies rarely make good gifts because their packaging seems too plain and functional. I reimagined Haldiram’s cookies as a festive gift, transforming a familiar product into a special keepsake for celebrations.",
@@ -290,12 +292,12 @@ window.SITE = {
       },
       "blocks": [
         {
-          "img": "ipjn6J5d284ShEM4Gcr6ygAWh4I.png",
+          "img": "assets/projects/krumble/04.webp",
           "w": 2528,
           "h": 1696
         },
         {
-          "img": "KC3d3gJ7UeanWqRuRShQo38QY.png",
+          "img": "assets/projects/krumble/05.webp",
           "w": 1746,
           "h": 1513
         },
@@ -306,17 +308,17 @@ window.SITE = {
           "p": "The existing Haldiram’s cookie packaging is functional but not memorable. Most designs rely on busy colours, flat layouts, and a strong focus on product display, which works for everyday retail but falls short for gifting. They lack warmth, presence, and a sense of occasion, making the experience feel transactional rather than celebratory. This absence of emotion and visual hierarchy created an opportunity to rethink the packaging as something more thoughtful and gift-worthy."
         },
         {
-          "img": "oBjMqgJSOp2z1VFzyoTtCtZS3I.jpeg",
+          "img": "assets/projects/krumble/06.webp",
           "w": 2757,
           "h": 3873
         },
         {
-          "img": "5TxZ8bmT4X0yHr6bYgDg9IvaQbM.jpeg",
+          "img": "assets/projects/krumble/07.webp",
           "w": 2611,
           "h": 3835
         },
         {
-          "img": "zaOWgxF0BVJ3ltCFOqB7vqkYNU.jpeg",
+          "img": "assets/projects/krumble/08.webp",
           "w": 2761,
           "h": 3867
         },
@@ -327,7 +329,7 @@ window.SITE = {
           "p": "These sketches marked the starting point of the project, where I studied existing cookie packaging and identified gaps such as repetitive structures, plastic-heavy formats, and a lack of user experience or sense of occasion. By sketching current systems alongside new ideas, I explored silhouettes, opening mechanisms, materials, and more intentional forms. This phase focused on reimagining the cookie box as premium and gift-worthy, laying the foundation for the final packaging structure."
         },
         {
-          "img": "ZjxXNCTb8vzueAE8Xivo4rWmk.png",
+          "img": "assets/projects/krumble/09.webp",
           "w": 21167,
           "h": 4162
         },
@@ -338,7 +340,7 @@ window.SITE = {
           "p": "The colour palette follows a flavour coding system, with each variant assigned a rich tone within the same warm family. Deep reds and burgundies create a premium, festive feel suited for gifting, while subtle shifts in shade distinguish flavours. This approach keeps the range cohesive, elegant, and instantly recognisable."
         },
         {
-          "img": "a5bqlwAD0CEDCSJDGz8J1LVlyg.jpg",
+          "img": "assets/projects/krumble/10.webp",
           "w": 23385,
           "h": 16535
         },
@@ -349,22 +351,22 @@ window.SITE = {
           "p": "To ensure the cookies remain intact from shelf to celebration, the packaging uses rigid chipboard. This choice provides superior structural integrity and impact resistance, ensuring that premium aesthetics are matched by a breakage-free experience."
         },
         {
-          "img": "Fcppa449wpWVPOvtSgmSMZG1k.png",
+          "img": "assets/projects/krumble/03.webp",
           "w": 1696,
           "h": 2528
         },
         {
-          "img": "HvvrYLL9E86iUDCiPFUmJzYsKpU.png",
+          "img": "assets/projects/krumble/02.webp",
           "w": 1696,
           "h": 2528
         },
         {
-          "img": "D1pRJVSG6433hAomt9eGpUdHA.png",
+          "img": "assets/projects/krumble/11.webp",
           "w": 1928,
           "h": 1696
         },
         {
-          "img": "wNKgGgtwD1obs90KvtYM2eXrBNE.png",
+          "img": "assets/projects/krumble/12.webp",
           "w": 1748,
           "h": 1240
         }
@@ -373,14 +375,14 @@ window.SITE = {
     {
       "id": "parde-ke-peeche",
       "featured": true,
-      "ads": {"wide": ["jKbW15pOCyOKgnwzV0fDkMba6hs.png"], "tall": ["EQutebwwanZebgWET9rGUdtuOrY.png"]},
+      "ads": {"wide": ["assets/projects/parde-ke-peeche/01.webp"], "tall": ["assets/projects/parde-ke-peeche/02.webp"]},
       "title": "Parde Ke Peeche",
       "line": "Line 3",
       "blurb": "A magazine on the craft behind Bollywood",
       "shape": "wide",
       "band": "#FF9933",
-      "cover": "EQutebwwanZebgWET9rGUdtuOrY.png",
-      "hero": "jKbW15pOCyOKgnwzV0fDkMba6hs.png",
+      "cover": "assets/projects/parde-ke-peeche/02.webp",
+      "hero": "assets/projects/parde-ke-peeche/01.webp",
       "source": "https://anishah.framer.website/parde-ke-peeche",
       "intro": "A publication design project exploring the unseen craft, design, and storytelling behind Bollywood.",
       "lead": "Parde Ke Peeche is a 20-page publication I designed as part of my communication design program. The magazine explores the hidden craft of Bollywood, such as cinematography, sound design, choreography, set design, poster art, and motion titles. Instead of focusing on celebrity culture, the publication celebrates the people and processes that shape the visual experience of Indian cinema.",
@@ -392,7 +394,7 @@ window.SITE = {
       },
       "blocks": [
         {
-          "img": "JOKsFJWZvQaIBHXgkL2YAw0jcA0.png",
+          "img": "assets/projects/parde-ke-peeche/03.webp",
           "w": 5000,
           "h": 3335
         },
@@ -403,7 +405,7 @@ window.SITE = {
           "p": "Most of the magazine is built using 2-column and 3-column grids, which gave the layouts a balanced, readable structure while still allowing room for cinematic visual pacing. These grids form the core of the publication’s rhythm: tight enough to hold long-form content comfortably, but flexible enough to pair with full-bleed images, asymmetrical compositions, and occasional single-column moments. While the overall system is anchored in these two grids, a few spreads intentionally break out of them for visual impact, creating a mix of consistency and expressive variation throughout the magazine."
         },
         {
-          "img": "4Umpu6Ucboqnepf3hhR6zYL72BY.png",
+          "img": "assets/projects/parde-ke-peeche/04.webp",
           "w": 3810,
           "h": 2710
         },
@@ -411,52 +413,52 @@ window.SITE = {
           "h": "Spreads"
         },
         {
-          "img": "C6Hu12Ur3Ya4EI8JZJ8f8SdaN0E.png",
+          "img": "assets/projects/parde-ke-peeche/05.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "dD0cL4WVN4R0uotzgtjBZ2BTM.png",
+          "img": "assets/projects/parde-ke-peeche/06.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "9KqvKYQnd6j6XjGqjgtb1jCOY0A.png",
+          "img": "assets/projects/parde-ke-peeche/07.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "7FU3vsaJLyqoHuKvr15i6ElnWE.png",
+          "img": "assets/projects/parde-ke-peeche/08.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "0V0rejRTrkkBB9xQsMQW0HUSZQI.png",
+          "img": "assets/projects/parde-ke-peeche/09.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "Xu0leYFA3g6GU1rfOaB3QwksXME.png",
+          "img": "assets/projects/parde-ke-peeche/10.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "QKetloW9mXwM3ZcCqjRNeFhiTf0.png",
+          "img": "assets/projects/parde-ke-peeche/11.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "SsQPsXJwC6jvIZX0qj0ytOUVukA.png",
+          "img": "assets/projects/parde-ke-peeche/12.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "jhmtRTO7Sw9tyekDA9E8XVy6AnE.png",
+          "img": "assets/projects/parde-ke-peeche/13.webp",
           "w": 4320,
           "h": 2580
         },
         {
-          "img": "sds7kSIsbo9RHTU0E9BmQT6cRFU.gif",
+          "img": "assets/projects/parde-ke-peeche/14.webp",
           "w": 1400,
           "h": 422
         }
@@ -465,13 +467,13 @@ window.SITE = {
     {
       "id": "haven",
       "featured": true,
-      "ads": {"wide": ["hbqzZsFb5sUFuO3g55Xm4b7K80.png"], "tall": ["hbqzZsFb5sUFuO3g55Xm4b7K80.png"]},
+      "ads": {"wide": ["assets/projects/haven/01.webp"], "tall": ["assets/projects/haven/01.webp"]},
       "title": "Haven",
       "line": "Line 4",
       "blurb": "A safe space to learn and practise consent",
       "shape": "wide",
       "band": "#FFC21A",
-      "cover": "hbqzZsFb5sUFuO3g55Xm4b7K80.png",
+      "cover": "assets/projects/haven/01.webp",
       "source": "https://anishah.framer.website/haven",
       "intro": "A UI/UX project exploring consent as a lived experience for Indian adolescents, designing culturally sensitive ways to practise boundaries across social, digital, and intimate spaces.",
       "lead": "This project explores consent as a lived experience for Indian youth, revealing gaps between awareness and action shaped by culture and power. It proposes a confidential digital platform that blends expert guidance, peer dialogue, and scenario-based learning to help young people practise boundaries and build respectful relationships.",
@@ -484,7 +486,7 @@ window.SITE = {
       },
       "blocks": [
         {
-          "img": "9kkbh8nwlQ9wbuDQxoExiAxUzAE.png",
+          "img": "assets/projects/haven/02.webp",
           "w": 7680,
           "h": 4316
         },
@@ -507,7 +509,7 @@ window.SITE = {
           "p": "I studied Comprehensive Sexuality Education (CSE) in India and found it largely limited to biology and abstinence, often avoiding consent, relationships, gender sensitivity, and digital safety. Educator discomfort, policy gaps, and cultural taboos restrict open discussion. In contrast, global frameworks treat consent as ongoing and contextual, highlighting it as a critical gap in Indian CSE."
         },
         {
-          "img": "awiCnSft6M5A6MonB4OVY0We1T4.jpeg",
+          "img": "assets/projects/haven/03.webp",
           "w": 4588,
           "h": 3593
         },
@@ -518,27 +520,27 @@ window.SITE = {
           "p": "To ground these insights in lived experience, I conducted participatory and qualitative research with urban youth. A “Consent Wall” activity captured instinctive Yes, No, and Maybe responses to everyday scenarios, revealing collective discomforts often missed in interviews. This was followed by group discussions that surfaced peer dynamics, contradictions, and unspoken rules around boundaries."
         },
         {
-          "img": "IMTJSMdLd1zq3fcZs5UaBRf4o.jpeg",
+          "img": "assets/projects/haven/04.webp",
           "w": 5712,
           "h": 4284
         },
         {
-          "img": "OpkqF7XXLDsmapo3I6sr8wgEw.jpeg",
+          "img": "assets/projects/haven/05.webp",
           "w": 5712,
           "h": 4284
         },
         {
-          "img": "IIYiQDbtqvqmTISAZqSZqEQbgCI.jpg",
+          "img": "assets/projects/haven/06.webp",
           "w": 5712,
           "h": 4284
         },
         {
-          "img": "yskQhiDNYUmAIrJ3zGcmIOiXa9c.jpeg",
+          "img": "assets/projects/haven/07.webp",
           "w": 5712,
           "h": 4284
         },
         {
-          "img": "pfsgaW4qYBNXBmxuHcXvnOY7U5E.jpeg",
+          "img": "assets/projects/haven/08.webp",
           "w": 5712,
           "h": 2506
         },
@@ -549,7 +551,7 @@ window.SITE = {
           "p": "Research shows consent is understood as multifaceted, extending beyond sexual intimacy to everyday actions. Although explicit verbal consent was preferred, many participants stayed silent or endured discomfort to avoid awkwardness or judgment."
         },
         {
-          "img": "eJp9yvPDTF7bmFFZDzA18pqjHA.jpeg",
+          "img": "assets/projects/haven/09.webp",
           "w": 3653,
           "h": 2713
         },
@@ -572,7 +574,7 @@ window.SITE = {
           "p": "I proposed a culturally sensitive digital platform for Indian adolescents that blends expert guidance with peer-led support. It offers confidential access to psychologists and intimacy coordinators through consultations, workshops, and Q&A sessions, alongside anonymous peer-sharing spaces that reduce stigma and foster empathy without fear of judgment."
         },
         {
-          "img": "RTe9p4nEhQ7HXxOuWN0kwELTU.png",
+          "img": "assets/projects/haven/10.webp",
           "w": 5051,
           "h": 3478
         },
