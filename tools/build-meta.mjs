@@ -1,4 +1,5 @@
-// Stamps link-preview tags (Open Graph, Twitter) into the pages' heads. Run: node tools/build-meta.mjs
+// Stamps link-preview tags (Open Graph, Twitter) into the pages' heads, and writes robots.txt and sitemap.xml.
+// Run: node tools/build-meta.mjs
 // Link previews need absolute URLs, so the site's address lives here and nowhere else: change BASE_URL when the
 // domain changes, run this again and commit the result.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -30,6 +31,19 @@ export const stamp = (html, block) => {
   if (at < 0) throw new Error("no place for the meta block");
   return html.slice(0, at) + block + html.slice(at);
 };
+/** the site's content (js/data.js is a browser script that fills window.SITE) */
+export const loadSite = () => { const w = {}; new Function("window", readFileSync(ROOT + "js/data.js", "utf8"))(w); return w.SITE; };
+/** the projects anyone may see: everything not under NDA */
+export const publicProjects = (site = loadSite()) => site.projects.filter((p) => !p.nda);
+/** a project's address, relative to the site root */
+export const projectPath = (p) => `project.html?p=${p.id}`;
+/** robots.txt and sitemap.xml (audit P2-1): the home page, All projects and each public project */
+export const writeCrawlFiles = () => {
+  const paths = ["", "projects.html", ...publicProjects().map(projectPath)];
+  writeFileSync(ROOT + "robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${BASE_URL}/sitemap.xml\n`);
+  writeFileSync(ROOT + "sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${paths.map((x) => `  <url><loc>${esc(`${BASE_URL}/${x}`)}</loc></url>`).join("\n")}\n</urlset>\n`);
+  console.log("robots.txt, sitemap.xml ->", paths.length, "addresses");
+};
 const PAGES = [
   { file: "index.html", path: "", title: "Anish Shah · Design Portfolio", description: "Design portfolio of Anish Shah: an illustrated ride through one night in the city." },
   { file: "projects.html", path: "projects.html", title: "All projects · Anish Shah", description: "Every project by Anish Shah: branding, packaging, UI/UX and editorial design." },
@@ -37,4 +51,5 @@ const PAGES = [
 ];
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   for (const p of PAGES) { writeFileSync(ROOT + p.file, stamp(readFileSync(ROOT + p.file, "utf8"), metaBlock(p))); console.log("meta ->", p.file); }
+  writeCrawlFiles();
 }

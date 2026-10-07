@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://portfolio2026-sable-pi.vercel.app/sitemap.xml
