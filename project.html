@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791282594" />
+  <link rel="stylesheet" href="project.css?v=1791348163" />
 </head>
 <body>
   <header class="bar">
@@ -48,8 +48,8 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791282594"></script>
-  <script src="js/flow.js?v=1791282594"></script>
+  <script src="js/data.js?v=1791348163"></script>
+  <script src="js/flow.js?v=1791348163"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -96,7 +96,7 @@
       const items = p.heroEmbed ? [{ t: "embed", src: p.heroEmbed, ar: 1.778, chapter: "The film" }, ...F.items] : F.items;   // a film that opened the old page now follows the opening
       items.forEach((b) => {
         let e;
-        if (b.t === "h") e = el(b.big ? "h2" : "h3", b.big ? "sec" : "", b.tx);
+        if (b.t === "h") e = el(b.big ? "h2" : b.sub ? "h4" : "h3", b.big ? "sec" : "", b.tx);
         else if (b.t === "p") e = el("p", b.narrow ? "narrow" : "", b.tx);
         else if (b.t === "rule") e = el("hr", "rule");
         else if (b.t === "quote") e = el("blockquote", "pull", b.tx);
@@ -143,7 +143,7 @@
         }
         if (!e) return;
         root.append(e);
-        if (b.chapter) chapter(b.chapter, e); else if (b.t === "h") chapter(b.tx, e);
+        if (b.chapter) chapter(b.chapter, e); else if (b.t === "h" && !b.sub) chapter(b.nav || b.tx, e);
       });
       // the index follows the scroll: the chapter in view is lit; it shows only between the opening and the end
       const pictures = [...document.querySelectorAll(".case > .row, .case > .shot, .case > .ticker, .case > .tiles, .case > .swatches")];

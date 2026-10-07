@@ -169,7 +169,7 @@ MSH, MPIC = json.loads((ROOT / "tools/framer/making-shapes.json").read_text()), 
 def making_row(it):
     names, total = it["pics"], sum(MSH[n] for n in it["pics"])
     gap = 1.0; free = 100 - gap * (len(names) - 1)
-    row = {"t": "row", "bleed": False, "tight": False, "imgs": [{"id": MPIC + n + ".webp", "l": gap if i else 0, "w": round(free * MSH[n] / total, 2), "ar": MSH[n], "fit": "cover"} for i, n in enumerate(names)]}
+    row = {"t": "row", "bleed": False, "tight": False, "photos": False, "imgs": [{"id": MPIC + n + ".webp", "l": gap if i else 0, "w": round(free * MSH[n] / total, 2), "ar": MSH[n], "fit": "cover"} for i, n in enumerate(names)]}
     if it["cap"]: row["cap"] = it["cap"]
     return row
 flow["making"] = {"hero": 1.778, "items": [making_row(it) if "pics" in it else it for it in making.ITEMS]}

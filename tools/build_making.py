@@ -28,6 +28,8 @@ for f in sorted(list(SRC.glob("v1-*.webp")) + list(SRC.glob("raw-*.webp")) + lis
     im = Image.open(f)
     if f.stem == "v1-rooftop": im = im.crop((0, 805, im.width, im.height))      # the rooftop itself (the old credits above it are left out)
     put(f.stem, im, 2000 if f.stem.startswith("explore") else 1600)
+for n in ("old-home", "shot-all", "phone-ride", "phone-subway", "phone-simple"):      # the old Framer site, the all-projects page, the site on a phone
+    put(n, Image.open(SRC / f"{n}.webp"), 1600)
 put("pixel-street", Image.open(SRC / "pixel-street.webp").crop((0, 250, 1254, 1254)))          # the lower part: the street itself
 put("pixel-lobby", Image.open(SRC / "pixel-lobby.webp"))
 put("pixel-subway", Image.open(SRC / "pixel-subway.webp").crop((0, 0, 2400, 941)), bg=(8, 6, 20, 255))
