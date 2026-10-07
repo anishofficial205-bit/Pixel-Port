@@ -60,7 +60,7 @@ window.SITE = {
       "band": "#3DF2FF",
       "cover": "dp3u20lqd2b8MqVvTOntq9Bvb54.png",
       "source": "https://anishah.framer.website/thrive",
-      "intro": "Design a brand for a company that makes stylish desk accessories. The brand should feel creative, eco-friendly, and perfect for modern workspaces.",
+      "intro": "Brand identity for Thrive, a modular, eco-friendly desk-accessory brand that feels premium but stays affordable.",
       "lead": "Thrive brings a refined, minimalist visual identity to modern workspaces, transforming functional desk accessories into a cohesive, premium yet accessible experience that reflects clarity, intention, and everyday productivity.",
       "meta": {
         "year": "2024",

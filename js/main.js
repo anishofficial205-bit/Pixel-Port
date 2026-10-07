@@ -482,7 +482,7 @@
                 <span class="z-proj-text">
                   <span class="z-no">${String(i + 1).padStart(2, "0")} · ${p.meta.category || ""} · ${p.meta.year || ""}</span>
                   <span class="z-proj-title">${p.title}</span>
-                  <span class="z-proj-blurb">${i ? p.blurb : p.intro || p.blurb}</span>
+                  <span class="z-proj-blurb">${p.blurb}</span>
                   <span class="pxbtn sm">View project <b>&#9654;</b></span>
                 </span>
               </a>
