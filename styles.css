@@ -1652,3 +1652,10 @@ body::after {
   position: absolute; bottom: calc(var(--frame) + 18px); left: 0; right: 0; margin: 0; text-align: center; z-index: 3;
   font-family: var(--font-label); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.08em; color: rgba(244, 230, 208, 0.45);
 }
+
+/* Touch screens (audit P1-8): every link and button gets a hit area of at least 44 by 44 px. The area is a
+   transparent layer over the control, so nothing changes size and no layout moves. */
+@media (pointer: coarse) {
+  .route a, .view-switch button, .player-ic, .cr-links a, .cr-again, .z-facts a, .pxbtn, .cr-mail { position: relative; }
+  .route a::after, .view-switch button::after, .player-ic::after, .all-projects-sign::after, .cr-links a::after, .cr-again::after, .z-facts a::after, .pxbtn::after, .cr-mail::before { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
+}

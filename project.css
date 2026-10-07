@@ -388,3 +388,10 @@ body.all { --ink: #050505; --night: #0A0908; --navy: #161412; --navy-2: #1F1C19;
   .rise { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
 }
+
+/* Touch screens (audit P1-8): a hit area of at least 44 by 44 px on every link and button, as a transparent
+   layer over the control, so nothing changes size. */
+@media (pointer: coarse) {
+  .route a, .view-switch button, .genre, #p-source, .nda-note a { position: relative; }
+  .route a::after, .view-switch button::after, .genre::after, #p-source::after, .nda-note a::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
+}
