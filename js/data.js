@@ -16,7 +16,7 @@ window.SITE = {
   role: "Visual & Product Designer",
   intro: "Hi! I design things for screens and streets. Scroll down, chalo, let's go on a ride through my work.",
   location: "Mumbai, India",
-  email: "anishofficial205@email.com",              // as on anishah.framer.website
+  email: "anishofficial205@gmail.com",
   mailSubject: "Let’s work together",
   resume: "https://drive.google.com/file/d/11oDHz7qk81Wuk0ODuT-aQ4vFoU7OKGQZ/view?usp=sharing",
   // the footer's words, from the Framer site
