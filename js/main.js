@@ -1299,7 +1299,8 @@
       if (instant) { cur = top; }
     } else {
       const el = typeof stop === "string" ? document.getElementById("plain-" + stop) : null;
-      if (el) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+      if (stop === "street" && instant) scrollTo(0, 0);                 // the very top, at once (a change of view)
+      else if (el) el.scrollIntoView({ behavior: instant || reduceMotion ? "auto" : "smooth" });
     }
   }
 
@@ -1343,9 +1344,11 @@
 
     const toggleRide = () => {
       const ride = !body.classList.contains("ride");
-      const at = lastLoc || "street";
       setMode(ride);
-      requestAnimationFrame(() => goTo(at, true));
+      // a change of view always starts over at the hero
+      history.replaceState(null, "", location.pathname + location.search);
+      lastLoc = null;                                                    // so the bar re-marks where he is (Home)
+      requestAnimationFrame(() => { goTo("street", true); if (!ride) { body.dataset.location = "street"; markSection("street"); } });
     };
     $$(".view-switch button").forEach((b) => b.addEventListener("click", () => {
       if ((b.dataset.view === "ride") !== body.classList.contains("ride")) toggleRide();
@@ -1613,7 +1616,7 @@
     addEventListener("pointerdown", () => body.classList.contains("scroll-cursor-on") && body.classList.add("cursor-press"));
     addEventListener("pointerup", () => body.classList.remove("cursor-press"));
     addEventListener("click", (e) => {
-      if (!body.classList.contains("scroll-cursor-on")) return;
+      if (!body.classList.contains("scroll-cursor-on") || e.target.closest?.("a, button, input")) return;   // never on a real control
       e.preventDefault();
       if (body.classList.contains("ride")) scrollBy({ top: innerHeight * 0.8, behavior: reduceMotion ? "auto" : "smooth" });
       else goTo("drain");                                                  // plain page: to About

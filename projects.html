@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="project.css?v=1791363660" />
+  <link rel="stylesheet" href="project.css?v=1791364292" />
 </head>
 <body class="all">
   <!-- the same bar as the home page: logo, the sections in a capsule, and the Ride | Simple button -->
@@ -45,15 +45,15 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/data.js?v=1791363660"></script>
+  <script src="js/data.js?v=1791364292"></script>
   <script>
     (function () {
       const S = SITE, $ = (s) => document.querySelector(s);
-      // Ride | Simple, as on the home page: shows the view in use, and choosing one goes back there in that view
+      // Ride | Simple, as on the home page: shows the view in use, and choosing one opens the home page in that view, at the hero
       const view = (() => { try { return localStorage.getItem("view-mode"); } catch (e) { return null; } })() === "static" ? "static" : "ride";
       document.querySelectorAll(".view-switch button").forEach((b) => {
         b.setAttribute("aria-pressed", String(b.dataset.view === view));
-        b.addEventListener("click", () => { try { localStorage.setItem("view-mode", b.dataset.view); } catch (e) { /* ignore */ } location.href = "index.html#subway"; });
+        b.addEventListener("click", () => { try { localStorage.setItem("view-mode", b.dataset.view); } catch (e) { /* ignore */ } location.href = "index.html"; });
       });
       const cats = [...new Set(S.projects.map((p) => p.meta.category).filter(Boolean))];
       let active = new URLSearchParams(location.search).get("c") || "All";
