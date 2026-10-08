@@ -353,7 +353,7 @@
   const needArt = (place) => { if (place) lazyArt().filter((img) => artPlace(img) === place).forEach(fetchArt); };
   // (on the opening screen the next place waits until the page has loaded, so the street's own pictures and billboards come first)
   const artAround = (loc) => { const o = stops.order || []; needArt(loc); if (loc !== "street" || document.readyState === "complete") needArt(o[o.indexOf(loc) + 1]); };
-  let artRunning = false;
+  let artRunning = false, drainArt = false;
   async function restOfArt() {
     if (artRunning) return;
     artRunning = true;
@@ -1170,6 +1170,7 @@
     // his other sheets load a scene ahead: the drain's as soon as he sets off down the street (or after a moment's
     // wait there), the stairs' once he is in the drain
     if (loc === "street" ? cur > 4 || now > 3500 : true) Sprite.need("drain");
+    if (!drainArt && (loc !== "street" || cur > 4 || now > 3500)) { drainArt = true; needArt("drain"); }   // ...and the drain's painting with it
     if (loc !== "street") Sprite.need("stairs");
     // the scroll sign: from the moment the opening screen's own hint has gone until the ride's last stretch
     scrollSign.classList.toggle("on", cur > L.vh * 0.5 && cur < total - L.vh * 0.6);
@@ -1674,8 +1675,11 @@
   if ("scrollRestoration" in history && location.hash) history.scrollRestoration = "manual";
   layout();
   adRefresh.forEach((f) => f());   // (the boards of the view in use, now that it is known)
-  // the rest of the ride's pictures, once the opening screen has everything it needs
-  if (document.readyState === "complete") { if (ride) restOfArt(); } else addEventListener("load", () => { if (body.classList.contains("ride")) restOfArt(); });
+  // the rest of the ride's pictures, in the order of the journey, from the moment the intro lifts (the opening
+  // screen has what it needs by then) or the page has loaded, whichever is first
+  const startArt = () => { if (body.classList.contains("ride")) restOfArt(); };
+  if (document.readyState === "complete" || !body.classList.contains("preloading")) startArt();
+  else { addEventListener("preloader:done", startArt, { once: true }); addEventListener("load", startArt, { once: true }); }
 
   let rt, lastW = innerWidth, lastH = innerHeight;
   const coarse = matchMedia("(pointer: coarse)").matches;
