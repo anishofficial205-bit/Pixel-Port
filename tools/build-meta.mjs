@@ -71,8 +71,7 @@ export const writeProjectPages = () => {
 /** who the site is about, for search engines (audit P2-7): a schema.org Person block in index.html */
 export const personBlock = (site = loadSite()) => `  <!-- person:start (written by tools/build-meta.mjs; edit there) -->
   <script type="application/ld+json">
-${JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: "Anish Shah", jobTitle: "Visual & Product Designer", url: `${BASE_URL}/`,
-    address: { "@type": "PostalAddress", addressLocality: "Mumbai", addressCountry: "IN" }, sameAs: site.socials.filter((x) => /linkedin\.com/.test(x.url)).map((x) => x.url) }, null, 2).replace(/</g, "\\u003c").replace(/^/gm, "  ")}
+${JSON.stringify({ "@context": "https://schema.org", "@type": "Person", name: "Anish Shah", jobTitle: "Visual & Product Designer", url: `${BASE_URL}/`, sameAs: site.socials.filter((x) => /linkedin\.com/.test(x.url)).map((x) => x.url) }, null, 2).replace(/</g, "\\u003c").replace(/^/gm, "  ")}
   </script>
   <!-- person:end -->
 `;

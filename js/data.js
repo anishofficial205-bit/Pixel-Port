@@ -10,7 +10,7 @@ window.SITE = {
   // A project picture at a sensible size. The case-study pictures live in assets/projects/<project>/ in four
   // widths (tools/localise_framer.py): full, 1280, 640 and a 32 px one used blurred behind things.
   img(id, size = 2048) {
-    if (!id || !/^assets\/projects\/(thrive|krumble|parde-ke-peeche|haven)\/\d+\.webp$/.test(id)) return id;   // anything else is used as it is
+    if (!id || !/^assets\/projects\/((thrive|krumble|parde-ke-peeche|haven)\/\d+|bhayanaka\/cover|making\/shot-hero)\.webp$/.test(id)) return id;   // anything else is used as it is
     return id.replace(/\.webp$/, (size <= 64 ? "-32" : size <= 640 ? "-640" : size <= 1280 ? "-1280" : "") + ".webp");
   },
   // ...and for a picture shown in a small slot (a billboard, a card): both smaller widths, for the browser to choose from
@@ -19,7 +19,6 @@ window.SITE = {
   name: "ANISH",
   role: "Visual & Product Designer",
   intro: "Hi! I design things for screens and streets. Scroll down, chalo, let's go on a ride through my work.",
-  location: "Mumbai, India",
   email: "anishofficial205@gmail.com",
   mailSubject: "Let’s work together",
   resume: "https://drive.google.com/file/d/11oDHz7qk81Wuk0ODuT-aQ4vFoU7OKGQZ/view?usp=sharing",
@@ -631,7 +630,7 @@ window.SITE = {
       "blurb": "Production design for a short horror film",
       "shape": "wide",
       "band": "#D8261C",
-      "cover": "https://i.vimeocdn.com/video/2156354653-0a8256fe1d25e5e9a73fe937a82c2edad5f9e8cebb9eee1dfb8c0d7073ac9f69-d_1280x720?region=us",
+      "cover": "assets/projects/bhayanaka/cover.webp",
       "heroEmbed": "https://player.vimeo.com/video/1191228759?title=0&byline=0&portrait=0&badge=0&controls=1&color=ffffff&loop=1",
       "intro": "A production design project: designing and dressing a room to evoke dread and unease, for a script titled Bhayānaka.",
       "lead": "For our production design project, we were given a script titled Bhayānaka, a word rooted in the Sanskrit rasa of fear. The assignment called for designing and dressing an environment to evoke dread and unease, using props, textures, lighting, and surface treatments to suggest a history of violence and ritual. The real challenge lay in transforming a familiar, everyday space into something ancient, abandoned, and deeply unsettling, where every detail left behind tells a story without a single word of dialogue. What we built was a room that felt occupied by something that had already happened.",

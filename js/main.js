@@ -90,7 +90,6 @@
     clock(); setInterval(clock, 1000);
     $("#mail-link").textContent = S.email;
     $("#copyright").textContent = `© ${S.year} ${S.name[0]}${S.name.slice(1).toLowerCase()} Shah. All rights reserved.`;
-    $("#cr-place").textContent = S.location;
 
     // each board is an ad for one project: the picture, then its line, title, blurb and a way in
     $("#billboards").innerHTML = S.featured().map((p, i) => `
@@ -463,7 +462,6 @@
               <div class="z-about-copy" data-rv>${A.text.map((t) => `<p>${marked(t.text)}</p>`).join("")}</div>
               <ul class="z-disc" data-rv>${A.tags.map((t) => `<li class="pxb">${t}</li>`).join("")}</ul>
               <dl class="z-facts" data-rv>
-                <div><dt>Based in</dt><dd>${S.location}</dd></div>
                 <div><dt>Right now</dt><dd>Looking for a grad project</dd></div>
                 <div><dt>On paper</dt><dd><a href="${S.resume}" target="_blank" rel="noopener">Résumé &#8599;</a></dd></div>
               </dl>
@@ -479,7 +477,7 @@
           <ol class="z-projects">${S.home().map((p, i) => `
             <li class="z-proj${i ? "" : " lead"}" id="card-${p.id}" style="--band:${p.band}" data-rv>
               <a href="project.html?p=${p.id}">
-                ${win(`${file(p.line)}/${file(p.title)}`, `<span class="z-pic"><img class="work-media" src="${S.img(i ? p.cover : p.hero || p.cover, 1280)}"${srcsetAttr(i ? p.cover : p.hero || p.cover)} sizes="${i ? "(max-width: 700px) 90vw, 30vw" : "(max-width: 1000px) 90vw, 56vw"}" alt="${p.title} cover" loading="lazy" decoding="async" /></span>`, "z-picWin")}
+                ${win(`${file(p.line)}/${file(p.title)}`, `<span class="z-pic"><img class="work-media" src="${S.img(boardImg(p), 1280)}"${srcsetAttr(boardImg(p))} sizes="${i ? "(max-width: 700px) 90vw, 30vw" : "(max-width: 1000px) 90vw, 56vw"}" alt="${p.title} cover" loading="lazy" decoding="async" /></span>`, "z-picWin")}
                 <span class="z-proj-text">
                   <span class="z-no">${String(i + 1).padStart(2, "0")} · ${p.meta.category || ""} · ${p.meta.year || ""}</span>
                   <span class="z-proj-title">${p.title}</span>
@@ -506,6 +504,13 @@
               </button></li>`).join("")}
             </ul>
           </div>
+          <!-- phones: no choosing, the reels one under the other, each in its own player -->
+          <ol class="z-reel-stack">${S.reels.filter((r) => r.src).map((r, i) => `
+            <li data-rv>
+              ${win(`reel_${String(i + 1).padStart(2, "0")}.mov`, `<span class="z-screen"><video class="work-media" src="${r.src}" poster="${r.poster}" controls playsinline preload="none" aria-label="${r.title} reel"></video></span>`, "z-screenWin")}
+              <p class="z-reel-cap"><b>${String(i + 1).padStart(2, "0")}</b><span>${r.title}</span><small>${r.length}</small></p>
+            </li>`).join("")}
+          </ol>
         </div>
       </section>
 
@@ -544,7 +549,7 @@
               <p data-rv><a class="pxbtn z-mail" href="mailto:${S.email}${S.mailSubject ? "?subject=" + encodeURIComponent(S.mailSubject) : ""}">${S.email}</a></p>
               <p class="z-socials" data-rv>${S.socials.map((x) => `<a class="pxbtn sm alt" href="${x.url}" target="_blank" rel="noopener">${x.label}</a>`).join("")}</p>
             </div>
-            <figure class="z-roof" data-rv>${win("rooftop.png", `<span class="z-roof-art"><span class="z-him z-sitter" aria-hidden="true"></span></span>`)}<figcaption class="z-cap">${S.location}</figcaption></figure>
+            <figure class="z-roof" data-rv>${win("rooftop.png", `<span class="z-roof-art"><span class="z-him z-sitter" aria-hidden="true"></span></span>`)}</figure>
           </div>
         </div>
         <i class="n-skyline" aria-hidden="true"></i>
@@ -606,6 +611,11 @@
         : `<img class="work-media" src="${r.poster}" alt="${r.title} poster" /><i class="pxb z-soon">Coming soon</i>`;
       $$(".z-reel").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.i === i)));
     };
+    // one reel at a time, and none once the reels are off screen
+    const plainVideos = () => $$("#plain-cinema video");
+    pausePlain = () => plainVideos().forEach((v) => v.pause());
+    $("#plain-cinema").addEventListener("play", (e) => plainVideos().forEach((v) => { if (v !== e.target) v.pause(); }), true);
+    new IntersectionObserver(([e]) => { if (!e.isIntersecting) pausePlain(); }).observe($("#plain-cinema"));
     $$(".z-reel").forEach((b) => b.addEventListener("click", () => showReel(+b.dataset.i)));
     showReel(0);
 
@@ -641,11 +651,13 @@
       c.innerHTML = `<div class="n-stage"><i class="n-rule"></i><b class="n-word">${name}<em>${name}</em></b><span class="n-meta"><b>${n}</b> / ${String(zsecs.length - 1).padStart(2, "0")}</span><span class="n-next">Next <i></i> ${name}</span></div>`;
       sec.before(c); return c;
     });
-    let tick = 0;
+    let tick = 0, warm = false;
     const cl = (x) => Math.min(1, Math.max(0, x)), CLOSE = 0.3, OPEN = 0.78;
     const wipe = () => {
       tick = 0;
       if (body.classList.contains("ride")) return;
+      // the project pictures are fetched as soon as this view is in use, not when each card nears the screen (the film cuts would show them arriving)
+      if (!warm) { warm = true; $$(".z-proj img").forEach((im) => { im.loading = "eager"; }); }
       const vh = innerHeight;
       cuts.forEach((c) => {
         const r = c.getBoundingClientRect();
@@ -673,6 +685,8 @@
   /* ================= LAYOUT ================= */
   const L = {}; // layout numbers
   let segs = [], total = 0, stops = {};
+  let inHall = false;
+  let pausePlain = () => {};            // the Simple view's players: set in watchPlain
   let pauseReel = () => {};             // set once the cinema's player exists
   let logoRefresh = () => {};           // redraws the logo canvas (set by glitchLogo)
   const logoEl = $(".hud-logo"), heroTags = $(".hero-tags"), streetEl = $("#street");
@@ -1022,12 +1036,12 @@
     const enter = [fx(F.door), fy], spot = [fx(Math.max(F.stand, leftArt + 70)), fy], exit = [fx(F.exit), fy];
     add({ loc: "cinema", pose: "walk", scale: up, a: door, b: enter, len: 260, ease: "cut",
       cut: tri, cam: (t) => (t < 0.5 ? doorCam : frontCam) });
-    add({ loc: "cinema", pose: "walk", a: enter, b: spot, len: Math.max(160, spot[0] - enter[0]),
+    add({ loc: "cinema", hall: true, pose: "walk", a: enter, b: spot, len: Math.max(160, spot[0] - enter[0]),
       bubble: ["Housefull!", 0.2, 0.9], cam: () => frontCam });
     // turns to the screen and watches (profile, looking up)
-    add({ id: "sit", loc: "cinema", pose: "watch", face: 1, a: spot, b: spot, len: vh * 1.1, cam: () => frontCam });
+    add({ id: "sit", loc: "cinema", hall: true, pose: "watch", face: 1, a: spot, b: spot, len: vh * 1.1, cam: () => frontCam });
     // across the front of the stage and out the right door, then a velvet cut to the gallery
-    add({ loc: "cinema", pose: "walk", a: spot, b: exit, len: exit[0] - spot[0], cam: () => frontCam });
+    add({ loc: "cinema", hall: true, pose: "walk", a: spot, b: exit, len: exit[0] - spot[0], cam: () => frontCam });
     // --- gallery (reached from the back stairs, below) ---
     const G = GALLERY, gs = exhibition.s, gty = L.gty, gx = (x) => exhibition.x + x * gs, gk = (G.tall * gs) / (Sprite.STAND * L.cs);
     const gIn = [gx(G.enter[0]), exhibition.y + G.enter[1] * gs], gOut = [gx(G.exit[0]), exhibition.y + G.exit[1] * gs];
@@ -1196,9 +1210,11 @@
     // wait there), the stairs' once he is in the drain
     if (loc === "street" ? cur > 4 || now > 3500 : true) Sprite.need("drain");
     if (loc !== "street") Sprite.need("stairs");
+    // the reel stops the moment he is out of the hall (hall: the three stretches in front of the screen), whichever door he leaves by
+    if (inHall && !s.hall) pauseReel();
+    inHall = !!s.hall;
     // location
     if (loc !== lastLoc) {
-      if (lastLoc === "cinema") pauseReel();              // leaving the cinema stops the reel
       lastLoc = loc;
       body.dataset.location = loc;
       markSection(loc);
@@ -1363,7 +1379,7 @@
     body.classList.toggle("ride", ride);
     body.classList.toggle("static", !ride);
     markView(ride);
-    pauseReel();
+    pauseReel(); pausePlain();
     store.set("view-mode", ride ? "ride" : "static");
     if (!ride) { logoEl.style.transform = ""; logoEl.classList.remove("hero"); logoAt = -1; }
     if (!ride) { world.style.transform = ""; body.dataset.location = "street"; requestAnimationFrame(() => { fitPlainArt(); plainSize(); }); }
