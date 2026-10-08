@@ -375,187 +375,135 @@
   /* ================= SKIP THE RIDE =================
      The same content as a clean, conventional page. Section ids are "plain-" + the ride's stop names,
      so the navbar works the same in both modes. */
-  /* Pixel art for the Simple view, drawn as SVG so it stays crisp: small sprites from character maps,
-     the jagged edges between sections and the skyline along the title screen. */
-  const PX = {
-    spark: ["..#..", "..#..", "##.##", "..#..", "..#.."],
-    star: ["...#...", "...#...", "..###..", "#######", "..###..", "...#...", "...#..."],
-    heart: [".##.##.", "#######", "#######", ".#####.", "..###..", "...#..."],
-    cursor: ["#.........", "##........", "#o#.......", "#oo#......", "#ooo#.....", "#oooo#....", "#ooooo#...", "#oooooo#..", "#ooooooo#.", "#oooo#####", "#oo#oo#...", "#o#.#oo#..", "##..#oo#..", ".....#oo#.", ".....###.."],
-  };
-  // (no quotes of either kind survive in the result, so it can sit inside a style attribute)
-  const svgUri = (w, h, inner) => `url(data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}' shape-rendering='crispEdges'>${inner}</svg>`).replace(/'/g, "%27").replace(/[()]/g, escape)})`;
-  const pxArt = (map, fill, inside = "#FFF7E6") => svgUri(map[0].length, map.length, map.map((row, y) => [...row].map((c, x) =>
-    c === "." ? "" : `<rect x='${x}' y='${y}' width='1' height='1' fill='${c === "o" ? inside : fill}'/>`).join("")).join(""));
-  const rng = (seed) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  // a jagged pixel edge in the colour of the section below it, with a few loose pixels above
-  function pxEdge(fill, seed) {
-    const r = rng(seed), U = 12, N = 48, ROWS = 5;
-    let out = "", h = 2;
-    for (let i = 0; i < N; i++) {
-      h = Math.min(3, Math.max(1, h + Math.round((r() - 0.5) * 2.6)));
-      out += `<rect x='${i * U}' y='${(ROWS - h) * U}' width='${U}' height='${h * U}' fill='${fill}'/>`;
-      if (r() < 0.16) out += `<rect x='${i * U}' y='${Math.floor(r() * (ROWS - h - 1)) * U}' width='${U}' height='${U}' fill='${fill}'/>`;
-    }
-    return svgUri(N * U, ROWS * U, out);
-  }
-  // a pixel skyline: blocks of buildings with a few lit windows
-  function pxSkyline(fill, lit, seed) {
-    const r = rng(seed), U = 12, W = 80, H = 16;
-    let out = "", x = 0;
-    while (x < W) {
-      const w = 3 + Math.floor(r() * 4), h = 4 + Math.floor(r() * 11);
-      out += `<rect x='${x * U}' y='${(H - h) * U}' width='${w * U}' height='${h * U}' fill='${fill}'/>`;
-      for (let wy = 1; wy < h - 1; wy += 2) for (let wx = 1; wx < w - 1; wx += 2)
-        if (r() < 0.35) out += `<rect x='${(x + wx) * U}' y='${(H - h + wy) * U}' width='${U}' height='${U}' fill='${lit}'/>`;
-      x += w + (r() < 0.3 ? 1 : 0);
-    }
-    return svgUri(W * U, H * U, out);
-  }
-
   function renderPlain() {
     const A = S.about, first = S.name[0] + S.name.slice(1).toLowerCase();
-    const C = { red: "#D8261C", navy: "#14103A", cream: "#F6E9CF", blue: "#2C49A8", amber: "#FFC24A" };
-    const edge = (c, seed) => `<i class="z-edge" style="background-image:${pxEdge(c, seed)}"></i>`;
-    const head = (n, label, hindi, extra = "") => `
-      <header class="z-head" data-rv><div><p class="z-kick"><b>${n}</b><span class="hi">${hindi}</span></p><h2>${label}</h2></div>${extra}</header>`;
-    const bit = (kind, x, y, s, extra = "") => `<i class="px px-${kind}" style="left:${x}%;top:${y}%;--s:${s}px;${extra}"></i>`;
-    const win = (title, body, cls = "", attrs = "") => `<span class="win ${cls}" ${attrs}><span class="win-bar"><i></i><b>${title}</b></span>${body}</span>`;
-    const file = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
-    const marked = (str) => (A.marks || []).reduce((t, m) => t.replace(m, `<mark>${m}</mark>`), str);
-    const T = STREET.train;
-    $("#plain").style.cssText = ["spark", "star", "heart"].map((k) => `--px-${k}:${pxArt(PX[k], C.amber)};--px-${k}-ink:${pxArt(PX[k], C.navy)};--px-${k}-cream:${pxArt(PX[k], C.cream)}`).join(";")
-      + `;--px-cursor:${pxArt(PX.cursor, C.navy)}`;
+    // a section's name, as the ride's signs give it: in Hindi, small, over the English
+    const head = (label, hindi, note = "") => `
+      <header class="q-head" data-rv><div><p class="hi">${hindi}</p><h2>${label}</h2></div>${note ? `<p class="q-note">${note}</p>` : ""}</header>`;
     $("#plain").innerHTML = `
-      <section class="plain-hero n-hero" id="plain-street" data-loc="street" aria-label="Home">
-        <div class="z-bits" aria-hidden="true">${bit("star", 8, 20, 22)}${bit("spark", 46, 14, 12)}${bit("spark", 30, 70, 10)}${bit("star", 94, 62, 16)}${bit("spark", 57, 46, 9)}</div>
-        <div class="plain-wrap n-hero-grid">
-          <div class="n-hero-text">
-            <p class="n-kick">Design portfolio · ${S.year}</p>
-            <h1 class="z-hello"><span>Hello,</span><span>I’m <em>${first}.</em></span></h1>
-            <p class="z-intro">I design things for screens and streets: brands, packaging, interfaces and print.</p>
-            <p class="n-status"><i></i>Looking for a grad project</p>
-          </div>
-          <!-- a crescent moon, the logo glowing across it, and him beneath (he starts the ride) -->
-          <div class="n-hero-art">
-            <i class="n-moon" aria-hidden="true"></i>
-            <span class="zl-logo" aria-hidden="true"><img src="assets/brand/logo-source.png" alt="" /><span class="crt"><i></i></span></span>
-            <button class="z-him z-guide take-ride" type="button" aria-label="Take the ride: travel through the portfolio as a scrolling journey"></button>
-            <i class="z-bub z-bub-c" aria-hidden="true">Psst, click me!</i>
-          </div>
+      <!-- The Simple view is the ride as still frames: the same paintings, with the work set into them. -->
+      <section class="q-hero" id="plain-street" data-loc="street" aria-label="Home">
+        <!-- the street, as painted, its billboards carrying the projects (see fitPlainArt) -->
+        <div class="plain-hero-bg" aria-hidden="true"><div class="plain-art">
+          <img src="assets/scenes/street.webp" srcset="assets/scenes/street.webp 1672w, assets/scenes/street-2x.webp 3344w" sizes="100vw" alt="" width="1672" height="941" />
+          <a class="bb-map bb-ad bb-left" data-quad="left" data-start="0" tabindex="-1"></a>
+          <a class="bb-map bb-ad bb-led" data-quad="led" data-start="1" tabindex="-1"></a>
+          <a class="bb-map bb-ad bb-mid" data-quad="mid" data-start="2" tabindex="-1"></a>
+        </div></div>
+        <div class="q-mark">
+          <h1 class="q-logo"><img src="assets/brand/logo-source.png" alt="${first} Shah" /></h1>
+          <b class="ht-port q-port" aria-hidden="true">Portfolio <small>'${String(S.year).slice(2)}</small></b>
+          <b class="ht-badge q-badge" aria-hidden="true">
+            <svg viewBox="0 0 120 120"><defs><path id="q-ring" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0" /></defs>
+              <circle cx="60" cy="60" r="58" /><text textLength="266" lengthAdjust="spacing"><textPath href="#q-ring" textLength="266" lengthAdjust="spacing">DESIGN PORTFOLIO &#9733; ANISH SHAH &#9733; ${S.year} &#9733;</textPath></text></svg>
+            <i class="hi">नमस्ते</i></b>
+          <b class="ht-hey q-hey"><i></i>Looking for a grad project</b>
         </div>
-        <i class="n-skyline" aria-hidden="true"></i>
-        <p class="n-scroll" aria-hidden="true"><i></i>Scroll</p>
-      </section>
-
-      <section class="z-sec z-about" id="plain-drain" data-loc="drain" aria-labelledby="plain-about-h">
-        ${edge(C.navy, 3)}
-        <div class="z-bits" aria-hidden="true">${bit("spark", 4, 12, 20)}${bit("star", 90, 20, 36)}${bit("spark", 95, 78, 18)}${bit("spark", 47, 90, 22)}</div>
-        <div class="plain-wrap">
-          ${head("01", `<span id="plain-about-h">${A.title}</span>`, "मेरे बारे में")}
-          <div class="z-about-grid">
-            <figure class="z-facefig" data-rv>
-              ${win("anish.gif", `<button class="z-face" type="button" aria-label="Portrait of ${first}. Click for another expression"><span class="z-face-img"></span></button>`)}
-              <figcaption class="z-cap"><i class="px px-cursor"></i>Tap for another face</figcaption>
-            </figure>
-            <div class="z-about-main">
-              <div class="z-about-copy" data-rv>${A.text.map((t) => `<p>${marked(t.text)}</p>`).join("")}</div>
-              <ul class="z-disc" data-rv>${A.tags.map((t) => `<li class="pxb">${t}</li>`).join("")}</ul>
-              <dl class="z-facts" data-rv>
-                <div><dt>Right now</dt><dd>Looking for a grad project</dd></div>
-                <div><dt>On paper</dt><dd><a href="${S.resume}" target="_blank" rel="noopener">Resume &#8599;</a></dd></div>
-              </dl>
-            </div>
-          </div>
+        <button class="z-him z-guide take-ride" type="button" aria-label="Take the ride: travel through the portfolio as a scrolling journey"></button>
+        <div class="q-hero-foot">
+          <p class="q-intro">I design things for screens and streets: brands, packaging, interfaces and print.</p>
+          <button class="q-link take-ride" type="button">Take the ride <i aria-hidden="true">→</i></button>
         </div>
       </section>
 
-      <section class="z-sec z-work" id="plain-subway" data-loc="subway" aria-label="Projects">
-        ${edge(C.cream, 7)}
-        <div class="plain-wrap">
-          ${head("02", "Selected work", "प्रोजेक्ट्स", `<p class="z-note">${S.home().length} projects across branding, packaging, publication, UI/UX and production design.</p>`)}
-          <ol class="z-projects">${S.home().map((p, i) => `
-            <li class="z-proj${i ? "" : " lead"}" id="card-${p.id}" style="--band:${p.band}" data-rv>
+      <section class="q-sec q-about" id="plain-drain" data-loc="drain" aria-labelledby="plain-about-h">
+        <div class="q-wrap">
+          <figure class="q-facefig" data-rv>
+            <button class="q-face" type="button" aria-label="Portrait of ${first}. Click for another expression"><span class="q-face-img"></span></button>
+            <figcaption>Tap for another face</figcaption>
+          </figure>
+          <div class="q-about-main">
+            ${head(`<span id="plain-about-h">${A.title}</span>`, "मेरे बारे में")}
+            <div class="q-about-copy" data-rv>${A.text.map((t) => `<p>${t.text}</p>`).join("")}</div>
+            <dl class="q-facts" data-rv>
+              <div><dt>Disciplines</dt><dd>${A.tags.join(", ")}</dd></div>
+              <div><dt>Right now</dt><dd>Looking for a grad project</dd></div>
+              <div><dt>On paper</dt><dd><a class="q-link" href="${S.resume}" target="_blank" rel="noopener">Resume <i aria-hidden="true">↗</i></a></dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="q-sec q-work" id="plain-subway" data-loc="subway" aria-label="Projects">
+        <!-- the platform, as painted: the train standing at it -->
+        <div class="q-plate" aria-hidden="true"><img src="assets/scenes/subway.webp" alt="" width="5016" height="941" loading="lazy" decoding="async" /></div>
+        <div class="q-wrap">
+          ${head("Selected work", "प्रोजेक्ट्स", `${S.home().length} projects across branding, packaging, publication, UI/UX and production design.`)}
+          <ol class="q-projects">${S.home().map((p, i) => `
+            <li class="q-proj" id="card-${p.id}" data-rv>
               <a href="project.html?p=${p.id}">
-                ${win(`${file(p.line)}/${file(p.title)}`, `<span class="z-pic"><img class="work-media" src="${S.img(boardImg(p), 1280)}"${srcsetAttr(boardImg(p))} sizes="${i ? "(max-width: 700px) 90vw, 30vw" : "(max-width: 1000px) 90vw, 56vw"}" alt="${p.title} cover" loading="lazy" decoding="async" /></span>`, "z-picWin")}
-                <span class="z-proj-text">
-                  <span class="z-no">${String(i + 1).padStart(2, "0")} · ${p.meta.category || ""} · ${p.meta.year || ""}</span>
-                  <span class="z-proj-title">${p.title}</span>
-                  <span class="z-proj-blurb">${p.blurb}</span>
-                  <span class="pxbtn sm">View project <b>&#9654;</b></span>
+                <span class="q-pic"><img class="work-media" src="${S.img(boardImg(p), 1280)}"${srcsetAttr(boardImg(p))} sizes="(max-width: 800px) 92vw, 58vw" alt="${p.title} cover" loading="lazy" decoding="async" /></span>
+                <span class="q-proj-text">
+                  <span class="q-label"><b>${String(i + 1).padStart(2, "0")}</b>${[p.meta.category, p.meta.year].filter(Boolean).join(" · ")}</span>
+                  <span class="q-proj-title">${p.title}</span>
+                  <span class="q-proj-blurb">${p.blurb}</span>
+                  <span class="q-link">View project <i aria-hidden="true">→</i></span>
                 </span>
               </a>
             </li>`).join("")}
           </ol>
-          <p class="z-more" data-rv><a class="pxbtn alt" href="projects.html">All projects <b>&#9654;</b></a></p>
+          <p class="q-all" data-rv><a class="q-link big" href="projects.html">All projects <i aria-hidden="true">→</i></a></p>
         </div>
       </section>
 
-      <section class="z-sec z-reels" id="plain-cinema" data-loc="cinema" aria-label="Reels">
-        ${edge(C.blue, 13)}
-        <div class="z-bits" aria-hidden="true">${bit("star", 92, 10, 40, "--px:var(--px-star-cream)")}${bit("spark", 5, 84, 22, "--px:var(--px-spark-cream)")}</div>
-        <div class="plain-wrap">
-          ${head("03", "Reels", "रील्स", `<p class="z-note">i make content, i just forget to post it.</p>`)}
-          <div class="z-cinema" data-rv>
-            ${win("now_showing.mov", `<span class="z-screen" id="plain-screen"></span>`, "z-screenWin")}
-            <ul class="z-reel-list">${S.reels.map((r, i) => `
-              <li><button class="pxb z-reel" type="button" data-i="${i}" aria-pressed="${i === 0}">
-                <b>&#9654;</b><span>${r.title}<small>${r.length}${r.src ? "" : " · coming soon"}</small></span>
-              </button></li>`).join("")}
-            </ul>
+      <section class="q-sec q-reels" id="plain-cinema" data-loc="cinema" aria-label="Reels">
+        <div class="q-wrap">
+          ${head("Reels", "रील्स", "i make content, i just forget to post it.")}
+          <!-- the cinema, as painted: the reel plays on its screen -->
+          <div class="q-cinema" data-rv>
+            <div class="q-hall">
+              <span class="q-screen" id="plain-screen"></span>
+              <img src="assets/scenes/cinema-front.webp" srcset="assets/scenes/cinema-front.webp 1672w, assets/scenes/cinema-front-2x.webp 3344w" sizes="(max-width: 1400px) 150vw, 2000px" alt="" width="1672" height="941" loading="lazy" decoding="async" />
+            </div>
           </div>
+          <ul class="q-reel-list" data-rv>${S.reels.map((r, i) => `
+            <li><button class="q-reel" type="button" data-i="${i}" aria-pressed="${i === 0}">
+              <b>${String(i + 1).padStart(2, "0")}</b><span>${r.title}</span><small>${r.length}${r.src ? "" : " · coming soon"}</small>
+            </button></li>`).join("")}
+          </ul>
           <!-- phones: no choosing, the reels one under the other, each in its own player -->
-          <ol class="z-reel-stack">${S.reels.filter((r) => r.src).map((r, i) => `
+          <ol class="q-stack">${S.reels.filter((r) => r.src).map((r, i) => `
             <li data-rv>
-              ${win(`reel_${String(i + 1).padStart(2, "0")}.mov`, `<span class="z-screen"><video class="work-media" src="${r.src}" poster="${r.poster}" controls playsinline preload="none" aria-label="${r.title} reel"></video></span>`, "z-screenWin")}
-              <p class="z-reel-cap"><b>${String(i + 1).padStart(2, "0")}</b><span>${r.title}</span><small>${r.length}</small></p>
+              <span class="q-stack-screen"><video class="work-media" src="${r.src}" poster="${r.poster}" controls playsinline preload="none" aria-label="${r.title} reel"></video></span>
+              <p class="q-stack-cap"><b>${String(i + 1).padStart(2, "0")}</b><span>${r.title}</span><small>${r.length}</small></p>
             </li>`).join("")}
           </ol>
         </div>
       </section>
 
-      <section class="z-sec z-gallery" id="plain-exhibition" data-loc="exhibition" aria-label="Photos">
-        ${edge(C.amber, 21)}
-        <div class="plain-wrap">
-          ${head("04", "Photos", "प्रदर्शनी", `<p class="z-note">Pick a photo, or step through them.</p>`)}
-          <div class="z-viewer" data-rv>
-            <figure class="win z-view">
-              <span class="win-bar"><i></i><b id="pv-file"></b></span>
-              <button class="photo-frame" type="button" id="pv-open" data-i="0"><img class="work-media" id="pv-img" alt="" draggable="false" /></button>
-            </figure>
-            <div class="z-view-side">
-              <p class="z-no" id="pv-n"></p>
-              <h3 class="z-view-title" id="pv-title"></h3>
-              <p class="z-view-place" id="pv-place"></p>
-              <ul class="z-thumbs">${S.photos.map((p, i) => `
-                <li><button type="button" data-i="${i}" aria-label="Show ${p.title}, ${photoSub(p, ", ")}"><img src="${p.src}" alt="" loading="lazy" draggable="false" />${p.album ? `<span class="album-tag" aria-hidden="true">${p.album.length}</span>` : ""}</button></li>`).join("")}
-              </ul>
-              <p class="z-view-nav"><button class="pxbtn sm alt" type="button" id="pv-prev" aria-label="Previous photo">&#9664;</button><button class="pxbtn sm alt" type="button" id="pv-next" aria-label="Next photo">&#9654;</button><span class="z-cap" id="pv-hint">Click the photo to see it large</span></p>
-            </div>
-          </div>
+      <section class="q-sec q-photos" id="plain-exhibition" data-loc="exhibition" aria-label="Photos">
+        <div class="q-wrap">
+          ${head("Photos", "प्रदर्शनी", "Four albums. Open one to walk through it.")}
+          <ul class="q-albums">${S.photos.map((p, i) => `
+            <li data-rv>
+              <button class="photo-frame q-album" type="button" data-i="${i}" aria-label="Open ${p.album ? "album" : "photo"}: ${p.title}, ${photoSub(p, ", ")}">
+                <span class="q-album-pic"><img class="work-media" src="${p.cover || p.src}" alt="${p.title}${p.album ? " album cover" : ""}" loading="lazy" decoding="async"${p.pos ? ` style="object-position:${p.pos}"` : ""} /></span>
+                <span class="q-album-cap"><span class="q-album-title">${p.title}</span><span class="q-label">${photoSub(p, " · ")}</span></span>
+              </button>
+            </li>`).join("")}
+          </ul>
         </div>
       </section>
 
-      <section class="z-sec z-contact" id="plain-rooftop" data-loc="rooftop" aria-label="Contact">
-        ${edge(C.red, 5)}
-        <div class="z-bits" aria-hidden="true">${bit("star", 4, 20, 34)}${bit("spark", 94, 12, 22)}${bit("heart", 47, 8, 30)}</div>
-        <div class="plain-wrap">
-          <div class="z-contact-grid">
-            <div class="z-contact-main">
-              <p class="z-kick" data-rv><b>05</b><span class="hi">संपर्क</span></p>
-              <p class="z-pre" data-rv>${S.footer.kicker}</p>
-              <h2 class="z-big" data-rv>“${S.footer.title.join(" ")}”</h2>
-              <p class="z-line" data-rv>${S.footer.line}</p>
-              <p data-rv><a class="pxbtn z-mail" href="mailto:${S.email}${S.mailSubject ? "?subject=" + encodeURIComponent(S.mailSubject) : ""}">${S.email}</a></p>
-              <p class="z-socials" data-rv>${S.socials.map((x) => `<a class="pxbtn sm alt" href="${x.url}" target="_blank" rel="noopener">${x.label}</a>`).join("")}</p>
-            </div>
-            <figure class="z-roof" data-rv>${win("rooftop.png", `<span class="z-roof-art"><span class="z-him z-sitter" aria-hidden="true"></span></span>`)}</figure>
+      <section class="q-sec q-contact" id="plain-rooftop" data-loc="rooftop" aria-label="Contact">
+        <!-- the rooftop, as painted, and him on it with his chai -->
+        <div class="q-roof" aria-hidden="true"><div class="q-roof-art">
+          <img src="assets/scenes/rooftop.webp" srcset="assets/scenes/rooftop.webp 1672w, assets/scenes/rooftop-2x.webp 3344w" sizes="100vw" alt="" width="1672" height="941" loading="lazy" decoding="async" />
+          ${ROOFTOP.hoardings.map(([x, y, w, h], i) => `<i class="q-hoard" style="left:${(x / 16.72).toFixed(2)}%;top:${(y / 9.41).toFixed(2)}%;width:${(w / 16.72).toFixed(2)}%;height:${(h / 9.41).toFixed(2)}%;background-image:url(${S.img(S.projects[i % S.projects.length].cover, 256)})"></i>`).join("")}
+          <span class="z-him z-sitter"></span>
+        </div></div>
+        <div class="q-wrap">
+          <div class="q-contact-main">
+            <p class="q-label" data-rv>${S.footer.kicker}</p>
+            <h2 class="q-big" data-rv>${S.footer.title[0]} <em>${S.footer.title.slice(1).join(" ")}</em></h2>
+            <p class="q-line" data-rv>${S.footer.line}</p>
+            <p data-rv><a class="q-mail" href="mailto:${S.email}${S.mailSubject ? "?subject=" + encodeURIComponent(S.mailSubject) : ""}">${S.email}</a></p>
+            <p class="q-socials" data-rv>${S.socials.map((x) => `<a class="q-link" href="${x.url}" target="_blank" rel="noopener">${x.label} <i aria-hidden="true">↗</i></a>`).join("")}</p>
           </div>
         </div>
-        <i class="n-skyline" aria-hidden="true"></i>
-        <div class="z-foot"><div class="plain-wrap">
+        <div class="q-foot"><div class="q-wrap">
           <p>© ${S.year} ${first} Shah</p>
-          <p><a class="pxbtn sm alt" href="#plain-street" data-stop="street">Back to top</a><button class="pxbtn sm take-ride" type="button"><b>&#9654;</b> Take the ride</button></p>
+          <p><a class="q-link" href="#plain-street" data-stop="street">Back to top <i aria-hidden="true">↑</i></a><button class="q-link take-ride" type="button">Take the ride <i aria-hidden="true">→</i></button></p>
         </div></div>
       </section>`;
   }
@@ -596,11 +544,11 @@
     // him, cut out of the same sheet the ride draws him from
     $$(".z-him").forEach((el) => (el.style.backgroundImage = `url(${Sprite.sheet("main")})`));
     // the portrait: tap for another face
-    const P = S.about.portrait, face = $(".z-face-img");
+    const P = S.about.portrait, face = $(".q-face-img");
     let f = 0;
     face.style.backgroundImage = `url(${P.src})`;
     face.style.backgroundSize = `${P.frames * 100}% 100%`;
-    $(".z-face").addEventListener("click", () => { f = (f + 1) % P.frames; face.style.backgroundPosition = `${(f / (P.frames - 1)) * 100}% 0`; });
+    $(".q-face").addEventListener("click", () => { f = (f + 1) % P.frames; face.style.backgroundPosition = `${(f / (P.frames - 1)) * 100}% 0`; });
 
     // reels: the buttons pick what's on the screen
     const screen = $("#plain-screen");
@@ -608,34 +556,16 @@
       const r = S.reels[i];
       screen.innerHTML = r.src
         ? `<video class="work-media" src="${r.src}" poster="${r.poster}" controls playsinline preload="none"></video>`
-        : `<img class="work-media" src="${r.poster}" alt="${r.title} poster" /><i class="pxb z-soon">Coming soon</i>`;
-      $$(".z-reel").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.i === i)));
+        : `<img class="work-media" src="${r.poster}" alt="${r.title} poster" />`;
+      $$(".q-reel").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.i === i)));
     };
     // one reel at a time, and none once the reels are off screen
     const plainVideos = () => $$("#plain-cinema video");
     pausePlain = () => plainVideos().forEach((v) => v.pause());
     $("#plain-cinema").addEventListener("play", (e) => plainVideos().forEach((v) => { if (v !== e.target) v.pause(); }), true);
     new IntersectionObserver(([e]) => { if (!e.isIntersecting) pausePlain(); }).observe($("#plain-cinema"));
-    $$(".z-reel").forEach((b) => b.addEventListener("click", () => showReel(+b.dataset.i)));
+    $$(".q-reel").forEach((b) => b.addEventListener("click", () => showReel(+b.dataset.i)));
     showReel(0);
-
-    // photos: one window shows the chosen photo; the thumbnails and the arrows pick it
-    let pv = 0;
-    const showPhoto = (k) => {
-      pv = (k + S.photos.length) % S.photos.length;
-      const p = S.photos[pv], n = (x) => String(x).padStart(2, "0");
-      $("#pv-img").src = p.src; $("#pv-img").alt = p.title;
-      $("#pv-open").dataset.i = pv; $("#pv-open").setAttribute("aria-label", `Open ${p.album ? "album" : "photo"}: ${p.title}`);
-      $(".z-view").classList.toggle("is-album", !!p.album); $("#pv-hint").textContent = p.album ? `Click to open the album (${p.album.length} photos)` : "Click the photo to see it large";
-      $("#pv-file").textContent = p.title.toLowerCase().replace(/[^a-z0-9]+/g, "_") + ".jpg";
-      $("#pv-title").textContent = p.title; $("#pv-place").textContent = photoSub(p, p.album ? " · " : ", ");
-      $("#pv-n").textContent = `${n(pv + 1)} / ${n(S.photos.length)}`;
-      $$(".z-thumbs button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === pv)));
-    };
-    $$(".z-thumbs button").forEach((b) => b.addEventListener("click", () => showPhoto(+b.dataset.i)));
-    $("#pv-prev").addEventListener("click", () => showPhoto(pv - 1));
-    $("#pv-next").addEventListener("click", () => showPhoto(pv + 1));
-    showPhoto(0);
 
     if (reduceMotion) return;
     // scroll transitions, cut like a film. Between two sections sits a "cut" (.n-cut): as you scroll into it two
@@ -657,7 +587,7 @@
       tick = 0;
       if (body.classList.contains("ride")) return;
       // the project pictures are fetched as soon as this view is in use, not when each card nears the screen (the film cuts would show them arriving)
-      if (!warm) { warm = true; $$(".z-proj img").forEach((im) => { im.loading = "eager"; }); }
+      if (!warm) { warm = true; $$(".q-proj img").forEach((im) => { im.loading = "eager"; }); }
       const vh = innerHeight;
       cuts.forEach((c) => {
         const r = c.getBoundingClientRect();
