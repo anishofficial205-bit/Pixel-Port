@@ -405,39 +405,39 @@ html::after { bottom: -160px; }
 }
 
 /* rotating project ads on the street's billboards */
-.bb-ad { padding: 0; display: block; text-decoration: none; background: #0B0714; cursor: pointer; }
-.bb-ad .ad { position: absolute; inset: 0; opacity: 0; }
-.bb-ad .ad.on { opacity: 1; z-index: 1; }
+.bb-show { padding: 0; display: block; text-decoration: none; background: #0B0714; cursor: pointer; }
+.bb-show .bill { position: absolute; inset: 0; opacity: 0; }
+.bb-show .bill.on { opacity: 1; z-index: 1; }
 /* fit, never crop: the picture sits whole over a pixel mosaic of the cover */
-.ad-bg { position: absolute; inset: -2px; background-size: cover; background-position: center; image-rendering: pixelated; filter: brightness(0.45) saturate(1.1); }
-.bb-ad .ad-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.bill-bg { position: absolute; inset: -2px; background-size: cover; background-position: center; image-rendering: pixelated; filter: brightness(0.45) saturate(1.1); }
+.bb-show .bill-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 /* LED poster: title / picture / category */
-.ad-poster { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px 6px 12px; }   /* the picture fills the board; title and category sit on it */
-.ad-poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(8, 5, 24, 0.78), transparent 26%, transparent 74%, rgba(8, 5, 24, 0.8)); }
-.ad-poster .ad-title, .ad-poster .ad-cat { z-index: 1; }
-.ad-poster > :not(.ad-bg) { position: relative; }
-.ad-poster .ad-frame { position: absolute !important; inset: 0; }
-.ad-poster .ad-img { object-fit: cover; }
-.ad-title { font-family: var(--font-display); font-size: 17px; line-height: 1.4; text-align: center; color: var(--marigold); text-shadow: 2px 2px 0 var(--outline), 0 0 6px rgba(255, 194, 26, 0.5); letter-spacing: 0; }
-.ad-cat { font-family: var(--font-label); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; color: var(--neon-cyan); text-shadow: 0 0 5px rgba(61, 242, 255, 0.6); }
+.bill-poster { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px 6px 12px; }   /* the picture fills the board; title and category sit on it */
+.bill-poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(8, 5, 24, 0.78), transparent 26%, transparent 74%, rgba(8, 5, 24, 0.8)); }
+.bill-poster .bill-title, .bill-poster .bill-cat { z-index: 1; }
+.bill-poster > :not(.bill-bg) { position: relative; }
+.bill-poster .bill-frame { position: absolute !important; inset: 0; }
+.bill-poster .bill-img { object-fit: cover; }
+.bill-title { font-family: var(--font-display); font-size: 17px; line-height: 1.4; text-align: center; color: var(--marigold); text-shadow: 2px 2px 0 var(--outline), 0 0 6px rgba(255, 194, 26, 0.5); letter-spacing: 0; }
+.bill-cat { font-family: var(--font-label); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; color: var(--neon-cyan); text-shadow: 0 0 5px rgba(61, 242, 255, 0.6); }
 /* overpass banner: picture on the left, title and category beside it */
-.ad-strip { display: flex; align-items: center; gap: 6px; padding: 0 4px 0 0; }
-.ad-strip > :not(.ad-bg) { position: relative; }
-.ad-strip .ad-frame { flex: 0 0 32%; height: 100%; min-width: 0; }
-.ad-strip .ad-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; text-align: left; }
-.ad-strip .ad-title { font-size: 11px; line-height: 1.2; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ad-strip .ad-cat { font-size: 11px; letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bb-ad .ad.enter { animation: ad-wipe 0.6s steps(8) both; }
-@keyframes ad-wipe { from { clip-path: inset(0 100% 0 0); filter: brightness(1.8); } to { clip-path: inset(0 0 0 0); filter: brightness(1); } }
-.ad-cap {
+.bill-strip { display: flex; align-items: center; gap: 6px; padding: 0 4px 0 0; }
+.bill-strip > :not(.bill-bg) { position: relative; }
+.bill-strip .bill-frame { flex: 0 0 32%; height: 100%; min-width: 0; }
+.bill-strip .bill-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.bill-strip .bill-title { font-size: 11px; line-height: 1.2; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bill-strip .bill-cat { font-size: 11px; letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bb-show .bill.enter { animation: bill-wipe 0.6s steps(8) both; }
+@keyframes bill-wipe { from { clip-path: inset(0 100% 0 0); filter: brightness(1.8); } to { clip-path: inset(0 0 0 0); filter: brightness(1); } }
+.bill-cap {
   position: absolute; z-index: 1; left: 0; bottom: 0; right: 0; padding: 4px 7px; white-space: nowrap; overflow: hidden;
   font-family: var(--font-label); font-weight: 700; text-transform: uppercase; font-size: 11px; line-height: 1.2; letter-spacing: 0.04em; color: var(--paper);
   background: linear-gradient(transparent, rgba(11, 7, 20, 0.88) 40%);
 }
-.ad-cap b { color: var(--marigold); font-weight: 400; margin-right: 4px; }
-.bb-ad::before { z-index: 2; }                    /* LED scanlines stay on top of the ads */
-.bb-ad::after { z-index: 2; }                     /* lamp wash stays on top too */
-.bb-ad:hover .ad.on .ad-img, .bb-ad:focus-visible .ad.on .ad-img { filter: brightness(1.15); }
+.bill-cap b { color: var(--marigold); font-weight: 400; margin-right: 4px; }
+.bb-show::before { z-index: 2; }                    /* LED scanlines stay on top of the ads */
+.bb-show::after { z-index: 2; }                     /* lamp wash stays on top too */
+.bb-show:hover .bill.on .bill-img, .bb-show:focus-visible .bill.on .bill-img { filter: brightness(1.15); }
 
 /* the metro crosses the overpass every so often: it comes out from behind the buildings on the left,
    nose first, and slips behind the ones on the right. Without motion it rests where it was painted. */
@@ -453,7 +453,7 @@ html::after { bottom: -160px; }
 .hero-dim, .street-lights { display: none; }
 .ride .hero-dim, .ride .street-lights { display: block; position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: var(--e, 0); }
 .ride .hero-dim { background: rgba(8, 5, 24, 0.66); }
-.ride #street .bb-ad { filter: brightness(calc(1 - 0.5 * var(--e, 0))); }
+.ride #street .bb-show { filter: brightness(calc(1 - 0.5 * var(--e, 0))); }
 /* life in the street: steam off the chai kettle */
 .steam { width: var(--w); height: var(--h); }
 .steam i {
@@ -621,7 +621,7 @@ html::after { bottom: -160px; }
   transition: transform 0.5s cubic-bezier(0.25, 1, 0.35, 1), translate 0.45s cubic-bezier(0.25, 1, 0.35, 1), filter 0.35s ease, box-shadow 0.35s ease;
 }
 .bb-pic { position: relative; flex: none; height: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #0B0714; }
-.bb-pic .ad-bg { inset: -8%; image-rendering: auto; filter: brightness(0.5) saturate(1.2); }
+.bb-pic .bill-bg { inset: -8%; image-rendering: auto; filter: brightness(0.5) saturate(1.2); }
 .bb-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .bb-info { flex: 1; min-width: 0; overflow: hidden; display: flex; flex-direction: column; padding: 3.4cqw 3cqw 3cqw; }
 .bb-line { font-family: var(--font-label); font-weight: 700; font-size: max(11px, 1.5cqw); line-height: 1.25; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(246, 233, 207, 0.55); }   /* at 11px a long category ("Publication Design") takes two lines */
@@ -1066,7 +1066,7 @@ html::after { bottom: -160px; }
 .plain-art > img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .plain-art .bb-map { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: var(--quad); }
 .plain-art .bb-left { background: #120A26; }
-.plain-art .bb-ad { pointer-events: none; }   /* (here they are part of the picture; the projects are listed below) */
+.plain-art .bb-show { pointer-events: none; }   /* (here they are part of the picture; the projects are listed below) */
 .q-hero::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;   /* the street dims behind the name and falls into the ground below */
   background: radial-gradient(ellipse 62% 58% at 50% 46%, rgba(10, 7, 24, 0.62), rgba(10, 7, 24, 0.5)), linear-gradient(rgba(10, 7, 24, 0.6), transparent 26%, transparent 64%, var(--ink)); }
 .q-mark { position: relative; z-index: 2; width: min(40vw, 62vh, 560px); margin-top: -5vh; transform: translateY(calc(var(--out, 0) * -80px)); }

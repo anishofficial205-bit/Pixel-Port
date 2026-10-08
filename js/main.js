@@ -94,7 +94,7 @@
     // each board is an ad for one project: the picture, then its line, title, blurb and a way in
     $("#billboards").innerHTML = S.featured().map((p, i) => `
       <a class="billboard" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="--band:${p.band}">
-        <span class="bb-pic"><span class="ad-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1280)}"${srcsetAttr(boardImg(p))} sizes="(max-width: 700px) 70vw, 40vw" alt="${p.title} cover" decoding="async" /></span>
+        <span class="bb-pic"><span class="bill-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1280)}"${srcsetAttr(boardImg(p))} sizes="(max-width: 700px) 70vw, 40vw" alt="${p.title} cover" decoding="async" /></span>
         <span class="bb-info">
           <span class="bb-line">${p.meta.category || p.line}</span>
           <span class="bb-title">${p.title}</span>
@@ -364,7 +364,7 @@
   const ADS = { every: 4200, stagger: 1400 };   // ms per ad, delay between boards
   function adBoards() {
     const list = S.home().length ? S.home() : S.projects;
-    $$(".bb-ad").forEach((board) => {
+    $$(".bb-show").forEach((board) => {
       const tall = board.dataset.quad === "led", strip = board.dataset.quad === "mid";
       const shape = tall ? "tall" : "wide";
       const pics = list.flatMap((p) => ((p.ads && p.ads[shape]) || [p.cover]).map((img) => ({ p, img })));
@@ -372,20 +372,20 @@
       // the tall board is laid out like a poster (title, picture, category) and the thin overpass
       // banner as a strip (picture, then title and category beside it)
       board.innerHTML = pics.map(({ p, img }, i) => {
-        const bg = `<span class="ad-bg" style="background-image:url(${S.img(p.cover, 32)})"></span>`;
+        const bg = `<span class="bill-bg" style="background-image:url(${S.img(p.cover, 32)})"></span>`;
         // (no src yet: a board fetches the ad it is showing and the one after it, so the first ads arrive at once instead of queueing behind forty others)
-        const pic = `<img class="work-media ad-img" data-src="${S.img(img, 640)}" data-srcset="${S.srcset(img)}" sizes="${tall ? "12vw" : "22vw"}" alt="${p.title} cover" decoding="async" />`;
+        const pic = `<img class="work-media bill-img" data-src="${S.img(img, 640)}" data-srcset="${S.srcset(img)}" sizes="${tall ? "12vw" : "22vw"}" alt="${p.title} cover" decoding="async" />`;
         return tall
-          ? `<span class="ad ad-poster" data-i="${i}">${bg}<span class="ad-title">${p.title}</span><span class="ad-frame">${pic}</span><span class="ad-cat">${p.meta.category || ""}</span></span>`
+          ? `<span class="bill bill-poster" data-i="${i}">${bg}<span class="bill-title">${p.title}</span><span class="bill-frame">${pic}</span><span class="bill-cat">${p.meta.category || ""}</span></span>`
           : strip
-          ? `<span class="ad ad-strip" data-i="${i}">${bg}<span class="ad-frame">${pic}</span><span class="ad-text"><span class="ad-title">${p.title}</span><span class="ad-cat">${p.meta.category || ""}</span></span></span>`
-          : `<span class="ad" data-i="${i}">${bg}${pic}<span class="ad-cap"><b>${p.title}</b> ${p.meta.category || ""}</span></span>`;
+          ? `<span class="bill bill-strip" data-i="${i}">${bg}<span class="bill-frame">${pic}</span><span class="bill-text"><span class="bill-title">${p.title}</span><span class="bill-cat">${p.meta.category || ""}</span></span></span>`
+          : `<span class="bill" data-i="${i}">${bg}${pic}<span class="bill-cap"><b>${p.title}</b> ${p.meta.category || ""}</span></span>`;
       }).join("");
       let i = (+board.dataset.start || 0) % pics.length;
-      const fetchAd = (k) => { const im = board.querySelectorAll(".ad-img")[k % pics.length]; if (im && !im.src) { if (k === i) im.fetchPriority = "high"; if (im.dataset.srcset) im.srcset = im.dataset.srcset; im.src = im.dataset.src; } };
+      const fetchAd = (k) => { const im = board.querySelectorAll(".bill-img")[k % pics.length]; if (im && !im.src) { if (k === i) im.fetchPriority = "high"; if (im.dataset.srcset) im.srcset = im.dataset.srcset; im.src = im.dataset.src; } };
       const show = (first) => {
         if (!board.getClientRects().length) return;        // the other view's boards: nothing to fetch or turn
-        const ads = board.querySelectorAll(".ad");
+        const ads = board.querySelectorAll(".bill");
         fetchAd(i); fetchAd(i + 1);
         ads.forEach((a, k) => a.classList.toggle("on", k === i));
         if (!first) { ads[i].classList.add("enter"); setTimeout(() => ads[i].classList.remove("enter"), 700); }
@@ -414,9 +414,9 @@
         <!-- the street, as painted, its billboards carrying the projects (see fitPlainArt) -->
         <div class="plain-hero-bg" aria-hidden="true"><div class="plain-art">
           <img src="assets/scenes/street.webp" srcset="assets/scenes/street.webp 1672w, assets/scenes/street-2x.webp 3344w" sizes="100vw" alt="" width="1672" height="941" />
-          <a class="bb-map bb-ad bb-left" data-quad="left" data-start="0" tabindex="-1"></a>
-          <a class="bb-map bb-ad bb-led" data-quad="led" data-start="1" tabindex="-1"></a>
-          <a class="bb-map bb-ad bb-mid" data-quad="mid" data-start="2" tabindex="-1"></a>
+          <a class="bb-map bb-show bb-left" data-quad="left" data-start="0" tabindex="-1"></a>
+          <a class="bb-map bb-show bb-led" data-quad="led" data-start="1" tabindex="-1"></a>
+          <a class="bb-map bb-show bb-mid" data-quad="mid" data-start="2" tabindex="-1"></a>
         </div></div>
         <div class="q-mark">
           <h1 class="q-logo"><img src="assets/brand/logo-source.png" alt="${first} Shah" /></h1>
@@ -1239,7 +1239,7 @@
         const sl = (2.8 / Math.sqrt(k)).toFixed(1); if (sl !== lastSl) { lastSl = sl; logoEl.style.setProperty("--sl", sl + "px"); }   // scanline pitch: grows only gently with the logo
         logoEl.classList.toggle("hero", e > 0.5);
         heroTags.style.setProperty("--e", e.toFixed(3));
-        if (!dimEls) dimEls = [...streetEl.querySelectorAll(".hero-dim, .street-lights, .bb-ad, .win-off")];
+        if (!dimEls) dimEls = [...streetEl.querySelectorAll(".hero-dim, .street-lights, .bb-show, .win-off")];
         dimEls.forEach((el) => el.style.setProperty("--e", e.toFixed(3)));   // the street dims behind the title card (set only where it is used, so the whole street is not restyled every frame)
         heroTags.classList.toggle("off", e < 0.5);
       }
