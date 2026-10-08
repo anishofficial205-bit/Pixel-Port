@@ -426,7 +426,7 @@
 
       <section class="q-sec q-work" id="plain-subway" data-loc="subway" aria-label="Projects">
         <!-- the platform, as painted: the train standing at it -->
-        <div class="q-plate" aria-hidden="true"><img src="assets/scenes/subway.webp" alt="" width="5016" height="941" loading="lazy" decoding="async" /></div>
+        <div class="q-plate" aria-hidden="true"><img src="assets/scenes/subway-platform.webp" alt="" width="1806" height="941" loading="lazy" decoding="async" /></div>
         <div class="q-wrap">
           ${head("Selected work", "प्रोजेक्ट्स", `${S.home().length} projects across branding, packaging, publication, UI/UX and production design.`)}
           <ol class="q-projects">${S.home().map((p, i) => `
@@ -515,7 +515,9 @@
     if (!hero || !art) return;
     $$(".plain-art [data-quad]").forEach((el) => mapToQuad(el, STREET.quads[el.dataset.quad], 1));
     const W = hero.clientWidth, H = hero.clientHeight, k = Math.max(W / STREET.w, H / STREET.h);
-    art.style.transform = `translate(${(W - STREET.w * k) / 2}px, ${(H - STREET.h * k) * 0.3}px) scale(${k})`;
+    // wide screens: the street centred. Phones see only a slice of it, so the slice is the one with the rooftop billboard (as the ride frames it)
+    const tx = W < 700 ? Math.min(0, Math.max(W - STREET.w * k, W / 2 - 374 * k)) : (W - STREET.w * k) / 2;
+    art.style.transform = `translate(${tx}px, ${(H - STREET.h * k) * 0.3}px) scale(${k})`;
   }
 
   /* The Simple view's behaviour: the navbar follows the section in view, things pop in as they arrive,
@@ -1638,9 +1640,14 @@
   if ("scrollRestoration" in history && location.hash) history.scrollRestoration = "manual";
   layout();
 
-  let rt;
+  let rt, lastW = innerWidth, lastH = innerHeight;
+  const coarse = matchMedia("(pointer: coarse)").matches;
   addEventListener("resize", () => {
     clearTimeout(rt);
+    // a phone's toolbar sliding away or back changes only the height, many times in one scroll: laying the ride
+    // out again each time (and moving the page to match) made it jump, so on touch screens that is ignored
+    if (coarse && innerWidth === lastW && Math.abs(innerHeight - lastH) < 160) return;
+    lastW = innerWidth; lastH = innerHeight;
     rt = setTimeout(() => {
       const frac = total ? cur / total : 0;
       layout();
