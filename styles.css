@@ -468,6 +468,14 @@ html::after { bottom: -160px; }
   15% { opacity: 0.7; }
   100% { transform: translate(18%, -170%) scale(1.4); opacity: 0; }
 }
+/* the scroll sign, kept through the whole ride (the opening screen has its own "Scroll to start"): bottom centre,
+   above the nav bar on phones; gone on the rooftop, where the ride ends, and while a photo or album is open */
+.ride-scroll { display: none; }
+.ride .ride-scroll { display: flex; position: fixed; z-index: 45; left: 50%; bottom: calc(var(--frame) + 20px); margin: 0; transform: translateX(-50%); pointer-events: none; opacity: 0; transition: opacity 0.45s ease; white-space: nowrap; }
+.ride .ride-scroll.on { opacity: 0.92; }
+.preloading .ride-scroll, .lb-open .ride-scroll { visibility: hidden; }
+@media (max-width: 700px) { .ride .ride-scroll { bottom: calc(var(--frame) + 58px); font-size: 11px; } .ride .ride-scroll i { scale: 0.8; } }
+
 /* ---- more life in the street (built by streetLife in main.js; boxes come from data-art) ---- */
 #street [data-art] { width: var(--w); height: var(--h); }
 #rooftop { --ss: 1; }

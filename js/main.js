@@ -338,6 +338,7 @@
      Every blank board on the street shows project images in turn (the boards are staggered so they never
      change together), with a small caption; the board links to whatever it's showing. Images come from
      each project's `ads` list if it has one, else its cover (use GIF ids there for animated ads). */
+  const adRefresh = [];
   const ADS = { every: 4200, stagger: 1400 };   // ms per ad, delay between boards
   function adBoards() {
     const list = S.home().length ? S.home() : S.projects;
@@ -350,7 +351,8 @@
       // banner as a strip (picture, then title and category beside it)
       board.innerHTML = pics.map(({ p, img }, i) => {
         const bg = `<span class="ad-bg" style="background-image:url(${S.img(p.cover, 32)})"></span>`;
-        const pic = `<img class="work-media ad-img" src="${S.img(img, 640)}"${srcsetAttr(img)} sizes="${tall ? "12vw" : "22vw"}" alt="${p.title} cover" decoding="async" />`;
+        // (no src yet: a board fetches the ad it is showing and the one after it, so the first ads arrive at once instead of queueing behind forty others)
+        const pic = `<img class="work-media ad-img" data-src="${S.img(img, 640)}" data-srcset="${S.srcset(img)}" sizes="${tall ? "12vw" : "22vw"}" alt="${p.title} cover" decoding="async" />`;
         return tall
           ? `<span class="ad ad-poster" data-i="${i}">${bg}<span class="ad-title">${p.title}</span><span class="ad-frame">${pic}</span><span class="ad-cat">${p.meta.category || ""}</span></span>`
           : strip
@@ -358,14 +360,18 @@
           : `<span class="ad" data-i="${i}">${bg}${pic}<span class="ad-cap"><b>${p.title}</b> ${p.meta.category || ""}</span></span>`;
       }).join("");
       let i = (+board.dataset.start || 0) % pics.length;
+      const fetchAd = (k) => { const im = board.querySelectorAll(".ad-img")[k % pics.length]; if (im && !im.src) { if (im.dataset.srcset) im.srcset = im.dataset.srcset; im.src = im.dataset.src; } };
       const show = (first) => {
+        if (!board.getClientRects().length) return;        // the other view's boards: nothing to fetch or turn
         const ads = board.querySelectorAll(".ad");
+        fetchAd(i); fetchAd(i + 1);
         ads.forEach((a, k) => a.classList.toggle("on", k === i));
         if (!first) { ads[i].classList.add("enter"); setTimeout(() => ads[i].classList.remove("enter"), 700); }
         board.href = `project.html?p=${pics[i].p.id}`;
         board.setAttribute("aria-label", `Featured project: ${pics[i].p.title}`);
       };
       show(true);
+      adRefresh.push(() => show(true));                    // (again when the view changes: see setMode)
       if (reduceMotion || pics.length < 2) return;
       setTimeout(() => setInterval(() => { i = (i + 1) % pics.length; show(false); }, ADS.every),
         (+board.dataset.start || 0) * ADS.stagger);
@@ -618,6 +624,7 @@
   const L = {}; // layout numbers
   let segs = [], total = 0, stops = {};
   let inHall = false;
+  const scrollSign = $(".ride-scroll");
   let pausePlain = () => {};            // the Simple view's players: set in watchPlain
   let pauseReel = () => {};             // set once the cinema's player exists
   let logoRefresh = () => {};           // redraws the logo canvas (set by glitchLogo)
@@ -1142,6 +1149,8 @@
     // wait there), the stairs' once he is in the drain
     if (loc === "street" ? cur > 4 || now > 3500 : true) Sprite.need("drain");
     if (loc !== "street") Sprite.need("stairs");
+    // the scroll sign: from the moment the opening screen's own hint has gone until the ride's last stretch
+    scrollSign.classList.toggle("on", cur > L.vh * 0.5 && cur < total - L.vh * 0.6);
     // the reel stops the moment he is out of the hall (hall: the three stretches in front of the screen), whichever door he leaves by
     if (inHall && !s.hall) pauseReel();
     inHall = !!s.hall;
@@ -1312,6 +1321,7 @@
     body.classList.toggle("static", !ride);
     markView(ride);
     pauseReel(); pausePlain();
+    requestAnimationFrame(() => adRefresh.forEach((f) => f()));
     store.set("view-mode", ride ? "ride" : "static");
     if (!ride) { logoEl.style.transform = ""; logoEl.classList.remove("hero"); logoAt = -1; }
     if (!ride) { world.style.transform = ""; body.dataset.location = "street"; requestAnimationFrame(() => { fitPlainArt(); plainSize(); }); }
@@ -1639,6 +1649,7 @@
   markView(ride);
   if ("scrollRestoration" in history && location.hash) history.scrollRestoration = "manual";
   layout();
+  adRefresh.forEach((f) => f());   // (the boards of the view in use, now that it is known)
 
   let rt, lastW = innerWidth, lastH = innerHeight;
   const coarse = matchMedia("(pointer: coarse)").matches;
