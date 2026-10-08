@@ -112,14 +112,14 @@
     $("#photos").innerHTML = S.photos.map((p, i) => `
       <figure class="photo" style="--ar:${p.w / p.h}">
         <button class="photo-frame${p.album ? " is-album" : ""}" type="button" data-i="${i}" aria-label="Open ${p.album ? "album" : "photo"}: ${p.title}, ${photoSub(p, ", ")}">
-          <img class="work-media" src="${p.cover || p.src}" alt="${p.title}${p.album ? " album cover" : ""}" decoding="async"${p.pos ? ` style="object-position:${p.pos}"` : ""} />
+          <img class="work-media" data-src="${p.cover || p.src}" alt="${p.title}${p.album ? " album cover" : ""}" decoding="async"${p.pos ? ` style="object-position:${p.pos}"` : ""} />
           ${p.album ? `<span class="album-tag" aria-hidden="true">${p.album.length} photos</span>` : ""}
         </button>
         <figcaption class="plaque"><b>${p.title}</b><span>${photoSub(p)}</span></figcaption>
       </figure>`).join("");
 
     $(".hoardings").innerHTML = ROOFTOP.hoardings.map((_, i) => `<i class="hoarding" style="background-image:url(${S.img(S.projects[i % S.projects.length].cover, 256)})"></i>`).join("");
-    $$(".back-photo").forEach((el, i) => { const ph = S.photos[i % S.photos.length]; $("img", el).src = ph.src; });
+    $$(".back-photo").forEach((el, i) => { const ph = S.photos[i % S.photos.length]; $("img", el).dataset.src = ph.src; });
     $$(".cin-poster").forEach((el, i) => {
       const r = S.reels[i % S.reels.length];
       $("img", el).src = r.poster; $("span", el).textContent = r.title;
@@ -338,6 +338,27 @@
      Every blank board on the street shows project images in turn (the boards are staggered so they never
      change together), with a small caption; the board links to whatever it's showing. Images come from
      each project's `ads` list if it has one, else its cover (use GIF ids there for animated ads). */
+  /* Scene art arrives as the ride reaches it. Every picture after the street carries data-src (see index.html):
+     a place's pictures are fetched when he enters the place before it, and after the page has loaded the rest
+     follow one at a time, in the order of the journey. The Simple view fetches none of them. */
+  const lazyArt = () => $$(".viewport img[data-src]");
+  const artPlace = (img) => img.dataset.art || img.closest("[data-location]")?.dataset.location;
+  const fetchArt = (img) => new Promise((done) => {
+    if (!img.dataset.src) return done();
+    img.addEventListener("load", done, { once: true }); img.addEventListener("error", done, { once: true });
+    if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+    img.src = img.dataset.src;
+    delete img.dataset.src; delete img.dataset.srcset;
+  });
+  const needArt = (place) => { if (place) lazyArt().filter((img) => artPlace(img) === place).forEach(fetchArt); };
+  const artAround = (loc) => { const o = stops.order || []; needArt(loc); needArt(o[o.indexOf(loc) + 1]); };
+  let artRunning = false;
+  async function restOfArt() {
+    if (artRunning) return;
+    artRunning = true;
+    for (const img of lazyArt()) { if (!body.classList.contains("ride")) break; await fetchArt(img); }
+    artRunning = false;
+  }
   const adRefresh = [];
   const ADS = { every: 4200, stagger: 1400 };   // ms per ad, delay between boards
   function adBoards() {
@@ -1156,6 +1177,7 @@
     inHall = !!s.hall;
     // location
     if (loc !== lastLoc) {
+      artAround(loc);                                     // this place's pictures, and the next place's
       lastLoc = loc;
       body.dataset.location = loc;
       markSection(loc);
@@ -1322,6 +1344,7 @@
     markView(ride);
     pauseReel(); pausePlain();
     requestAnimationFrame(() => adRefresh.forEach((f) => f()));
+    if (ride) { artAround(lastLoc || "street"); restOfArt(); }
     store.set("view-mode", ride ? "ride" : "static");
     if (!ride) { logoEl.style.transform = ""; logoEl.classList.remove("hero"); logoAt = -1; }
     if (!ride) { world.style.transform = ""; body.dataset.location = "street"; requestAnimationFrame(() => { fitPlainArt(); plainSize(); }); }
@@ -1650,6 +1673,8 @@
   if ("scrollRestoration" in history && location.hash) history.scrollRestoration = "manual";
   layout();
   adRefresh.forEach((f) => f());   // (the boards of the view in use, now that it is known)
+  // the rest of the ride's pictures, once the opening screen has everything it needs
+  if (document.readyState === "complete") { if (ride) restOfArt(); } else addEventListener("load", () => { if (body.classList.contains("ride")) restOfArt(); });
 
   let rt, lastW = innerWidth, lastH = innerHeight;
   const coarse = matchMedia("(pointer: coarse)").matches;
