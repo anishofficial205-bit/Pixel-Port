@@ -351,7 +351,8 @@
     delete img.dataset.src; delete img.dataset.srcset;
   });
   const needArt = (place) => { if (place) lazyArt().filter((img) => artPlace(img) === place).forEach(fetchArt); };
-  const artAround = (loc) => { const o = stops.order || []; needArt(loc); needArt(o[o.indexOf(loc) + 1]); };
+  // (on the opening screen the next place waits until the page has loaded, so the street's own pictures and billboards come first)
+  const artAround = (loc) => { const o = stops.order || []; needArt(loc); if (loc !== "street" || document.readyState === "complete") needArt(o[o.indexOf(loc) + 1]); };
   let artRunning = false;
   async function restOfArt() {
     if (artRunning) return;
@@ -381,7 +382,7 @@
           : `<span class="ad" data-i="${i}">${bg}${pic}<span class="ad-cap"><b>${p.title}</b> ${p.meta.category || ""}</span></span>`;
       }).join("");
       let i = (+board.dataset.start || 0) % pics.length;
-      const fetchAd = (k) => { const im = board.querySelectorAll(".ad-img")[k % pics.length]; if (im && !im.src) { if (im.dataset.srcset) im.srcset = im.dataset.srcset; im.src = im.dataset.src; } };
+      const fetchAd = (k) => { const im = board.querySelectorAll(".ad-img")[k % pics.length]; if (im && !im.src) { if (k === i) im.fetchPriority = "high"; if (im.dataset.srcset) im.srcset = im.dataset.srcset; im.src = im.dataset.src; } };
       const show = (first) => {
         if (!board.getClientRects().length) return;        // the other view's boards: nothing to fetch or turn
         const ads = board.querySelectorAll(".ad");
