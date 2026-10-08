@@ -158,6 +158,16 @@ body::after {
   border-radius: var(--frame-radius);
   box-shadow: 0 0 0 calc(var(--frame) + 40px) var(--frame-color), inset 0 0 0 2px rgba(74, 42, 110, 0.55);
 }
+/* Phones whose browser draws the page behind its own bars (iOS Safari): the bezel's shadow stops at the edge
+   of the screen area, so the scrolling page showed above and below the frame. Two solid strips along the top and
+   bottom edges, reaching well past them: they cover that band, and Safari takes the colour of its bars from a
+   fixed, solid-coloured element at the edge. */
+html::before, html::after {
+  content: ""; position: fixed; left: 0; right: 0; z-index: 100; pointer-events: none; height: calc(var(--frame) + 160px);
+  background-color: var(--frame-color);
+}
+html::before { top: -160px; }
+html::after { bottom: -160px; }
 @media (max-width: 700px) { :root { --frame: 8px; --frame-radius: 16px; } }
 
 /* ---------------- "Scroll" cursor on the opening screen ---------------- */
