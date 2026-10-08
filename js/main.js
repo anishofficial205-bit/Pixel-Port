@@ -463,7 +463,7 @@
               <ul class="z-disc" data-rv>${A.tags.map((t) => `<li class="pxb">${t}</li>`).join("")}</ul>
               <dl class="z-facts" data-rv>
                 <div><dt>Right now</dt><dd>Looking for a grad project</dd></div>
-                <div><dt>On paper</dt><dd><a href="${S.resume}" target="_blank" rel="noopener">Résumé &#8599;</a></dd></div>
+                <div><dt>On paper</dt><dd><a href="${S.resume}" target="_blank" rel="noopener">Resume &#8599;</a></dd></div>
               </dl>
             </div>
           </div>

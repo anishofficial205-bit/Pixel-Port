@@ -28,7 +28,7 @@ window.SITE = {
 
   socials: [
     { label: "LinkedIn", short: "in", url: "https://www.linkedin.com/in/anishshah205" },
-    { label: "Résumé", short: "cv", url: "https://drive.google.com/file/d/1CraqjeFk8eAJp0whwKZqo0aOwIqSbmO8/view?usp=sharing" },
+    { label: "Resume", short: "cv", url: "https://drive.google.com/file/d/1CraqjeFk8eAJp0whwKZqo0aOwIqSbmO8/view?usp=sharing" },
   ],
 
   /* About me, down the drain: the portrait (left) steps through its frames as you scroll, and the text
