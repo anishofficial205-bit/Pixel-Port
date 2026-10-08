@@ -21,14 +21,14 @@ window.SITE = {
   intro: "Hi! I design things for screens and streets. Scroll down, chalo, let's go on a ride through my work.",
   email: "anishofficial205@gmail.com",
   mailSubject: "Let’s work together",
-  resume: "https://drive.google.com/file/d/11oDHz7qk81Wuk0ODuT-aQ4vFoU7OKGQZ/view?usp=sharing",
+  resume: "https://drive.google.com/file/d/1CraqjeFk8eAJp0whwKZqo0aOwIqSbmO8/view?usp=sharing",
   // the footer's words, from the Framer site
   footer: { kicker: "This is the part where I say", title: ["Let’s", "Connect!"], line: "Also, I like Kit Kat because every designer needs a break. :)" },
   year: new Date().getFullYear(),
 
   socials: [
     { label: "LinkedIn", short: "in", url: "https://www.linkedin.com/in/anishshah205" },
-    { label: "Résumé", short: "cv", url: "https://drive.google.com/file/d/11oDHz7qk81Wuk0ODuT-aQ4vFoU7OKGQZ/view?usp=sharing" },
+    { label: "Résumé", short: "cv", url: "https://drive.google.com/file/d/1CraqjeFk8eAJp0whwKZqo0aOwIqSbmO8/view?usp=sharing" },
   ],
 
   /* About me, down the drain: the portrait (left) steps through its frames as you scroll, and the text
