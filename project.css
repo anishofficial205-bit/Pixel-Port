@@ -255,7 +255,7 @@ body[data-project] .source, body[data-project] .also { width: var(--col); margin
      thrive            calm and minimal: deep teal and sage
      krumble           festive and rich: maroon, cream and gold, a diamond on its rules
      parde-ke-peeche   a film magazine: black, white and red, bars like cover lines
-     haven             a soft app: violet, lilac to pink, rounded pictures and cards
+     haven             the app's own colours: black ground, white type, lime accent, rounded pictures and cards
      bali              ritual and dread: near-black, bone and blood red, dark edges */
 [data-project] { --pill: color-mix(in srgb, var(--night) 82%, transparent); --here: var(--amber); }
 /* type is the same on every project page, and the same as the rest of the site: Talina for the title and
@@ -264,7 +264,7 @@ body[data-project] { --h1: 400 clamp(54px, 9.4vw, 132px)/0.95 var(--display); --
 [data-project="thrive"] { --ink: #050F11; --night: #0A1C1F; --navy: #10282C; --navy-2: #16353A; --cream: #E6EFEC; --soft: rgba(230, 239, 236, 0.66); --faint: rgba(230, 239, 236, 0.14); --amber: #9DBDB6; --glow-a: rgba(120, 180, 170, 0.1); --glow-b: #0F2A2E; }
 [data-project="krumble"] { --ink: #140203; --night: #2A0507; --navy: #3A090C; --navy-2: #4B0D11; --cream: #F7EBD8; --soft: rgba(247, 235, 216, 0.7); --faint: rgba(231, 190, 110, 0.22); --amber: #E3B565; --glow-a: rgba(227, 160, 70, 0.16); --glow-b: #4A0A0E; }
 [data-project="parde-ke-peeche"] { --ink: #000; --night: #060606; --navy: #131313; --navy-2: #1E1E1E; --cream: #F4F1EC; --soft: rgba(244, 241, 236, 0.66); --faint: rgba(244, 241, 236, 0.16); --amber: #E3261F; --glow-a: rgba(227, 38, 31, 0.12); --glow-b: #151515; }
-[data-project="haven"] { --ink: #0B0114; --night: #150424; --navy: #210838; --navy-2: #2D0D4B; --cream: #F1EAFB; --soft: rgba(241, 234, 251, 0.7); --faint: rgba(190, 160, 255, 0.2); --amber: #BFA2FF; --glow-a: rgba(214, 120, 255, 0.16); --glow-b: #2A0B4A; }
+[data-project="haven"] { --ink: #070707; --night: #0C0C0C; --navy: #141414; --navy-2: #1C1C1C; --cream: #FFFFFF; --soft: rgba(255, 255, 255, 0.68); --faint: rgba(255, 255, 255, 0.14); --amber: #E2FF3D; --glow-a: rgba(0, 0, 0, 0); --glow-b: #0C0C0C; }   /* the app's own ground and its one loud colour: black, white type, lime */
 [data-project="please-see"] { --ink: #170503; --night: #2A0905; --navy: #3C0D07; --navy-2: #4E120A; --cream: #FFF3DC; --soft: rgba(255, 243, 220, 0.72); --faint: rgba(255, 226, 120, 0.22); --amber: #FFE23A; --glow-a: rgba(232, 51, 31, 0.3); --glow-b: #5A120A; }
 [data-project="miso"] { --ink: #0B0D05; --night: #14180A; --navy: #1E2410; --navy-2: #293116; --cream: #F4F1E4; --soft: rgba(244, 241, 228, 0.7); --faint: rgba(232, 184, 31, 0.24); --amber: #E8B81F; --glow-a: rgba(240, 110, 50, 0.22); --glow-b: #2A3312; }
 [data-project="bali"] { --ink: #040202; --night: #0B0606; --navy: #160C0B; --navy-2: #221110; --cream: #E9E1D6; --soft: rgba(233, 225, 214, 0.64); --faint: rgba(233, 225, 214, 0.14); --amber: #B8261C; --glow-a: rgba(184, 38, 28, 0.2); --glow-b: #1C0907; }
@@ -296,12 +296,12 @@ body[data-project="parde-ke-peeche"] .kicker::after { height: 3px; background: v
 body[data-project="parde-ke-peeche"] .case > h3::before { content: ""; display: block; width: 44px; height: 4px; margin-bottom: 14px; background: var(--amber); }
 body[data-project="parde-ke-peeche"] .facts dt { color: var(--amber); }
 
-/* haven: an app. Title in a lilac-to-pink wash, pictures and facts with soft round corners */
-body[data-project="haven"] h1 { width: max-content; max-width: 100%; background: linear-gradient(100deg, #9E8CFF, #D58CFF 55%, #FF9BD2); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.08em; }
+/* haven: an app. White title on black, lime for labels, pictures and facts with soft round corners */
+body[data-project="haven"] h1 { color: #FFFFFF; }
 body[data-project="haven"] .ticker .shot { border-radius: clamp(12px, 1.4vw, 20px); }
-body[data-project="haven"] .features li { margin-top: 10px; padding: 14px 18px; border-radius: 16px; background: rgba(190, 160, 255, 0.08); }
+body[data-project="haven"] .features li { margin-top: 10px; padding: 14px 18px; border-radius: 16px; background: rgba(255, 255, 255, 0.06); }
 body[data-project="haven"] .also a { border-radius: 16px; overflow: hidden; }
-body[data-project="haven"] .case > h2.sec { color: #D9A6FF; }
+body[data-project="haven"] .case > h2.sec { color: #E2FF3D; }
 
 /* bali: a room where something happened. Engraved capitals in bone, red labels, the dark closing in at the edges */
 body[data-project="bali"] h1 { text-shadow: 0 0 80px rgba(184, 38, 28, 0.45); }
