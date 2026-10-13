@@ -98,7 +98,8 @@
         <span class="bb-info">
           <span class="bb-line">${p.meta.category || p.line}</span>
           <span class="bb-title">${p.title}</span>
-          <span class="bb-blurb">${p.blurb}</span>
+          <span class="bb-blurb">${p.blurb}</span>${p.note ? `
+          <span class="bb-note">${p.note}</span>` : ""}
           <span class="bb-go">View project <b aria-hidden="true">→</b></span>
         </span>
       </a>`).join("");
@@ -464,7 +465,8 @@
                 <span class="q-proj-text">
                   <span class="q-label"><b>${String(i + 1).padStart(2, "0")}</b>${[p.meta.category, p.meta.year].filter(Boolean).join(" · ")}</span>
                   <span class="q-proj-title">${p.title}</span>
-                  <span class="q-proj-blurb">${p.blurb}</span>
+                  <span class="q-proj-blurb">${p.blurb}</span>${p.note ? `
+                  <span class="q-news">${p.note}</span>` : ""}
                   <span class="q-link">View project <i aria-hidden="true">→</i></span>
                 </span>
               </a>

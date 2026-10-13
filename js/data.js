@@ -473,6 +473,7 @@ window.SITE = {
       "title": "Haven",
       "line": "Line 4",
       "blurb": "A safe space to learn and practise consent",
+      "note": "Research paper · ICoRD’27",   // a line of news shown on the project's cards (optional, any project)
       "shape": "wide",
       "band": "#FFC21A",
       "cover": "assets/projects/haven/01.webp",
@@ -483,7 +484,8 @@ window.SITE = {
         "timeframe": "6 Weeks",
         "tools": "Figma, Perplexity",
         "category": "UI/UX",
-        "collaboration": "Individual Project"
+        "collaboration": "Individual Project",
+        "publication": "Research paper, to be published at ICoRD’27"
       },
       "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": [
