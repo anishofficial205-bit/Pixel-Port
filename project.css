@@ -404,3 +404,11 @@ body.all { --ink: #050505; --night: #0A0908; --navy: #161412; --navy-2: #1F1C19;
   .route a, .view-switch button, .genre, #p-source, .nda-note a { position: relative; }
   .route a::after, .view-switch button::after, .genre::after, #p-source::after, .nda-note a::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
 }
+
+/* a mosaic: one large picture, two smaller ones stacked beside it, thin gaps between (phones: the large one, then the two side by side) */
+.mosaic { display: grid; grid-template-columns: 2fr 1fr; gap: clamp(6px, 0.8vw, 12px); }
+.mosaic-side { display: grid; grid-template-rows: 1fr 1fr; gap: clamp(6px, 0.8vw, 12px); min-height: 0; }
+.mosaic .shot { width: auto; margin: 0; }
+.mosaic-side .shot { aspect-ratio: auto; height: 100%; min-height: 0; }
+body[data-project] .case > .mosaic { width: var(--col); align-self: center; margin-top: clamp(44px, 6vw, 92px); }
+@media (max-width: 700px) { .mosaic { grid-template-columns: 1fr; } .mosaic-side { grid-template-rows: none; grid-template-columns: 1fr 1fr; } .mosaic-side .shot { aspect-ratio: var(--ar); height: auto; } }

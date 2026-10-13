@@ -29,7 +29,7 @@
   <!-- fonts are served from this site; the two used most are fetched early -->
   <link rel="preload" href="assets/fonts/satoshi-500.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/satoshi-700.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="project.css?v=1791923340" />
+  <link rel="stylesheet" href="project.css?v=1791923770" />
   <!-- Vercel Web Analytics (page views and visitors; no cookies). The script only exists on Vercel, so it does nothing on a local copy. -->
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -85,9 +85,9 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/dims.js?v=1791923340"></script>
-  <script src="js/data.js?v=1791923340"></script>
-  <script src="js/flow.js?v=1791923340"></script>
+  <script src="js/dims.js?v=1791923770"></script>
+  <script src="js/data.js?v=1791923770"></script>
+  <script src="js/flow.js?v=1791923770"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -175,6 +175,10 @@
         } else if (b.t === "embed") {
           e = el("figure", "shot" + (b.tight ? " tight" : "")); e.style.setProperty("--ar", b.ar);
           e.append(frame(b.src, p.title));
+        } else if (b.t === "mosaic") {                     // one large picture with two smaller ones stacked beside it
+          e = el("div", "mosaic"); const side = el("div", "mosaic-side");
+          b.imgs.forEach((c, n) => (n ? side : e).append(shot({ id: c.id, ar: c.ar, alt: c.alt }, n ? 1280 : 2048)));
+          e.append(side);
         } else if (b.t === "ticker") {                     // a strip of photos sliding sideways (shown twice over, so it loops)
           e = el("div", "ticker"); const track = el("div", "ticker-track");
           [0, 1].forEach((pass) => b.imgs.forEach((c) => track.append(shot({ id: c.id, ar: c.ar, alt: pass ? "" : c.alt }, 1024))));   // (the second pass only makes the loop: described once)
