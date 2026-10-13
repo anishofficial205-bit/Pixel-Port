@@ -54,7 +54,7 @@
  "assets/projects/parde-ke-peeche/12.webp": "Magazine spread titled A Film That Did It All, with stills from the film",
  "assets/projects/parde-ke-peeche/13.webp": "Magazine spread with a Monsoon Wedding poster and a feature article",
  "assets/projects/parde-ke-peeche/14.webp": "Parde Ke Peeche wordmark in black and red on white",
- "assets/projects/haven/01.webp": "Grid of phones showing Haven app screens in purple",
+ "assets/projects/haven/01.webp": "Three phones showing Haven screens: Spaces, the home screen and an anonymous confession",
  "assets/projects/haven/03.webp": "Research chart on brown paper titled Overfocus on reproduction, covered in sticky notes",
  "assets/projects/haven/04.webp": "Students gathered round the Consent activity board, placing stickers",
  "assets/projects/haven/05.webp": "A student filling in the grid of the Consent activity sheet at a table",
@@ -62,7 +62,7 @@
  "assets/projects/haven/07.webp": "Three people discussing the Consent activity board in a corridor",
  "assets/projects/haven/08.webp": "The Consent activity board: two grids filled with red and blue stickers",
  "assets/projects/haven/09.webp": "Affinity map of colour-coded sticky notes grouped under headings such as Boundaries and Family",
- "assets/projects/haven/10.webp": "Two phones showing the Haven splash screen and a story screen",
+ "assets/projects/haven/10.webp": "Grid of tilted phones showing Haven screens: home, Spaces, Confess, Scenarios, Help and Profile",
  "assets/projects/bhayanaka/plan-3d.webp": "3D model of the room, showing where the props sit",
  "assets/projects/bhayanaka/plan-sketch.webp": "Hand-sketched top view of the room layout in pencil",
  "assets/projects/bhayanaka/plan-reference.webp": "AI-generated reference of a dark room with a fire pit at its centre",
@@ -141,5 +141,7 @@
  "assets/projects/making/phone-subway.webp": "A project card in the subway on a phone",
  "assets/projects/making/phone-simple.webp": "The Simple view on a phone",
  "assets/projects/making/raw-gallery.webp": "Generated gallery scene with a magenta block where a photograph will go",
- "assets/projects/making/raw-arcade.webp": "Generated arcade cabinet with magenta blocks for its screen and title"
+ "assets/projects/making/raw-arcade.webp": "Generated arcade cabinet with magenta blocks for its screen and title",
+ "assets/projects/haven/13.webp": "Close view of two phones: the Haven home screen and the Scenarios screen",
+ "assets/projects/haven/14.webp": "Three upright phones showing the Confess, Spaces and Help screens"
 }
