@@ -20,7 +20,8 @@ ITEMS = [
     TAB(None,
         ["What it is", "A camera toy: a pixel-art landing page and a hand-tracked camera app"],
         ["Runs on", "The browser, with the webcam. No app, no sign-up, nothing uploaded"],
-        ["Built with", "Google’s MediaPipe hand tracker (21 points per hand, about 30 times a second) and WebGL shaders for the looks"],
+        ["Built with", "Claude Code, Google’s MediaPipe hand tracker (21 points per hand, about 30 times a second) and WebGL shaders for the looks"],
+        ["Tested", "With several people, on their own hands"],
         ["Live at", "kheech.vercel.app"]),
     RULE,
 
@@ -87,6 +88,11 @@ ITEMS = [
         ["Lower thresholds", "to keep hold of hands through blur and odd angles."],
         ["More area to open than to stay open", "so the frame doesn’t blink at the edge."]),
     P("And the loading screen. The app sometimes sat on “Loading hands…” for minutes, because the tracker’s 9.4 MB engine and 7.8 MB hand model came from slow CDNs at start-up. The files now ship with the site, and the app is ready in under a second, with a backup, time limits, a slow-connection message and a working Try again."),
+    RULE,
+
+    H("How it was built", "How it was built"),
+    P("I vibe coded Kheech with Claude Code: I set the idea, the interaction and the look, made every call on what stayed and what went, and Claude Code wrote the code. Each round I tried what came back, said what felt wrong, and it was changed. The decisions on this page are mine; the code is Claude Code’s."),
+    P("The tracking and the gestures were then tested with several people, on their own hands, in front of a real webcam, as in the clips above."),
     RULE,
 
     H("What changed, and why", "Decisions"),
