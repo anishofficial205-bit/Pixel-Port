@@ -415,3 +415,10 @@ body.all { --ink: #050505; --night: #0A0908; --navy: #161412; --navy-2: #1F1C19;
 .mosaic-side .shot { aspect-ratio: auto; height: 100%; min-height: 0; }
 body[data-project] .case > .mosaic { width: var(--col); align-self: center; margin-top: clamp(44px, 6vw, 92px); }
 @media (max-width: 700px) { .mosaic { grid-template-columns: 1fr; } .mosaic-side { grid-template-rows: none; grid-template-columns: 1fr 1fr; } .mosaic-side .shot { aspect-ratio: var(--ar); height: auto; } }
+
+/* Kheech: each decision set out as the problem, what I decided, and why, the three labels stacked over their text */
+body[data-project="kheech"] .features.plain { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(18px, 2.4vw, 36px); width: min(var(--col), 1104px); align-self: center; }
+body[data-project="kheech"] .features.plain li { margin: 0; padding: 18px 0 0; border-top: 1px solid var(--faint); }
+body[data-project="kheech"] .features.plain li b { display: block; margin-bottom: 10px; font-size: 12px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); }
+body[data-project="kheech"] .features.plain li span { font-size: clamp(16px, 1.25vw, 18px); line-height: 1.5; }
+@media (max-width: 800px) { body[data-project="kheech"] .features.plain { grid-template-columns: 1fr; } }
