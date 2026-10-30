@@ -670,7 +670,7 @@ window.SITE = {
       "source": "https://kheech.vercel.app",
       "sourceLabel": "Try Kheech",
       "intro": "A hand-tracked camera toy for the browser: make a frame with your fingers, pull it open, and the picture inside it changes.",
-      "lead": "Kheech is a camera toy where your fingers are the camera: make a frame with both hands, pull it open, and step into a different look. It began as a question about an Instagram trend and became a pixel-art landing page and a hand-tracked camera app, with eighteen looks, three gestures and your own videos inside the frame, all running in the browser.",
+      "lead": "Kheech is a camera toy where your fingers are the camera: make a frame with both hands, pull it open, and step into a different look.",
       "meta": {"year": "2026", "tools": "Claude Code, MediaPipe, WebGL", "category": "UI/UX"},
       // TODO (Anish): role (collaboration) and timeframe
       "outcome": [],   // TODO (Anish): outcome and learnings, in your words; the page shows the block only when this has text
