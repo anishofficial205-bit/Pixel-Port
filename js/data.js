@@ -669,6 +669,7 @@ window.SITE = {
       "cover": "assets/projects/kheech/hero.webp",
       "source": "https://kheech.vercel.app",
       "sourceLabel": "Try Kheech",
+      "try": {"url": "https://kheech.vercel.app", "label": "Try Kheech"},   // a live link shown at the top of the project page
       "intro": "A hand-tracked camera toy for the browser: make a frame with your fingers, pull it open, and the picture inside it changes.",
       "lead": "Kheech is a camera toy where your fingers are the camera: make a frame with both hands, pull it open, and step into a different look.",
       "meta": {"year": "2026", "tools": "Claude Code, MediaPipe, WebGL", "category": "UI/UX"},

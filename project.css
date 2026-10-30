@@ -422,3 +422,9 @@ body[data-project="kheech"] .features.plain li { margin: 0; padding: 18px 0 0; b
 body[data-project="kheech"] .features.plain li b { display: block; margin-bottom: 10px; font-size: 12px; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); }
 body[data-project="kheech"] .features.plain li span { font-size: clamp(16px, 1.25vw, 18px); line-height: 1.5; }
 @media (max-width: 800px) { body[data-project="kheech"] .features.plain { grid-template-columns: 1fr; } }
+
+/* "Try it": a live project's link, under the intro in the hero */
+.hero .try { margin-top: clamp(18px, 2vw, 28px); }
+.hero .try a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 22px; border-radius: 999px; background: var(--amber); color: var(--ink); font-weight: 700; font-size: 15px; letter-spacing: 0; text-decoration: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); transition: transform 0.2s ease, background-color 0.2s ease; }
+.hero .try a:hover, .hero .try a:focus-visible { transform: translateY(-2px); background: var(--cream); }
+.hero .try a span { transition: transform 0.2s ease; } .hero .try a:hover span { transform: translate(2px, -2px); }

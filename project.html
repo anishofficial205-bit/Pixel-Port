@@ -27,7 +27,7 @@
   <!-- fonts are served from this site; the two used most are fetched early -->
   <link rel="preload" href="assets/fonts/satoshi-500.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/satoshi-700.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="project.css?v=1793341775" />
+  <link rel="stylesheet" href="project.css?v=1793341962" />
   <!-- Vercel Web Analytics (page views and visitors; no cookies). The script only exists on Vercel, so it does nothing on a local copy. -->
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -61,6 +61,7 @@
         <p class="kicker" id="p-line"></p>
         <h1 id="p-title"></h1>
         <p class="brief" id="p-intro"></p>
+        <p class="try" hidden><a id="p-try" target="_blank" rel="noopener"></a></p>
       </div>
       <dl class="facts" id="p-facts"></dl>
     </div>
@@ -83,9 +84,9 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/dims.js?v=1793341775"></script>
-  <script src="js/data.js?v=1793341775"></script>
-  <script src="js/flow.js?v=1793341775"></script>
+  <script src="js/dims.js?v=1793341962"></script>
+  <script src="js/data.js?v=1793341962"></script>
+  <script src="js/flow.js?v=1793341962"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -117,6 +118,8 @@
       $("#p-line").textContent = [p.meta.category, p.meta.year].filter(Boolean).join(" · ");
       $("#p-title").textContent = p.title;
       $("#p-intro").textContent = p.intro;
+      // a project you can use (a live site): its link sits under the intro, where it is seen first
+      if (p.try) { const t = $("#p-try"); t.href = p.try.url; t.innerHTML = `${p.try.label} <span aria-hidden="true">↗</span>`; t.parentElement.hidden = false; }
       const hero = p.hero || p.cover;
       const frame = (src, title) => { const f = el("iframe"); f.loading = "lazy"; f.title = title; f.allow = "autoplay; fullscreen; picture-in-picture"; f.src = src; return f; };   // loads when scrolled near; `allow` already grants full screen
       $("#p-hero").src = SITE.img(hero); $("#p-hero").alt = p.title + ": " + p.blurb;
