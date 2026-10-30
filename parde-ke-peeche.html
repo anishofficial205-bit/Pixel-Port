@@ -29,7 +29,7 @@
   <!-- fonts are served from this site; the two used most are fetched early -->
   <link rel="preload" href="assets/fonts/satoshi-500.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/satoshi-700.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="project.css?v=1791925392" />
+  <link rel="stylesheet" href="project.css?v=1793338257" />
   <!-- Vercel Web Analytics (page views and visitors; no cookies). The script only exists on Vercel, so it does nothing on a local copy. -->
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -85,9 +85,9 @@
 
   <div class="fade" aria-hidden="true"></div>
 
-  <script src="js/dims.js?v=1791925392"></script>
-  <script src="js/data.js?v=1791925392"></script>
-  <script src="js/flow.js?v=1791925392"></script>
+  <script src="js/dims.js?v=1793338257"></script>
+  <script src="js/data.js?v=1793338257"></script>
+  <script src="js/flow.js?v=1793338257"></script>
   <script>
     (function () {
       const list = SITE.projects;
@@ -170,8 +170,12 @@
           if (b.cap) { root.append(e); if (b.chapter) chapter(b.chapter, e); root.append(el("p", "cap", b.cap)); return; }
         } else if (b.t === "video") {
           e = el("figure", "shot"); e.style.setProperty("--ar", b.ar);
-          const v = el("video"); v.src = b.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute("aria-label", p.title + " video");
+          const v = el("video"); v.muted = true; v.loop = true; v.playsInline = true; v.preload = "none"; v.setAttribute("aria-label", (b.cap || p.title + " video"));
+          if (b.poster) v.poster = SITE.img(b.poster);
+          // a clip loads and plays only while it is on screen
+          new IntersectionObserver(([x]) => { if (x.isIntersecting) { if (!v.src) v.src = b.src; v.play().catch(() => {}); } else v.pause(); }, { rootMargin: "200px 0px" }).observe(e);
           e.append(v);
+          if (b.cap) { root.append(e); if (b.chapter) chapter(b.chapter, e); root.append(el("p", "cap", b.cap)); return; }
         } else if (b.t === "embed") {
           e = el("figure", "shot" + (b.tight ? " tight" : "")); e.style.setProperty("--ar", b.ar);
           e.append(frame(b.src, p.title));

@@ -174,6 +174,17 @@ def making_row(it):
     return row
 flow["making"] = {"hero": 1.778, "items": [making_row(it) if "pics" in it else it for it in making.ITEMS]}
 
+# Kheech: a UI/UX case study (tools/kheech.py), its pictures and clips in assets/projects/kheech/
+import kheech
+KSH, KPIC = json.loads((ROOT / "tools/framer/kheech-shapes.json").read_text()), "assets/projects/kheech/"
+def kheech_row(it):
+    names, total = it["pics"], sum(KSH[n] for n in it["pics"])
+    gap = 1.0; free = 100 - gap * (len(names) - 1)
+    row = {"t": "row", "bleed": False, "tight": False, "photos": False, "imgs": [{"id": KPIC + n + ".webp", "l": gap if i else 0, "w": round(free * KSH[n] / total, 2), "ar": KSH[n], "fit": "cover"} for i, n in enumerate(names)]}
+    if it["cap"]: row["cap"] = it["cap"]
+    return row
+flow["kheech"] = {"hero": 1.778, "items": [kheech_row(it) if "pics" in it else {k: v for k, v in it.items() if v is not None} for it in kheech.ITEMS]}
+
 # Headings added over what the Framer pages already say (audit P1-6): each goes in front of the item named, the
 # same way chapters are named below ("lead", or the start of a paragraph). No text is added or changed.
 HEADINGS = {
@@ -209,6 +220,7 @@ def starts(it, key):
     if key == "lead": return it["t"] == "lead"
     if it["t"] == "row": return any(c["id"] in LOCAL.get(key, ()) or c["id"].split("/")[-1].startswith(key) for c in it["imgs"])
     return it["t"] == "p" and it["tx"].startswith(key)
+CHAPTERS["kheech"] = [("lead", "Overview")]
 for pid, marks in CHAPTERS.items():
     items = flow[pid]["items"]
     for key, name in marks:

@@ -658,6 +658,24 @@ window.SITE = {
       "outcome": [],   // TODO (Anish): outcome and learnings, 2 to 4 short paragraphs; the page shows the block only when this has text
       "blocks": []
     },
+    {
+      "id": "kheech",
+      "featured": false,
+      "title": "Kheech",
+      "line": "Line 9",
+      "blurb": "A camera toy where your fingers are the camera",
+      "shape": "wide",
+      "band": "#FF4FA3",
+      "cover": "assets/projects/kheech/hero.webp",
+      "source": "https://kheech.vercel.app",
+      "sourceLabel": "Try Kheech",
+      "intro": "A hand-tracked camera toy for the browser: make a frame with your fingers, pull it open, and the picture inside it changes.",
+      "lead": "Kheech is a camera toy where your fingers are the camera: make a frame with both hands, pull it open, and step into a different look. It began as a question about an Instagram trend and became a pixel-art landing page and a hand-tracked camera app, with eighteen looks, three gestures and your own videos inside the frame, all running in the browser.",
+      "meta": {"year": "2026", "tools": "MediaPipe, WebGL", "category": "UI/UX"},
+      // TODO (Anish): role (collaboration), timeframe and the AI tools you built it with; testing with real people, if any
+      "outcome": [],   // TODO (Anish): outcome and learnings, in your words; the page shows the block only when this has text
+      "blocks": []
+    },
     // two pieces of work under NDA. nda: true = the page shows only the cover and a note; nothing of the work
     // itself is in the project. Covers are pixelated and stamped by tools/build_nda.py.
     {
