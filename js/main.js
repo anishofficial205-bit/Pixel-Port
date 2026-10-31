@@ -1098,9 +1098,24 @@
   const roofEl = $("#rooftop");
   let lastKey = "", lastNow = 0, speed = 0, running = false, stepPhase = 0;
 
+  /* Phones: scenes more than two screens from view are hidden, so the browser can let go of their huge pictures.
+     Checked five times a second; a scene comes back well before it reaches the screen. */
+  const sparing = matchMedia("(pointer: coarse)").matches;
+  let spareAt = 0;
+  function spareScenes(now) {
+    if (!sparing || now - spareAt < 200) return;
+    spareAt = now;
+    if (!body.classList.contains("ride")) return;
+    const reach = innerHeight * 2, wide = innerWidth * 2;
+    $$(".viewport .scene").forEach((el) => {
+      const r = el.getBoundingClientRect();
+      el.classList.toggle("far", r.bottom < -reach || r.top > innerHeight + reach || r.right < -wide || r.left > innerWidth + wide);
+    });
+  }
   function frame(now) {
     requestAnimationFrame(frame);
     if (!body.classList.contains("ride")) return;
+    spareScenes(now);
     target = scrollY;
     const diff = target - cur;
     cur = Math.abs(diff) < 0.5 ? target : cur + diff * 0.2;
@@ -1698,10 +1713,39 @@
     }, 150);
   });
 
-  document.fonts?.ready.then(() => handleHash(true));
+  /* Where you were. Phones throw a page away when memory runs short or it sits in the background, and reload it when
+     it is next looked at, which would start the ride again. So the position is noted as you go; a page that leaves
+     properly (a refresh, a link) clears the note on pagehide, and a page that finds a note was killed, and resumes. */
+  const posKey = "page-pos", session = { get() { try { return JSON.parse(sessionStorage.getItem(posKey)); } catch (e) { return null; } },
+    set(v) { try { sessionStorage.setItem(posKey, JSON.stringify(v)); } catch (e) { /* ignore */ } }, clear() { try { sessionStorage.removeItem(posKey); } catch (e) { /* ignore */ } } };
+  const resume = session.get();
+  session.clear();
+  const place = () => {                                   // the same spot as a share of the page: the screen may have changed size
+    if (!resume) return;
+    const isRide = body.classList.contains("ride");
+    if (isRide !== resume.ride) return;
+    const top = resume.f * (isRide ? total : document.documentElement.scrollHeight - innerHeight);
+    scrollTo(0, top); if (isRide) cur = top;
+  };
+  let left = false;
+  setInterval(() => {
+    if (left) return;
+    const isRide = body.classList.contains("ride"), max = isRide ? total : document.documentElement.scrollHeight - innerHeight;
+    if (max > 0 && scrollY > 40) session.set({ ride: isRide, f: +(scrollY / max).toFixed(5) }); else session.clear();
+  }, 500);
+  addEventListener("visibilitychange", () => { if (document.hidden && !left && scrollY > 40) { const isRide = body.classList.contains("ride"), max = isRide ? total : document.documentElement.scrollHeight - innerHeight; if (max > 0) session.set({ ride: isRide, f: +(scrollY / max).toFixed(5) }); } });
+  addEventListener("pagehide", () => { left = true; session.clear(); });
+  addEventListener("pageshow", () => { left = false; });
+
+  // the address's section tag (#drain…) is honoured on arrival, and again as fonts and pictures settle the page, but
+  // never once the visitor has started moving: a late load event used to throw them back to that section
+  let moved = false;
+  ["wheel", "touchstart", "keydown", "pointerdown"].forEach((t) => addEventListener(t, () => { moved = true; }, { once: true, passive: true }));
+  const settle = () => { if (moved) return; if (resume) place(); else handleHash(true); };
+  document.fonts?.ready.then(settle);
   // the browser's own jump to #project-… lands after load and would undo ours
-  addEventListener("load", () => requestAnimationFrame(() => handleHash(true)));
-  handleHash(true);
+  addEventListener("load", () => requestAnimationFrame(settle));
+  settle();
   cur = scrollY;
   requestAnimationFrame(frame);
 })();

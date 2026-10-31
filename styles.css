@@ -470,6 +470,7 @@ html::after { bottom: -160px; }
 }
 /* the scroll sign, kept through the whole ride (the opening screen has its own "Scroll to start"): bottom centre,
    above the nav bar on phones; gone on the rooftop, where the ride ends, and while a photo or album is open */
+.scene.far { visibility: hidden; }   /* phones, far from view: see spareScenes in main.js */
 .ride-scroll { display: none; }
 .ride .ride-scroll { display: flex; position: fixed; z-index: 45; left: 50%; bottom: calc(var(--frame) + 20px); margin: 0; transform: translateX(-50%); pointer-events: none; opacity: 0; transition: opacity 0.45s ease; white-space: nowrap; }
 .ride .ride-scroll.on { opacity: 0.92; }

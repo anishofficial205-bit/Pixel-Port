@@ -34,6 +34,12 @@
     window.dispatchEvent(new Event("preloader:done"));
   };
 
+  // the phone threw the page away while it was in use (out of memory, or it was left in the background) and has now
+  // reloaded it: main.js puts the visitor back where they were, so no intro. (A real refresh or a link away says
+  // goodbye first, on pagehide, which clears this: see "where you were" in main.js. A killed page cannot.)
+  const killed = (() => { try { return !!sessionStorage.getItem("page-pos"); } catch (e) { return false; } })();
+  if (killed && !force) { finish(); return; }
+
   // skip only when coming back to a billboard from a project page, or via back/forward;
   // a refresh always plays it, whatever section tag (#street, #drain…) the address carries
   const toBillboard = location.hash.startsWith("#project-");
