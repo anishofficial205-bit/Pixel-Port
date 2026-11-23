@@ -55,7 +55,7 @@
   // The logo opens large in the middle of the hero and travels to its navbar corner as he sets off:
   // its width there (share of the screen, capped in px), where its centre sits (share of the screen
   // height), and how much of his first walk the trip takes
-  const LOGO_HERO = { width: 0.36, max: 470, y: 0.45, over: 0.75 };
+  const LOGO_HERO = { width: 0.38, max: 500, y: 0.33, yPhone: 0.31, over: 0.75 };   // (y: the name hangs high, like a sign over the street, and he stands under it)
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
   const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
@@ -696,7 +696,7 @@
     const camEnd = { x: Math.min(Math.max(0, mh - vw * 0.4), street.w - vw), y: street.h - vh };
     const nameX = (STREET.quads.left[0][0] + STREET.quads.left[1][0]) / 2 * ss;   // centre of the name billboard
     const camStart = { x: Math.min(Math.max(0, nameX - vw / 2), camEnd.x), y: 0 };
-    L.x0 = Math.max(STREET.start * ss, camStart.x + vw * 0.14);                    // he starts in the opening frame
+    L.x0 = camStart.x + vw / 2;                                                       // he starts in the middle of the opening frame, under the name
     // 2. drain: the cross-section hangs under the street; its pavement and open manhole come first
     const drain = {
       x: 0, y: Math.round(street.h - DRAIN.top * ss),
@@ -789,12 +789,21 @@
       logoEl.style.transform = "";
       const r = logoEl.getBoundingClientRect(), w = r.height * (623 / 435);       // its width follows from its height (the art's shape)
       const k = Math.max(1, Math.min((vw * (vw <= 700 ? 0.62 : LOGO_HERO.width)) / w, LOGO_HERO.max / w, (vh * 0.42) / r.height));
-      L.logo = { k, x: vw / 2 - (w * k) / 2 - r.left, y: vh * LOGO_HERO.y - (r.height * k) / 2 - r.top };
+      const ly = vw <= 700 ? LOGO_HERO.yPhone : LOGO_HERO.y;
+      L.logo = { k, x: vw / 2 - (w * k) / 2 - r.left, y: vh * ly - (r.height * k) / 2 - r.top };
       // the tags around it: each sits at its data-at spot, kept on screen and clear of the navbar
       const lw = w * k, lh = r.height * k, top = vw <= 700 ? 64 : 84, bottom = vw <= 700 ? 84 : 16;
       $$(".hero-tags .ht").forEach((el) => {
-        const [ax, ay] = ((vw <= 700 && el.dataset.atM) || el.dataset.at).split(",").map(Number), tw = el.offsetWidth, th = el.offsetHeight;
-        const x = Math.min(vw - tw - 10, Math.max(10, vw / 2 + ax * lw - tw / 2)), y = Math.min(vh - th - bottom, Math.max(top, vh * LOGO_HERO.y + ay * lh - th / 2));
+        const tw = el.offsetWidth, th = el.offsetHeight, pin = (vw <= 700 && el.dataset.pinM) || (vw <= 700 && el.dataset.atM ? "" : el.dataset.pin);
+        let x, y, ax = 0, ay = 1;
+        if (pin) {   // held to the bottom of the screen: left or right corner, or centred
+          const side = Math.max(16, vw * 0.05), low = vw <= 700 ? 96 : Math.max(28, vh * 0.08);
+          x = pin === "bl" ? side : pin === "br" ? vw - tw - side : (vw - tw) / 2;
+          y = vh - th - low;
+        } else {
+          [ax, ay] = ((vw <= 700 && el.dataset.atM) || el.dataset.at).split(",").map(Number);
+          x = Math.min(vw - tw - 10, Math.max(10, vw / 2 + ax * lw - tw / 2)); y = Math.min(vh - th - bottom, Math.max(top, vh * ly + ay * lh - th / 2));
+        }
         el.style.left = Math.round(x) + "px"; el.style.top = Math.round(y) + "px";
         el.style.setProperty("--dx", Math.round(ax * 60) + "px"); el.style.setProperty("--dy", Math.round(ay * 60) + "px");   // they drift outward as they leave
       });
@@ -936,8 +945,8 @@
       bubble: ["Hi! I'm " + S.name[0] + S.name.slice(1).toLowerCase() + ".", 0.7, 1],
       cam: (t) => ({ x: camStart.x, y: camEnd.y * ease(t) }) });
     // along the road, then down across it to the pavement and the open manhole (the camera follows him down)
-    const xa = lerp(x0, stand, 0.45), camX = (p) => lerp(camStart.x, openX, (p.x - x0) / Math.max(1, stand - x0));
-    add({ loc: "street", pose: "walk", scale: hs, a: [x0, sgy], b: [xa, sgy], len: Math.max(60, xa - x0),
+    const xa = lerp(x0, stand, 0.45), camX = (p) => lerp(camStart.x, openX, Math.abs(stand - x0) < 1 ? 1 : (p.x - x0) / (stand - x0));
+    add({ loc: "street", pose: "walk", scale: hs, a: [x0, sgy], b: [xa, sgy], len: Math.max(60, Math.abs(xa - x0)),
       bubble: ["Chalo, let's go!", 0, 0.7],
       cam: (t, p) => ({ x: camX(p), y: camEnd.y }) });
     add({ loc: "street", pose: "walk", scale: hs, a: [xa, sgy], b: [stand, my], len: Math.max(80, Math.hypot(stand - xa, my - sgy)),
