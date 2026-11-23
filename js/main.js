@@ -14,6 +14,14 @@
   const bubble = $("#bubble");
   const spacer = $("#spacer");
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Pictures the opening screen doesn't show wait until the intro has lifted (and a moment more), so the street,
+  // the arcade and the billboards get the connection to themselves while the visitor is waiting
+  let introAt = body.classList.contains("preloading") ? 0 : performance.now();
+  const afterIntro = (fn) => {
+    const go = () => setTimeout(fn, 500);
+    if (!body.classList.contains("preloading")) go(); else addEventListener("preloader:done", go, { once: true });
+  };
+  addEventListener("preloader:done", () => { introAt = performance.now(); }, { once: true });
 
   /* ---- stairwell: the stairs up from the platform and the cinema lobby (assets/scenes/stairwell.webp,
      the subway's last frame; tools/build_subway.py). Art px. ---- */
@@ -94,7 +102,7 @@
     // each board is an ad for one project: the picture, then its line, title, blurb and a way in
     $("#billboards").innerHTML = S.featured().map((p, i) => `
       <a class="billboard" id="project-${p.id}" data-i="${i}" href="project.html?p=${p.id}" style="--band:${p.band}">
-        <span class="bb-pic"><span class="bill-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1280)}"${srcsetAttr(boardImg(p))} sizes="(max-width: 700px) 70vw, 40vw" alt="${p.title} cover" decoding="async" /></span>
+        <span class="bb-pic"><span class="bill-bg" style="background-image:url(${SITE.img(p.cover, 32)})"></span><img class="work-media" src="${SITE.img(boardImg(p), 1280)}"${srcsetAttr(boardImg(p))} sizes="(max-width: 700px) 70vw, 40vw" alt="${p.title} cover" loading="lazy" decoding="async" /></span>
         <span class="bb-info">
           <span class="bb-line">${p.meta.category || p.line}</span>
           <span class="bb-title">${p.title}</span>
@@ -106,7 +114,7 @@
 
     $("#reel-posters").innerHTML = S.reels.map((r, i) => `
       <li><button class="reel-poster" type="button" data-i="${i}" aria-pressed="${i === 0}">
-        <img class="work-media" src="${r.poster}" alt="" loading="lazy" decoding="async" />
+        <img class="work-media" data-src="${r.poster}" data-art="cinema" alt="" decoding="async" />
         <span><b>${r.title}</b><small>${r.length}</small></span>
       </button></li>`).join("");
 
@@ -119,11 +127,12 @@
         <figcaption class="plaque"><b>${p.title}</b><span>${photoSub(p)}</span></figcaption>
       </figure>`).join("");
 
-    $(".hoardings").innerHTML = ROOFTOP.hoardings.map((_, i) => `<i class="hoarding" style="background-image:url(${S.img(S.projects[i % S.projects.length].cover, 256)})"></i>`).join("");
+    $(".hoardings").innerHTML = ROOFTOP.hoardings.map(() => `<i class="hoarding"></i>`).join("");
+    afterIntro(() => $$(".hoarding").forEach((el, i) => (el.style.backgroundImage = `url(${S.img(S.projects[i % S.projects.length].cover, 256)})`)));
     $$(".back-photo").forEach((el, i) => { const ph = S.photos[i % S.photos.length]; $("img", el).dataset.src = ph.src; });
     $$(".cin-poster").forEach((el, i) => {
       const r = S.reels[i % S.reels.length];
-      $("img", el).src = r.poster; $("span", el).textContent = r.title;
+      $("img", el).dataset.src = r.poster; $("span", el).textContent = r.title;   // (fetched with the cinema's art)
     });
 
     const A = S.about;
@@ -133,7 +142,7 @@
     $("#about-copy").innerHTML = A.text.map((t) => `<p>${t.label ? words(t.label, "lbl") + " " : ""}${words(t.text)}</p>`).join("");
     aboutWords = $$("#about-copy .w");
     const P = A.portrait, face = $(".about-portrait");
-    face.style.backgroundImage = `url(${P.src})`;
+    afterIntro(() => (face.style.backgroundImage = `url(${P.src})`));
     face.style.setProperty("--ar", P.w / P.h);
     face.style.backgroundSize = `${P.frames * 100}% 100%`;
 
@@ -494,7 +503,7 @@
           <!-- phones: no choosing, the reels one under the other, each in its own player -->
           <ol class="q-stack">${S.reels.filter((r) => r.src).map((r, i) => `
             <li data-rv>
-              <span class="q-stack-screen"><video class="work-media" src="${r.src}" poster="${r.poster}" controls playsinline preload="none" aria-label="${r.title} reel"></video></span>
+              <span class="q-stack-screen"><video class="work-media" src="${r.src}" data-poster="${r.poster}" controls playsinline preload="none" aria-label="${r.title} reel"></video></span>
               <p class="q-stack-cap"><b>${String(i + 1).padStart(2, "0")}</b><span>${r.title}</span><small>${r.length}</small></p>
             </li>`).join("")}
           </ol>
@@ -578,8 +587,7 @@
     // the portrait: tap for another face
     const P = S.about.portrait, face = $(".q-face-img");
     let f = 0;
-    face.style.backgroundImage = `url(${P.src})`;
-    face.style.backgroundSize = `${P.frames * 100}% 100%`;
+    face.style.backgroundSize = `${P.frames * 100}% 100%`;   // (the picture itself comes with the Simple view's other pictures: see wipe)
     $(".q-face").addEventListener("click", () => { f = (f + 1) % P.frames; face.style.backgroundPosition = `${(f / (P.frames - 1)) * 100}% 0`; });
 
     // reels: the buttons pick what's on the screen
@@ -597,7 +605,7 @@
     $("#plain-cinema").addEventListener("play", (e) => plainVideos().forEach((v) => { if (v !== e.target) v.pause(); }), true);
     new IntersectionObserver(([e]) => { if (!e.isIntersecting) pausePlain(); }).observe($("#plain-cinema"));
     $$(".q-reel").forEach((b) => b.addEventListener("click", () => showReel(+b.dataset.i)));
-    showReel(0);
+    afterIntro(() => showReel(0));   // (its poster and first frames are not needed on the opening screen)
 
     if (reduceMotion) return;
     // scroll transitions, cut like a film. Between two sections sits a "cut" (.n-cut): as you scroll into it two
@@ -619,7 +627,11 @@
       tick = 0;
       if (body.classList.contains("ride")) return;
       // the project pictures are fetched as soon as this view is in use, not when each card nears the screen (the film cuts would show them arriving)
-      if (!warm) { warm = true; $$(".q-proj img").forEach((im) => { im.loading = "eager"; }); }
+      if (!warm && !body.classList.contains("preloading")) { warm = true; afterIntro(() => {
+        $$(".q-proj img").forEach((im) => { im.loading = "eager"; });
+        $$("#plain video[data-poster]").forEach((v) => { v.poster = v.dataset.poster; });
+        const qf = $(".q-face-img"); if (qf) qf.style.backgroundImage = `url(${S.about.portrait.src})`;
+      }); }
       const vh = innerHeight;
       cuts.forEach((c) => {
         const r = c.getBoundingClientRect();
@@ -1186,8 +1198,8 @@
 
     // his other sheets load a scene ahead: the drain's as soon as he sets off down the street (or after a moment's
     // wait there), the stairs' once he is in the drain
-    if (loc === "street" ? cur > 4 || now > 3500 : true) Sprite.need("drain");
-    if (!drainArt && (loc !== "street" || cur > 4 || now > 3500)) { drainArt = true; needArt("drain"); }   // ...and the drain's painting with it
+    if (loc === "street" ? cur > 4 || (introAt && performance.now() - introAt > 2500) : true) Sprite.need("drain");
+    if (!drainArt && (loc !== "street" || cur > 4 || (introAt && performance.now() - introAt > 1500))) { drainArt = true; needArt("drain"); }   // ...and the drain's painting with it
     if (loc !== "street") Sprite.need("stairs");
     // the scroll sign: from the moment the opening screen's own hint has gone until the ride's last stretch
     scrollSign.classList.toggle("on", cur > L.vh * 0.5 && cur < total - L.vh * 0.6);
@@ -1462,7 +1474,7 @@
     };
     pauseReel = () => video()?.pause();
     $("#reel-full").innerHTML = ICON.full;
-    showReel(0);
+    afterIntro(() => showReel(0));   // (its poster and first frames are not needed on the opening screen)
     $$(".reel-poster").forEach((b) => b.addEventListener("click", () => showReel(+b.dataset.i, true)));   // pick a reel: it starts
     $("#reel-play").addEventListener("click", toggleReel);
     seek.addEventListener("input", () => { const v = video(); if (v && v.duration) { v.currentTime = (seek.value / 1000) * v.duration; sync(); } });
@@ -1695,8 +1707,7 @@
   // the rest of the ride's pictures, in the order of the journey, from the moment the intro lifts (the opening
   // screen has what it needs by then) or the page has loaded, whichever is first
   const startArt = () => { if (body.classList.contains("ride")) restOfArt(); };
-  if (document.readyState === "complete" || !body.classList.contains("preloading")) startArt();
-  else { addEventListener("preloader:done", startArt, { once: true }); addEventListener("load", startArt, { once: true }); }
+  afterIntro(() => setTimeout(startArt, 1200));   // (not on the page's load event: with so much deferred, that now comes during the intro)
 
   let rt, lastW = innerWidth, lastH = innerHeight;
   const coarse = matchMedia("(pointer: coarse)").matches;

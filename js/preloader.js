@@ -6,7 +6,7 @@
    (#project-…) or via the browser's back/forward buttons. Any click or key skips ahead. ?intro forces it, ?intro=3 = slow-mo.
 ------------------------------------------------------------------- */
 (function () {
-  const T = { ready: 250, set: 800, go: 1350, logo: 1900, minHold: 650, maxWait: 6000, dissolve: 700, block: 36, blockTime: 160 };
+  const T = { ready: 200, set: 600, go: 1000, logo: 1400, minHold: 450, maxWait: 5000, dissolve: 600, block: 36, blockTime: 140 };   // (quicker since 2026-11: the countdown was adding seconds to every visit)
   // Arcade art (assets/preloader/arcade.webp, 1672 x 941): the CRT's centre and height, in art px
   const ART = { w: 1672, h: 941, cabinetW: 560, screen: { cx: 848, cy: 332, h: 222, w: 312 } };
   // camera per beat: [zoom, pull]. zoom 0 = the widest shot (the room, or on phones the whole cabinet),
