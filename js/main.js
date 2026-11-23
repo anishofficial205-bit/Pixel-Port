@@ -55,7 +55,7 @@
   // The logo opens large in the middle of the hero and travels to its navbar corner as he sets off:
   // its width there (share of the screen, capped in px), where its centre sits (share of the screen
   // height), and how much of his first walk the trip takes
-  const LOGO_HERO = { width: 0.38, max: 500, y: 0.33, yPhone: 0.31, over: 0.75 };   // (y: the name hangs high, like a sign over the street, and he stands under it)
+  const LOGO_HERO = { width: 0.52, max: 760, y: 0.38, yPhone: 0.5, phone: 0.9, tall: 0.58, over: 0.75 };   // (y: the name hangs high, like a sign over the street, and he stands under it)
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
   const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
@@ -660,7 +660,7 @@
   const L = {}; // layout numbers
   let segs = [], total = 0, stops = {};
   let inHall = false;
-  const scrollSign = $(".ride-scroll");
+  const scrollSign = $(".ride-scroll"), charFront = $(".char-front");
   let pausePlain = () => {};            // the Simple view's players: set in watchPlain
   let pauseReel = () => {};             // set once the cinema's player exists
   let logoRefresh = () => {};           // redraws the logo canvas (set by glitchLogo)
@@ -788,7 +788,7 @@
     {   // the logo at rest (navbar corner), and the scale and shift that put it in the middle of the hero
       logoEl.style.transform = "";
       const r = logoEl.getBoundingClientRect(), w = r.height * (623 / 435);       // its width follows from its height (the art's shape)
-      const k = Math.max(1, Math.min((vw * (vw <= 700 ? 0.62 : LOGO_HERO.width)) / w, LOGO_HERO.max / w, (vh * 0.42) / r.height));
+      const k = Math.max(1, Math.min((vw * (vw <= 700 ? LOGO_HERO.phone : LOGO_HERO.width)) / w, LOGO_HERO.max / w, (vh * LOGO_HERO.tall) / r.height));
       const ly = vw <= 700 ? LOGO_HERO.yPhone : LOGO_HERO.y;
       L.logo = { k, x: vw / 2 - (w * k) / 2 - r.left, y: vh * ly - (r.height * k) / 2 - r.top };
       // the tags around it: each sits at its data-at spot, kept on screen and clear of the navbar
@@ -1281,6 +1281,19 @@
         dimEls.forEach((el) => el.style.setProperty("--e", e.toFixed(3)));   // the street dims behind the title card (set only where it is used, so the whole street is not restyled every frame)
         heroTags.classList.toggle("off", e < 0.5);
       }
+      // he stands in front of the name: the name is in the navbar's layer, above the world, so while it is on the
+      // street a copy of him is drawn over it, exactly where he is
+      if (e > 0.02) {
+        const r = sprite.getBoundingClientRect();
+        if (charFront.hidden) charFront.hidden = false;
+        if (charFront.width !== sprite.width || charFront.height !== sprite.height) { charFront.width = sprite.width; charFront.height = sprite.height; }
+        const fc = charFront.getContext("2d"); fc.clearRect(0, 0, charFront.width, charFront.height); fc.drawImage(sprite, 0, 0);
+        charFront.style.width = r.width + "px"; charFront.style.height = r.height + "px";
+        charFront.style.transform = `translate(${r.left.toFixed(1)}px, ${r.top.toFixed(1)}px) scaleX(${getComputedStyle(sprite).getPropertyValue("--face").trim() || 1})`;
+        charFront.style.transformOrigin = "0 0";
+        if (getComputedStyle(sprite).transform.startsWith("matrix(-1")) charFront.style.transform = `translate(${(r.left + r.width).toFixed(1)}px, ${r.top.toFixed(1)}px) scaleX(-1)`;
+        else charFront.style.transform = `translate(${r.left.toFixed(1)}px, ${r.top.toFixed(1)}px)`;
+      } else if (!charFront.hidden) charFront.hidden = true;
     }
     // the finale: once he sits, the roof goes dark and the lights come on (see .fin in styles.css)
     const fin = s.pose === "end" && t > 0.12;
