@@ -55,7 +55,7 @@
   // The logo opens large in the middle of the hero and travels to its navbar corner as he sets off:
   // its width there (share of the screen, capped in px), where its centre sits (share of the screen
   // height), and how much of his first walk the trip takes
-  const LOGO_HERO = { width: 0.52, max: 760, y: 0.38, yPhone: 0.5, phone: 0.9, tall: 0.58, over: 0.75 };   // (y: the name hangs high, like a sign over the street, and he stands under it)
+  const LOGO_HERO = { width: 0.31, max: 456, y: 0.47, yPhone: 0.555, phone: 0.54, tall: 0.35, over: 0.75 };   // (y: low enough that he stands in front of it)   // (y: the name hangs high, like a sign over the street, and he stands under it)
   // Into the manhole: where he stops (art px left of its centre) and how high he steps off (x his height)
   const DROP = { stand: 225, arc: 0.14 };
   // Hero focus: STREET_DIM black over the street except soft windows at each billboard and a spotlight
