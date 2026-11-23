@@ -227,7 +227,7 @@ html::after { bottom: -160px; }
 /* ---- the title card: tags around the big logo on the opening screen. --e runs 1 -> 0 as the logo leaves
    for the navbar; the tags drift outward and fade in the first part of that. ---- */
 .hero-tags { display: none; }
-.ride .hero-tags { display: block; position: fixed; inset: 0; pointer-events: none; --e: 1; }
+.ride .hero-tags { display: block; position: fixed; inset: 0; z-index: 51; pointer-events: none; --e: 1; }   /* (over the logo: the badge is stamped on it) */
 .preloading .hero-tags, .hero-tags.off { visibility: hidden; }
 .ht { position: absolute; opacity: clamp(0, calc(var(--e) * 4 - 3), 1);
   transform: translate(calc(var(--dx, 0px) * (1 - var(--e)) * 3), calc(var(--dy, 0px) * (1 - var(--e)) * 3)) rotate(var(--r, 0deg)) scale(calc(0.7 + 0.3 * var(--e))); }
